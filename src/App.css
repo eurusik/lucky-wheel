@@ -1,10 +1,10 @@
 #root {
   max-width: 100%;
-  margin: 0 auto;
   text-align: center;
   min-height: 100vh;
   height: auto;
   overflow-y: auto;
+  margin: 2rem auto 0;
 }
 
 html, body {
