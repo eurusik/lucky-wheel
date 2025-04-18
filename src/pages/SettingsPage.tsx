@@ -1,27 +1,23 @@
-import { useState } from 'react';
-import {
-  Box,
-  Button,
-  List,
-  ListItem,
-  TextField,
-  IconButton,
-  Paper,
-} from '@mui/material';
-import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
-import { TeamMember } from '../App';
+import React, { useState } from 'react';
+import { Box, Paper } from '@mui/material';
+import { TeamMember } from '../types';
+import { generateRandomColor } from '../constants/wheelConfig';
+import { SETTINGS } from '../constants/styleConfig';
+import TeamMemberList from '../components/settings/TeamMemberList';
+import ActionButtons from '../components/settings/ActionButtons';
 
+/**
+ * Props for the SettingsPage component
+ */
 interface SettingsPageProps {
   teamMembers: TeamMember[];
   onSave: (members: TeamMember[]) => void;
 }
 
-const generateRandomColor = () => {
-  const hue = Math.random() * 360;
-  return `hsl(${hue}, 70%, 80%)`;
-};
-
-const SettingsPage = ({ teamMembers, onSave }: SettingsPageProps) => {
+/**
+ * Page component for managing team members
+ */
+const SettingsPage: React.FC<SettingsPageProps> = ({ teamMembers, onSave }) => {
   const [members, setMembers] = useState<TeamMember[]>(teamMembers);
 
   const handleAddMember = () => {
@@ -59,11 +55,11 @@ const SettingsPage = ({ teamMembers, onSave }: SettingsPageProps) => {
       <Box
         sx={{
           width: '100%',
-          maxWidth: 600,
+          maxWidth: SETTINGS.MAX_WIDTH,
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          p: 3,
+          p: SETTINGS.SPACING.PAGE_PADDING,
           overflow: 'hidden',
         }}
       >
@@ -76,79 +72,17 @@ const SettingsPage = ({ teamMembers, onSave }: SettingsPageProps) => {
             overflow: 'hidden',
           }}
         >
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: 'auto',
-              p: 3,
-            }}
-          >
-            <List>
-              {members.map((member) => (
-                <ListItem
-                  key={member.id}
-                  sx={{
-                    gap: 2,
-                    mb: 1,
-                  }}
-                >
-                  <TextField
-                    fullWidth
-                    value={member.name}
-                    onChange={(e) => handleNameChange(member.id, e.target.value)}
-                    placeholder="Enter team member name"
-                    size="small"
-                  />
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 1,
-                      bgcolor: member.color,
-                    }}
-                  />
-                  <IconButton
-                    onClick={() => handleRemoveMember(member.id)}
-                    color="error"
-                    size="small"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItem>
-              ))}
-            </List>
-          </Box>
+          <TeamMemberList 
+            members={members}
+            onNameChange={handleNameChange}
+            onRemove={handleRemoveMember}
+          />
 
-          <Box
-            sx={{
-              p: 3,
-              pt: 2,
-              borderTop: 1,
-              borderColor: 'divider',
-              bgcolor: 'background.paper',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
-            <Button
-              startIcon={<AddIcon />}
-              onClick={handleAddMember}
-              variant="outlined"
-              sx={{ alignSelf: 'flex-start' }}
-            >
-              Add Member
-            </Button>
-
-            <Button
-              onClick={() => onSave(members)}
-              variant="contained"
-              disabled={members.some(member => !member.name.trim())}
-              fullWidth
-            >
-              Save Changes
-            </Button>
-          </Box>
+          <ActionButtons 
+            members={members}
+            onAddMember={handleAddMember}
+            onSave={onSave}
+          />
         </Paper>
       </Box>
     </Box>

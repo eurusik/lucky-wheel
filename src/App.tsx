@@ -3,6 +3,9 @@ import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'
 import { takeScreenshot } from './utils/screenshot'
+import { TeamMember, SpinStats } from './types'
+import { defaultTeamMembers } from './constants/wheelConfig'
+import { ToastProvider, useToast } from './components/ui/ToastProvider'
 import './App.css'
 
 const theme = createTheme({
@@ -10,30 +13,6 @@ const theme = createTheme({
     mode: 'light',
   },
 })
-
-export interface TeamMember {
-  id: string
-  name: string
-  color: string
-}
-
-export interface SpinStats {
-  count: number
-  lastSpinTime: string | null
-}
-
-const defaultTeamMembers: TeamMember[] = [
-  { id: '1', name: 'Наташа', color: 'hsl(0, 70%, 80%)' },
-  { id: '2', name: 'Аліса', color: 'hsl(36, 70%, 80%)' },
-  { id: '3', name: 'Андрій', color: 'hsl(72, 70%, 80%)' },
-  { id: '4', name: 'Тарас', color: 'hsl(108, 70%, 80%)' },
-  { id: '5', name: 'Костя', color: 'hsl(144, 70%, 80%)' },
-  { id: '6', name: 'Сергій', color: 'hsl(180, 70%, 80%)' },
-  { id: '7', name: 'Женя', color: 'hsl(216, 70%, 80%)' },
-  { id: '8', name: 'Вітя', color: 'hsl(252, 70%, 80%)' },
-  { id: '9', name: 'Антон', color: 'hsl(288, 70%, 80%)' },
-  { id: '10', name: 'Ед', color: 'hsl(324, 70%, 80%)' },
-]
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'wheel' | 'settings'>('wheel')
@@ -59,24 +38,59 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {currentPage === 'wheel' ? (
-        <WheelPage
+    <ToastProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppContent
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           teamMembers={teamMembers}
           spinStats={spinStats}
-          onSettingsClick={() => setCurrentPage('settings')}
-          onSpinComplete={handleSpinComplete}
-          onScreenshot={takeScreenshot}
+          handleSpinComplete={handleSpinComplete}
+          handleSaveTeamMembers={handleSaveTeamMembers}
         />
-      ) : (
-        <SettingsPage
-          teamMembers={teamMembers}
-          onSave={handleSaveTeamMembers}
-        />
-      )}
-    </ThemeProvider>
+      </ThemeProvider>
+    </ToastProvider>
   )
+
+// Separate component to use toast hook
+interface AppContentProps {
+  currentPage: 'wheel' | 'settings';
+  setCurrentPage: (page: 'wheel' | 'settings') => void;
+  teamMembers: TeamMember[];
+  spinStats: SpinStats;
+  handleSpinComplete: () => void;
+  handleSaveTeamMembers: (members: TeamMember[]) => void;
+}
+
+function AppContent({ currentPage, setCurrentPage, teamMembers, spinStats, handleSpinComplete, handleSaveTeamMembers }: AppContentProps) {
+  const { showToast } = useToast();
+
+  const handleScreenshot = async () => {
+    const ok = await takeScreenshot();
+    if (ok) {
+      showToast('Скріншот скопійовано в буфер обміну!', 'success');
+    } else {
+      showToast('Не вдалося скопіювати скріншот. Ваш браузер може не підтримувати цю функцію.', 'error');
+    }
+  };
+
+  return currentPage === 'wheel' ? (
+    <WheelPage
+      teamMembers={teamMembers}
+      spinStats={spinStats}
+      onSettingsClick={() => setCurrentPage('settings')}
+      onSpinComplete={handleSpinComplete}
+      onScreenshot={handleScreenshot}
+    />
+  ) : (
+    <SettingsPage
+      teamMembers={teamMembers}
+      onSave={handleSaveTeamMembers}
+    />
+  );
+}
+
 }
 
 export default App

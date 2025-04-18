@@ -1,17 +1,16 @@
-import { Box, IconButton, Typography } from '@mui/material';
-import { Settings as SettingsIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
-import { TeamMember, SpinStats } from '../App';
+import { Box, Typography } from '@mui/material';
+import { TeamMember, SpinStats } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
 
 interface WheelPageProps {
   teamMembers: TeamMember[];
   spinStats: SpinStats;
-  onSettingsClick: () => void;
   onSpinComplete: () => void;
   onScreenshot: () => void;
+  onSettingsClick: () => void;
 }
 
-const WheelPage = ({ teamMembers, spinStats, onSettingsClick, onSpinComplete, onScreenshot }: WheelPageProps) => {
+const WheelPage = ({ teamMembers, spinStats, onSpinComplete, onScreenshot }: WheelPageProps) => {
   return (
     <Box
       sx={{
@@ -21,29 +20,9 @@ const WheelPage = ({ teamMembers, spinStats, onSettingsClick, onSpinComplete, on
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        bgcolor: '#f5f5f5',
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 16,
-          right: 16,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1,
-        }}
-      >
-        <IconButton onClick={onSettingsClick}>
-          <SettingsIcon />
-        </IconButton>
-        <IconButton onClick={onScreenshot}>
-          <CameraIcon />
-        </IconButton>
-      </Box>
-
-      <FortuneWheel teamMembers={teamMembers} onSpinComplete={onSpinComplete} />
-
+      <FortuneWheel teamMembers={teamMembers} onSpinComplete={onSpinComplete} onScreenshot={onScreenshot} />
       {spinStats.count > 0 && (
         <Box
           sx={{
@@ -56,7 +35,7 @@ const WheelPage = ({ teamMembers, spinStats, onSettingsClick, onSpinComplete, on
           }}
         >
           <Typography variant="caption" color="text.secondary">
-            Кількість запусків: {spinStats.count} / Останній запуск: {spinStats.lastSpinTime}
+            Spins: {spinStats.count} / Last spin: {spinStats.lastSpinTime}
           </Typography>
         </Box>
       )}
@@ -64,4 +43,4 @@ const WheelPage = ({ teamMembers, spinStats, onSettingsClick, onSpinComplete, on
   );
 };
 
-export default WheelPage; 
+export default WheelPage;
