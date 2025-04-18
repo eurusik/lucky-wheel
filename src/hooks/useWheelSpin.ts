@@ -3,6 +3,7 @@ import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
 import { useToast } from '../components/ui/ToastProvider';
+import { storageService } from '../services/storageService';
 
 // Types for storing wheel state
 interface WheelStateStorage {
@@ -24,15 +25,16 @@ interface UseWheelSpinProps {
   items: WheelItem[];
   onSpinComplete: () => void;
   config?: Partial<typeof DEFAULT_WHEEL_CONFIG>;
+  wheelId: string;
 }
 
 // Local storage key for saving data
 const WHEEL_STATE_KEY = 'wheelRotation';
 
-// Get data from local storage
-function getStoredRotation(): number | null {
+// Get data from local storage for specific wheel
+function getStoredRotation(wheelId: string): number | null {
   try {
-    const stored = localStorage.getItem(WHEEL_STATE_KEY);
+    const stored = localStorage.getItem(`wheel_rotation_${wheelId}`);
     if (!stored) return null;
     
     const rotation = parseFloat(stored);
@@ -43,11 +45,11 @@ function getStoredRotation(): number | null {
   }
 }
 
-// Save rotation to local storage
-function storeRotation(rotation: number): void {
+// Save rotation to local storage for specific wheel
+function storeRotation(wheelId: string, rotation: number): void {
   try {
     if (rotation !== 0) {
-      localStorage.setItem(WHEEL_STATE_KEY, rotation.toString());
+      localStorage.setItem(`wheel_rotation_${wheelId}`, rotation.toString());
     }
   } catch (error) {
     console.error('Error writing to localStorage:', error);
@@ -88,58 +90,57 @@ function getAvailableSectors(items: WheelItem[]): { index: number; item: WheelIt
     .filter(({ index }) => !immunityService.hasSectorImmunity(index));
 }
 
-export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
+export const useWheelSpin = ({ items, onSpinComplete, wheelId }: UseWheelSpinProps) => {
   const { showToast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   
-  // Initialize state with saved rotation value
+  // Initialize state with saved rotation value for this specific wheel
   const [wheelRotation, setWheelRotation] = useState(() => {
-    if (wheelState.isFirstRender) {
-      const storedRotation = getStoredRotation();
-      if (storedRotation !== null) {
-        wheelState.currentRotation = storedRotation;
-      }
-      wheelState.isFirstRender = false;
-      return wheelState.currentRotation;
-    }
-    return wheelState.currentRotation;
+    const data = storageService.getWheelData(wheelId);
+    return data?.rotation ?? 0;
   });
   
-  const [selectedItem, setSelectedItem] = useState<WheelItem | null>(wheelState.selectedItem);
-  const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(wheelState.selectedSector);
-  const { spinDuration = 5000 } = { ...DEFAULT_WHEEL_CONFIG };
+  const [selectedItem, setSelectedItem] = useState<WheelItem | null>(null);
+  const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(null);
   
+  // Get spin duration from storage or use default
+  const [spinDuration, setSpinDuration] = useState<number>(() => {
+    const data = storageService.getWheelData(wheelId);
+    return data?.spinDuration ?? 5000;
+  });
+
   // Reference to track current state between renders
   const currentStateRef = useRef({
+    wheelRotation,
+    selectedItem,
     visibleSectorIndex,
-    selectedItem
+    isSpinning
   });
-  
-  // Update the ref whenever the state changes
+
+  // Update ref when state changes
   useEffect(() => {
     currentStateRef.current = {
+      wheelRotation,
+      selectedItem,
       visibleSectorIndex,
-      selectedItem
+      isSpinning
     };
-  }, [visibleSectorIndex, selectedItem]);
-  
+  }, [wheelRotation, selectedItem, visibleSectorIndex, isSpinning]);
+
   // Reference to track the selected sector during a spin
   const selectedSectorRef = useRef<number | null>(null);
   
   // Functions for safe state updates
   const safeSetWheelRotation = useCallback((rotation: number) => {
-    wheelState.currentRotation = rotation;
-    storeRotation(rotation);
+    storageService.updateRotation(wheelId, rotation);
     setWheelRotation(rotation);
-  }, []);
+  }, [wheelId]);
   
   const safeSetSelectedItem = useCallback((item: WheelItem | null) => {
-    wheelState.selectedItem = item;
     setSelectedItem(item);
   }, []);
   
   const safeSetVisibleSectorIndex = useCallback((index: number | null) => {
-    wheelState.selectedSector = index;
     setVisibleSectorIndex(index);
   }, []);
   
@@ -216,75 +217,54 @@ export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
   }, [items]);
   
   // Spin the wheel
-  const spinWheel = useCallback(() => {
+  const spinWheel = useCallback((): void => {
     if (isSpinning) return;
     
-    // Get available sectors (non-immune)
-    const availableSectors = getAvailableSectors(items);
-    if (availableSectors.length === 0) {
-      showToast('All sectors are immune!', 'warning');
-      return;
-    }
-
-    // Pick a random sector from available ones
-    const selectedSectorIndex = Math.floor(Math.random() * availableSectors.length);
-    const targetSector = availableSectors[selectedSectorIndex];
-    const sectorToLandOn = targetSector.index;
-    
-    // Calculate target rotation using the existing function
-    const finalRotation = calculateRotationForSector(sectorToLandOn);
-
-    // Store the selected sector for recovery if needed
-    selectedSectorRef.current = sectorToLandOn;
-    
-    // Start spinning animation
     setIsSpinning(true);
+    const startRotation = wheelRotation;
+    const startTime = Date.now();
     
-    // Save and apply rotation using the safe setter
-    wheelState.currentRotation = finalRotation;
-    safeSetWheelRotation(finalRotation);
-    
-    // Update DOM with spinning animation
-    const wheel = document.querySelector('.wheel') as HTMLElement;
-    if (wheel) {
-      wheel.style.transition = `transform ${spinDuration/1000}s cubic-bezier(0.32, 0, 0.15, 1)`;
-      wheel.style.transform = `rotate(${finalRotation}deg)`;
-    }
-    
-    // After spin completes, update the state
-    setTimeout(() => {
-      setIsSpinning(false);
-      setWheelRotation(finalRotation);
-      setSelectedSector(sectorToLandOn);
-      setSelectedItem(items[sectorToLandOn]);
-      onSpinComplete();
+    const animate = () => {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / spinDuration, 1);
       
-      // Show toast with selected sector name and candy emojis
-      const selectedItem = items[sectorToLandOn];
-      showToast(`🎉 Congratulations! Selected: <b style="font-size: 1.2em">${selectedItem.name}</b> 🍬`, 'info');
-    }, spinDuration);
-  },
-    [
-      isSpinning,
-      items,
-      calculateRotationForSector,
-      safeSetWheelRotation,
-      syncRotationToDom,
-      setSelectedSector,
-      spinDuration,
-      onSpinComplete,
-      showToast
-    ]
-  );
+      // Easing function for smooth deceleration
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+      const currentRotation = startRotation + (360 * 5 + Math.random() * 360) * easeOut(progress);
+      
+      setWheelRotation(currentRotation);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setIsSpinning(false);
+        const finalRotation = currentRotation % 360;
+        setWheelRotation(finalRotation);
+        storageService.updateRotation(wheelId, finalRotation);
+        
+        const sector = getSectorUnderPointer(items, finalRotation);
+        const selectedItem = items[sector];
+        setSelectedItem(selectedItem);
+        setVisibleSectorIndex(sector);
+        
+        if (onSpinComplete) {
+          onSpinComplete();
+        }
+      }
+    };
+    
+    requestAnimationFrame(animate);
+  }, [isSpinning, wheelRotation, spinDuration, items, onSpinComplete, wheelId]);
   
   // Add immunity to selected sector
   const addImmunityToSelectedSector = useCallback(() => {
     if (visibleSectorIndex !== null) {
       const itemName = items[visibleSectorIndex].name;
-      immunityService.addImmunity(visibleSectorIndex, itemName);
+      immunityService.addImmunity(wheelId, visibleSectorIndex, itemName);
       window.dispatchEvent(new Event('immunityChanged'));
     }
-  }, [visibleSectorIndex, items]);
+  }, [visibleSectorIndex, items, wheelId]);
 
   // Determine sector under pointer
   const setVisibleSectorBySVGPointer = useCallback((svg: SVGSVGElement | null) => {

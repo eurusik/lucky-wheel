@@ -1,79 +1,53 @@
-import { memo } from 'react';
-import { Box, Typography, Fade } from '@mui/material';
-import { SpinStats, WheelItem } from '../types';
-import FortuneWheel from '../components/FortuneWheel';
+import { Box } from '@mui/material';
+import { WheelItem } from '../types';
+import FortuneWheel from '../components/wheel/FortuneWheel';
+import LegendArea from '../components/wheel/LegendArea';
+import WheelLegend from '../components/wheel/WheelLegend';
+import { useBreakpoint } from '../hooks/useBreakpoint';
+import { BREAKPOINTS, COLORS, SIZES } from '../constants/styleConfig';
 
 interface WheelPageProps {
   items: WheelItem[];
-  spinStats: SpinStats;
   onSpinComplete: () => void;
-  onScreenshot: () => void;
-  onSettingsClick: () => void;
-  onItemsChange?: (items: WheelItem[]) => void;
+  wheelId: string;
 }
 
-const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
-  <Fade in={true} timeout={800}>
-    <Box
-      sx={{
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        padding: '8px 16px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        marginTop: { xs: 2, sm: 3, md: 4 }
-      }}
-    >
-      <Typography 
-        variant="caption" 
-        color="text.secondary"
-        sx={{ 
-          fontWeight: 500,
-          letterSpacing: '0.5px'
-        }}
-      >
-        Spins: {stats.count} / Last spin: {stats.lastSpinTime}
-      </Typography>
-    </Box>
-  </Fade>
-));
+export const WheelPage = ({ items, onSpinComplete, wheelId }: WheelPageProps) => {
+  const breakpoint = useBreakpoint();
+  const isMobile = breakpoint === 'mobile';
 
-SpinStatistics.displayName = 'SpinStatistics';
-
-const WheelPage = ({ 
-  items, 
-  spinStats, 
-  onSpinComplete, 
-  onScreenshot,
-  onSettingsClick,
-  onItemsChange
-}: WheelPageProps) => {
   return (
-      <div style={{
+    <Box sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: SIZES.WHEEL_CONTAINER_PADDING[breakpoint],
+      padding: SIZES.WHEEL_CONTAINER_PADDING[breakpoint],
+      backgroundColor: COLORS.BACKGROUND,
+      minHeight: '100vh',
+    }}>
+      <Box sx={{
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
+        gap: SIZES.WHEEL_CONTAINER_PADDING[breakpoint],
         width: '100%',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '20px'
+        maxWidth: BREAKPOINTS.DESKTOP,
       }}>
-          <FortuneWheel
-              items={items}
-              onSpinComplete={onSpinComplete}
-              onScreenshot={onScreenshot}
-              onItemsChange={onItemsChange}
-          />
-          {spinStats.count > 0 && (
-              <SpinStatistics stats={spinStats} />
-          )}
-      </div>
+        <FortuneWheel 
+          items={items} 
+          onSpinComplete={onSpinComplete}
+          wheelId={wheelId}
+        />
+        {!isMobile && (
+          <LegendArea>
+            <WheelLegend wheelId={wheelId} />
+          </LegendArea>
+        )}
+      </Box>
+    </Box>
   );
 };
 
-export default memo(WheelPage);
+export default WheelPage;

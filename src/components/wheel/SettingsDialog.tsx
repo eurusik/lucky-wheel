@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, Box, Typography, IconButton, Paper, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import ItemList from '../settings/ItemList';
+import { ItemList } from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';
 import { WheelItem } from '../../types';
 import { generateRandomColor } from '../../constants/wheelConfig';
@@ -56,6 +56,12 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
     setWheelItems(newItems);
     // Save changes immediately after changing name
     onSave(newItems);
+  };
+
+  const handleClearImmunity = (updatedItems: WheelItem[]) => {
+    setWheelItems(updatedItems);
+    // Save changes immediately after clearing immunity
+    onSave(updatedItems);
   };
 
   const handleSave = () => {
@@ -124,6 +130,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             items={wheelItems}
             onRemove={handleRemoveItem}
             onNameChange={handleNameChange}
+            onClearImmunity={handleClearImmunity}
           />
         </Box>
 

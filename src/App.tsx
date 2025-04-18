@@ -1,11 +1,18 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { theme as appTheme } from './theme';
+import { HomePage } from './pages/HomePage';
+import { WheelViewPage } from './pages/WheelViewPage';
+import { WheelNotFoundPage } from './pages/WheelNotFoundPage';
 import { useState, useCallback } from 'react'
-import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'
 import { takeScreenshot } from './utils/screenshot'
 import { WheelItem, SpinStats } from './types'
 import { defaultTeamMembers } from './constants/wheelConfig'
-import { ToastProvider, useToast } from './components/ui/ToastProvider'
+import { ToastProvider } from './components/ui/ToastProvider'
 import { BREAKPOINTS } from './constants/styleConfig'
 import './App.css'
 import { createTheme as createMuiTheme } from '@mui/material/styles'
@@ -61,7 +68,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_VALUES = {
   SPIN_STATS: { count: 0, lastSpinTime: null },
-  ITEMS: defaultTeamMembers
+  ITEMS: []
 } as const
 
 function getStoredData<T>(key: string, defaultValue: T): T {
@@ -86,97 +93,21 @@ function setStoredData<T>(key: string, value: T): void {
   }
 }
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<'wheel' | 'settings'>('wheel')
-  const [spinStats, setSpinStats] = useState<SpinStats>(() => 
-    getStoredData(STORAGE_KEYS.SPIN_STATS, DEFAULT_VALUES.SPIN_STATS)
-  )
-  const [items, setItems] = useState<WheelItem[]>(() => 
-    getStoredData(STORAGE_KEYS.ITEMS, DEFAULT_VALUES.ITEMS)
-  )
-
-  const handleSaveItems = useCallback((newItems: WheelItem[]) => {
-    setItems(newItems)
-    setStoredData(STORAGE_KEYS.ITEMS, newItems)
-    setCurrentPage('wheel')
-  }, [])
-
-  const handleSpinComplete = useCallback(() => {
-    const newStats = {
-      count: spinStats.count + 1,
-      lastSpinTime: new Date().toLocaleString('uk-UA')
-    }
-    setSpinStats(newStats)
-    setStoredData(STORAGE_KEYS.SPIN_STATS, newStats)
-  }, [spinStats.count])
-
+const App: React.FC = () => {
   return (
-    <ToastProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppContent
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          items={items}
-          spinStats={spinStats}
-          handleSpinComplete={handleSpinComplete}
-          handleSaveItems={handleSaveItems}
-        />
-      </ThemeProvider>
-    </ToastProvider>
-  )
-}
-
-interface AppContentProps {
-  currentPage: 'wheel' | 'settings';
-  setCurrentPage: (page: 'wheel' | 'settings') => void;
-  items: WheelItem[];
-  spinStats: SpinStats;
-  handleSpinComplete: () => void;
-  handleSaveItems: (items: WheelItem[]) => void;
-}
-
-function AppContent({ 
-  currentPage, 
-  setCurrentPage, 
-  items, 
-  spinStats, 
-  handleSpinComplete, 
-  handleSaveItems 
-}: AppContentProps) {
-  const { showToast } = useToast();
-
-  const handleScreenshot = useCallback(async () => {
-    try {
-      const ok = await takeScreenshot();
-      if (ok) {
-        showToast('Screenshot copied to clipboard!', 'success');
-      } else {
-        showToast('Failed to copy screenshot. Your browser may not support this feature.', 'error');
-      }
-    } catch (error) {
-      console.error('Screenshot error:', error);
-      showToast('An error occurred while taking the screenshot.', 'error');
-    }
-  }, [showToast]);
-
-  const handleSettingsClick = useCallback(() => setCurrentPage('settings'), [setCurrentPage]);
-
-  return currentPage === 'wheel' ? (
-    <WheelPage
-      items={items}
-      spinStats={spinStats}
-      onSettingsClick={handleSettingsClick}
-      onSpinComplete={handleSpinComplete}
-      onScreenshot={handleScreenshot}
-      onItemsChange={handleSaveItems}
-    />
-  ) : (
-    <SettingsPage
-      items={items}
-      onSave={handleSaveItems}
-    />
+    <ThemeProvider theme={appTheme}>
+      <CssBaseline />
+      <ToastProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/wheel/:wheelId" element={<WheelViewPage />} />
+            <Route path="/wheel-not-found" element={<WheelNotFoundPage />} />
+          </Routes>
+        </Router>
+      </ToastProvider>
+    </ThemeProvider>
   );
-}
+};
 
 export default App

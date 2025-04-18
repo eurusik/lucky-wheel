@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Chip, Stack, useTheme, useMediaQuery } from '@mui/material';
 import { STAR_IMMUNITY_MESSAGE } from '../../constants/wheelConfig';
 import { SectorImmunity } from '../../types';
 import { COLORS, BREAKPOINTS } from '../../constants/styleConfig';
 import { immunityService } from '../../services/immunityService';
 
-type WheelLegendProps = Record<string, never>;
+interface WheelLegendProps {
+  wheelId: string;
+}
 
 /**
  * Legend component that explains the meaning of the star symbol on the wheel
  * and shows the sectors with immunity
  */
-const WheelLegend: React.FC<WheelLegendProps> = () => {
+const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
   const [immunities, setImmunities] = useState<SectorImmunity[]>([]);
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
@@ -27,24 +29,23 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
   
   // Load immunities on component mount
   useEffect(() => {
-    setImmunities(immunityService.getImmunities());
+    setImmunities(immunityService.getImmunities(wheelId));
     
     // Function to update immunities on localStorage change
     const handleStorageChange = () => {
-      setImmunities(immunityService.getImmunities());
+      setImmunities(immunityService.getImmunities(wheelId));
     };
     
     // Subscribe to localStorage changes
     window.addEventListener('storage', handleStorageChange);
-    
-
     window.addEventListener('immunityChanged', handleStorageChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('immunityChanged', handleStorageChange);
     };
-  }, []);
+  }, [wheelId]);
+
   return (
     <Box sx={{ 
       mt: 2, 
