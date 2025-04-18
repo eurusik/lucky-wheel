@@ -3,7 +3,7 @@ import { TeamMember } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
 
-// Типи для зберігання стану колеса
+// Types for storing wheel state
 interface WheelStateStorage {
   currentRotation: number;
   isFirstRender: boolean;
@@ -11,7 +11,7 @@ interface WheelStateStorage {
   selectedMember: TeamMember | null;
 }
 
-// Статичне сховище для зберігання даних між рендерами
+// Static storage for data between renders
 const wheelState: WheelStateStorage = {
   currentRotation: 0,
   isFirstRender: true,
@@ -36,10 +36,10 @@ interface UseWheelSpinReturn {
   setVisibleSectorBySVGPointer: (svg: SVGSVGElement | null, outerRadius: number, wheelRotation: number) => void;
 }
 
-// Локальне сховище для збереження даних
+// Local storage key for saving data
 const WHEEL_STATE_KEY = 'wheelRotation';
 
-// Отримання даних з локального сховища
+// Get data from local storage
 function getStoredRotation(): number | null {
   const stored = localStorage.getItem(WHEEL_STATE_KEY);
   if (!stored) return null;
@@ -48,14 +48,14 @@ function getStoredRotation(): number | null {
   return isNaN(rotation) ? null : rotation;
 }
 
-// Збереження ротації в локальне сховище
+// Save rotation to local storage
 function storeRotation(rotation: number): void {
   if (rotation !== 0) {
     localStorage.setItem(WHEEL_STATE_KEY, rotation.toString());
   }
 }
 
-// Пошук наступного доступного сектора, починаючи з startIndex
+// Find next available sector starting from startIndex
 function findNextAvailableSector(teamMembers: TeamMember[], startIndex: number): number | null {
   const n = teamMembers.length;
   for (let i = 0; i < n; ++i) {
@@ -65,7 +65,7 @@ function findNextAvailableSector(teamMembers: TeamMember[], startIndex: number):
   return null;
 }
 
-// Розрахунок сектора під вказівником
+// Calculate sector under pointer
 function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number): number {
   if (teamMembers.length === 0) return 0;
   const n = teamMembers.length;
@@ -94,7 +94,7 @@ function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number)
   return sectorIndex;
 }
 
-// Отримання всіх доступних секторів (без імунітету)
+// Get all available sectors (without immunity)
 function getAvailableSectors(teamMembers: TeamMember[]): { index: number; member: TeamMember }[] {
   return teamMembers
     .map((member, index) => ({ index, member }))
@@ -108,7 +108,7 @@ export function useWheelSpin({
 }: UseWheelSpinProps): UseWheelSpinReturn {
   const [isSpinning, setIsSpinning] = useState(false);
   
-  // Ініціалізуємо стан збереженим значенням rotation
+  // Initialize state with saved rotation value
   const [wheelRotation, setWheelRotation] = useState(() => {
     if (wheelState.isFirstRender) {
       const storedRotation = getStoredRotation();
@@ -142,7 +142,7 @@ export function useWheelSpin({
   // Reference to track the selected sector during a spin
   const selectedSectorRef = useRef<number | null>(null);
   
-  // Функції для безпечного оновлення стану
+  // Functions for safe state updates
   const safeSetWheelRotation = useCallback((rotation: number) => {
     wheelState.currentRotation = rotation;
     storeRotation(rotation);
@@ -168,7 +168,7 @@ export function useWheelSpin({
     });
   }, []);
   
-  // Синхронізація DOM з поточним станом ротації
+  // Synchronize DOM with current rotation state
   const syncRotationToDom = useCallback(() => {
     const wheel = document.querySelector('.wheel') as HTMLElement;
     if (wheel) {
@@ -177,7 +177,7 @@ export function useWheelSpin({
     }
   }, []);
   
-  // Оновлюємо rotation при невідповідності
+  // Update rotation when there's a mismatch
   useEffect(() => {
     if (wheelRotation !== wheelState.currentRotation && !isSpinning) {
       safeSetWheelRotation(wheelState.currentRotation);
@@ -195,7 +195,7 @@ export function useWheelSpin({
     wheelState.selectedMember = teamMembers[sectorIndex];
   }, [safeSetVisibleSectorIndex, safeSetSelectedTeamMember, teamMembers]);
   
-  // Розрахунок ротації для цільового сектора
+  // Calculate rotation for target sector
   const calculateRotationForSector = useCallback((
     targetSectorIndex: number, 
     minimumRotations: number = 5,
@@ -205,32 +205,32 @@ export function useWheelSpin({
     const sectorAngle = 360 / teamMembers.length;
     const targetSectorMiddleAngle = targetSectorIndex * sectorAngle + (sectorAngle / 2);
     
-    // 270° - позиція вказівника (верх)
+    // 270° - pointer position (top)
     const pointerAngle = 270;
     const targetRotationAngle = (pointerAngle - targetSectorMiddleAngle) % 360;
     
-    // Гарантуємо позитивний кут
+    // Ensure positive angle
     const positiveTargetAngle = targetRotationAngle < 0 
       ? targetRotationAngle + 360 
       : targetRotationAngle;
     
-    // Розрахунок кута до цілі
+    // Calculate angle to target
     let angleToTarget = positiveTargetAngle - currentRotation;
     
-    // Гарантуємо обертання за годинниковою стрілкою
+    // Ensure clockwise rotation
     if (angleToTarget <= 0) {
       angleToTarget += 360;
     }
     
-    // Випадкова кількість повних обертів
+    // Random number of full rotations
     const fullRotations = minimumRotations + 
       Math.floor(Math.random() * (maximumRotations - minimumRotations + 1));
     
-    // Фінальна ротація
+    // Final rotation
     return wheelState.currentRotation + angleToTarget + (fullRotations * 360);
   }, [teamMembers.length]);
   
-  // Обертання колеса
+  // Spin the wheel
   const spinWheel = useCallback(() => {
     if (isSpinning) return;
   
@@ -297,12 +297,6 @@ export function useWheelSpin({
       if (onSpinComplete) {
         onSpinComplete();
       }
-      
-      // Add multiple recovery checks to ensure state isn't reset
-      setTimeout(() => checkAndRecoverState(sectorToLandOn), 100);
-      setTimeout(() => checkAndRecoverState(sectorToLandOn), 500);
-      setTimeout(() => checkAndRecoverState(sectorToLandOn), 1000);
-      setTimeout(() => checkAndRecoverState(sectorToLandOn), 2000);
     }, spinDuration + 100);
   }, [
     isSpinning,
@@ -330,7 +324,7 @@ export function useWheelSpin({
     }
   }, [setSelectedSector]);
   
-  // Додає імунітет вибраному сектору
+  // Add immunity to selected sector
   const addImmunityToSelectedSector = useCallback(() => {
     if (visibleSectorIndex !== null) {
       const memberName = teamMembers[visibleSectorIndex].name;
@@ -339,7 +333,7 @@ export function useWheelSpin({
     }
   }, [visibleSectorIndex, teamMembers]);
 
-  // Визначення сектора під вказівником
+  // Determine sector under pointer
   const setVisibleSectorBySVGPointer = useCallback((
     svg: SVGSVGElement | null,
     outerRadius: number,
@@ -370,7 +364,7 @@ export function useWheelSpin({
       selectedSectorRef.current = null;
     }
     
-    // Використовуємо ефективну ротацію для визначення сектора
+    // Use effective rotation to determine sector
     const effectiveRotation = wheelState.currentRotation;
     const sectorIndex = getSectorUnderPointer(teamMembers, effectiveRotation);
     
