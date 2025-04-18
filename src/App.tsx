@@ -8,8 +8,38 @@ import { defaultTeamMembers } from './constants/wheelConfig'
 import { ToastProvider, useToast } from './components/ui/ToastProvider'
 import { BREAKPOINTS } from './constants/styleConfig'
 import './App.css'
+import { createTheme as createMuiTheme } from '@mui/material/styles'
 
-const theme = createTheme({
+const theme = createMuiTheme({
+  components: {
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          '&:focus': {
+            outline: 'none',
+          },
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          '&:focus': {
+            outline: 'none',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          '&:focus': {
+            outline: 'none',
+          },
+        },
+      },
+    },
+  },
   breakpoints: {
     values: {
       xs: 0,
