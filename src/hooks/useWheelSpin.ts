@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { TeamMember } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
+import { useToast } from '../components/ui/ToastProvider';
 
 // Types for storing wheel state
 interface WheelStateStorage {
@@ -98,11 +99,8 @@ function getAvailableSectors(teamMembers: TeamMember[]): { index: number; member
     .filter(({ index }) => !immunityService.hasSectorImmunity(index));
 }
 
-export function useWheelSpin({
-  teamMembers,
-  onSpinComplete,
-  config = {},
-}: UseWheelSpinProps): UseWheelSpinReturn {
+export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps) => {
+  const { showToast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   
   // Initialize state with saved rotation value
@@ -120,7 +118,7 @@ export function useWheelSpin({
   
   const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMember | null>(wheelState.selectedMember);
   const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(wheelState.selectedSector);
-  const { spinDuration = 5000 } = { ...DEFAULT_WHEEL_CONFIG, ...config };
+  const { spinDuration = 5000 } = { ...DEFAULT_WHEEL_CONFIG };
   
   // Reference to track current state between renders
   const currentStateRef = useRef({
@@ -235,7 +233,7 @@ export function useWheelSpin({
     // Get available sectors (non-immune)
     const availableSectors = getAvailableSectors(teamMembers);
     if (availableSectors.length === 0) {
-      console.error('All sectors are immune!');
+      showToast('All sectors are immune!', 'warning');
       return;
     }
 
@@ -267,20 +265,15 @@ export function useWheelSpin({
     // After spin completes, update the state
     setTimeout(() => {
       setIsSpinning(false);
-      
-      // Ensure rotation state is consistent
-      wheelState.currentRotation = finalRotation;
-      safeSetWheelRotation(finalRotation);
-      syncRotationToDom();
-      
-      // Force-set the correct sector and team member
+      setWheelRotation(finalRotation);
       setSelectedSector(sectorToLandOn);
+      setSelectedTeamMember(teamMembers[sectorToLandOn]);
+      onSpinComplete();
       
-      // Call the provided callback
-      if (onSpinComplete) {
-        onSpinComplete();
-      }
-    }, spinDuration + 100);
+      // Show toast with selected sector name
+      const selectedMember = teamMembers[sectorToLandOn];
+      showToast(`Selected: ${selectedMember.name}`, 'info');
+    }, spinDuration);
   }, [
     isSpinning,
     teamMembers,
@@ -289,7 +282,8 @@ export function useWheelSpin({
     syncRotationToDom,
     setSelectedSector,
     spinDuration,
-    onSpinComplete
+    onSpinComplete,
+    showToast
   ]);
   
   // Add immunity to selected sector
