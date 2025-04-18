@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'
@@ -14,28 +14,52 @@ const theme = createTheme({
   },
 })
 
+const STORAGE_KEYS = {
+  TEAM_MEMBERS: 'teamMembers',
+  SPIN_STATS: 'spinStats'
+} as const
+
+function getStoredData<T>(key: string, defaultValue: T): T {
+  try {
+    const saved = localStorage.getItem(key)
+    return saved ? JSON.parse(saved) : defaultValue
+  } catch (error) {
+    console.error(`Error reading from localStorage (${key}):`, error)
+    return defaultValue
+  }
+}
+
+function setStoredData<T>(key: string, value: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (error) {
+    console.error(`Error writing to localStorage (${key}):`, error)
+  }
+}
+
 function App() {
   const [currentPage, setCurrentPage] = useState<'wheel' | 'settings'>('wheel')
-  const [spinStats, setSpinStats] = useState<SpinStats>({ count: 0, lastSpinTime: null })
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
-    const saved = localStorage.getItem('teamMembers')
-    return saved ? JSON.parse(saved) : defaultTeamMembers
-  })
+  const [spinStats, setSpinStats] = useState<SpinStats>(() => 
+    getStoredData(STORAGE_KEYS.SPIN_STATS, { count: 0, lastSpinTime: null })
+  )
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => 
+    getStoredData(STORAGE_KEYS.TEAM_MEMBERS, defaultTeamMembers)
+  )
 
-  const handleSaveTeamMembers = (members: TeamMember[]) => {
+  const handleSaveTeamMembers = useCallback((members: TeamMember[]) => {
     setTeamMembers(members)
-    localStorage.setItem('teamMembers', JSON.stringify(members))
+    setStoredData(STORAGE_KEYS.TEAM_MEMBERS, members)
     setCurrentPage('wheel')
-  }
+  }, [])
 
-  const handleSpinComplete = () => {
+  const handleSpinComplete = useCallback(() => {
     const newStats = {
       count: spinStats.count + 1,
       lastSpinTime: new Date().toLocaleString('uk-UA')
     }
     setSpinStats(newStats)
-    localStorage.setItem('spinStats', JSON.stringify(newStats))
-  }
+    setStoredData(STORAGE_KEYS.SPIN_STATS, newStats)
+  }, [spinStats.count])
 
   return (
     <ToastProvider>
@@ -52,8 +76,8 @@ function App() {
       </ThemeProvider>
     </ToastProvider>
   )
+}
 
-// Separate component to use toast hook
 interface AppContentProps {
   currentPage: 'wheel' | 'settings';
   setCurrentPage: (page: 'wheel' | 'settings') => void;
@@ -63,23 +87,37 @@ interface AppContentProps {
   handleSaveTeamMembers: (members: TeamMember[]) => void;
 }
 
-function AppContent({ currentPage, setCurrentPage, teamMembers, spinStats, handleSpinComplete, handleSaveTeamMembers }: AppContentProps) {
+function AppContent({ 
+  currentPage, 
+  setCurrentPage, 
+  teamMembers, 
+  spinStats, 
+  handleSpinComplete, 
+  handleSaveTeamMembers 
+}: AppContentProps) {
   const { showToast } = useToast();
 
-  const handleScreenshot = async () => {
-    const ok = await takeScreenshot();
-    if (ok) {
-      showToast('Скріншот скопійовано в буфер обміну!', 'success');
-    } else {
-      showToast('Не вдалося скопіювати скріншот. Ваш браузер може не підтримувати цю функцію.', 'error');
+  const handleScreenshot = useCallback(async () => {
+    try {
+      const ok = await takeScreenshot();
+      if (ok) {
+        showToast('Screenshot copied to clipboard!', 'success');
+      } else {
+        showToast('Failed to copy screenshot. Your browser may not support this feature.', 'error');
+      }
+    } catch (error) {
+      console.error('Screenshot error:', error);
+      showToast('An error occurred while taking the screenshot.', 'error');
     }
-  };
+  }, [showToast]);
+
+  const handleSettingsClick = useCallback(() => setCurrentPage('settings'), [setCurrentPage]);
 
   return currentPage === 'wheel' ? (
     <WheelPage
       teamMembers={teamMembers}
       spinStats={spinStats}
-      onSettingsClick={() => setCurrentPage('settings')}
+      onSettingsClick={handleSettingsClick}
       onSpinComplete={handleSpinComplete}
       onScreenshot={handleScreenshot}
     />
@@ -89,8 +127,6 @@ function AppContent({ currentPage, setCurrentPage, teamMembers, spinStats, handl
       onSave={handleSaveTeamMembers}
     />
   );
-}
-
 }
 
 export default App
