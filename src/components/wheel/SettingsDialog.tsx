@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, Box, Typography, IconButton, Paper, Snackbar, Alert } from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ItemList from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';

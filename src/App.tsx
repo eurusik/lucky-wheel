@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
+
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'
 import { takeScreenshot } from './utils/screenshot'
@@ -9,6 +9,7 @@ import { ToastProvider, useToast } from './components/ui/ToastProvider'
 import { BREAKPOINTS } from './constants/styleConfig'
 import './App.css'
 import { createTheme as createMuiTheme } from '@mui/material/styles'
+import { ThemeProvider, CssBaseline } from '@mui/material'
 
 const theme = createMuiTheme({
   components: {

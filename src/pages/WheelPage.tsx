@@ -49,7 +49,6 @@ const WheelPage = ({
   spinStats, 
   onSpinComplete, 
   onScreenshot,
-  onSettingsClick,
   onItemsChange
 }: WheelPageProps) => {
   return (

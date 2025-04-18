@@ -16,15 +16,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
   const isMediumScreen = useMediaQuery(`(min-width: ${BREAKPOINTS.TABLET}px) and (max-width: 1300px)`);
-  
-  // Calculate sizes based on screen size
-  const getFontSize = (base: number) => {
-    if (isMediumScreen && !isTablet) {
-      return base * 0.85; // 15% smaller
-    }
-    return base;
-  };
-  
+
   // Load immunities on component mount
   useEffect(() => {
     setImmunities(immunityService.getImmunities());
