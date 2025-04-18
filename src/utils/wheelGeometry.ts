@@ -71,9 +71,9 @@ export function getSectorPathAndTextPosition({
 }
 
 /**
- * Parameters for calculating a team member sector path
+ * Parameters for calculating an item sector path
  */
-export interface TeamMemberSectorParams {
+export interface ItemSectorParams {
   center: number;
   radius: number;
   startAngle: number;
@@ -81,9 +81,9 @@ export interface TeamMemberSectorParams {
 }
 
 /**
- * Result of the team member sector path calculation
+ * Result of the item sector path calculation
  */
-export interface TeamMemberSectorResult {
+export interface ItemSectorResult {
   path: string;
   textPosition: {
     x: number;
@@ -93,14 +93,14 @@ export interface TeamMemberSectorResult {
 }
 
 /**
- * Calculates the SVG path for a team member sector and the position for text
+ * Calculates the SVG path for an item sector and the position for text
  */
-export function getTeamMemberSectorPath({
+export function getItemSectorPath({
   center,
   radius,
   startAngle,
   endAngle
-}: TeamMemberSectorParams): TeamMemberSectorResult {
+}: ItemSectorParams): ItemSectorResult {
   const startX = center + radius * Math.cos(startAngle);
   const startY = center + radius * Math.sin(startAngle);
   const endX = center + radius * Math.cos(endAngle);

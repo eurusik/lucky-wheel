@@ -4,8 +4,9 @@ import WheelPointer from './WheelPointer';
 import OuterWheel from './OuterWheel';
 import InnerWheel from './InnerWheel';
 import ImmunityButton from './ImmunityButton';
-import { TeamMember } from '../../types';
+import { WheelItem } from '../../types';
 import { SIZES, ANIMATION, BREAKPOINTS } from '../../constants/styleConfig';
+import EmptyWheel from './EmptyWheel';
 
 interface WheelAreaProps {
   wheelRef: React.RefObject<SVGSVGElement | null>;
@@ -14,8 +15,8 @@ interface WheelAreaProps {
   wheelRotation: number;
   isSpinning: boolean;
   spinWheel: () => void;
-  teamMembers: TeamMember[];
-  selectedTeamMember: TeamMember | null;
+  items: WheelItem[];
+  selectedItem: WheelItem | null;
   visibleSectorIndex: number | null;
   addImmunityToSelectedSector: () => void;
 }
@@ -27,8 +28,8 @@ const WheelArea: React.FC<WheelAreaProps> = ({
   wheelRotation,
   isSpinning,
   spinWheel,
-  teamMembers,
-  selectedTeamMember,
+  items = [],
+  selectedItem,
   visibleSectorIndex,
   addImmunityToSelectedSector,
 }) => {
@@ -41,6 +42,11 @@ const WheelArea: React.FC<WheelAreaProps> = ({
     : isTablet 
     ? SIZES.WHEEL_SIZE.tablet 
     : SIZES.WHEEL_SIZE.desktop;
+
+  // Show empty wheel if no items
+  if (!items?.length) {
+    return <EmptyWheel />;
+  }
 
   return (
     <Box
@@ -95,21 +101,21 @@ const WheelArea: React.FC<WheelAreaProps> = ({
             isSpinning={false}
             innerRadius={innerRadius}
             outerRadius={outerRadius}
-            teamMembersCount={teamMembers.length}
+            itemsCount={items.length}
           />
           <InnerWheel 
-            teamMembers={teamMembers}
+            items={items}
             rotation={0}
             isSpinning={false}
             radius={innerRadius}
           />
         </g>
       </svg>
-      {selectedTeamMember && visibleSectorIndex !== null && (
+      {selectedItem && visibleSectorIndex !== null && (
         <ImmunityButton 
           onClick={addImmunityToSelectedSector}
           isVisible={!isSpinning}
-          selectedSectorName={teamMembers[visibleSectorIndex]?.name || ''}
+          selectedSectorName={items[visibleSectorIndex]?.name || ''}
         />
       )}
     </Box>

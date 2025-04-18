@@ -39,11 +39,7 @@ export const COLORS = {
     '#b2dfdb', // Teal
     '#c8e6c9', // Green
     '#dcedc8', // Light Green
-    '#f0f4c3', // Lime
     '#fff9c4', // Yellow
-    '#ffecb3', // Amber
-    '#ffe0b2', // Orange
-    '#ffccbc', // Deep Orange
   ],
   
   // Background colors

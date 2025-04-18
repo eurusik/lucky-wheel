@@ -4,7 +4,7 @@ import { TeamMember, SpinStats } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
 
 interface WheelPageProps {
-  teamMembers: TeamMember[];
+  items: TeamMember[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
   onScreenshot: () => void;
@@ -44,7 +44,7 @@ const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
 SpinStatistics.displayName = 'SpinStatistics';
 
 const WheelPage = ({ 
-  teamMembers, 
+  items, 
   spinStats, 
   onSpinComplete, 
   onScreenshot,
@@ -61,7 +61,7 @@ const WheelPage = ({
         padding: '20px'
       }}>
           <FortuneWheel
-              teamMembers={teamMembers}
+              items={items}
               onSpinComplete={onSpinComplete}
               onScreenshot={onScreenshot}
           />

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Box } from '@mui/material';
-import { TeamMember } from '../types';
+import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
 import EmptyWheel from './wheel/EmptyWheel';
@@ -13,7 +13,7 @@ import LegendArea from './wheel/LegendArea';
  * Props for the FortuneWheel component
  */
 interface FortuneWheelProps {
-  teamMembers: TeamMember[];
+  items: WheelItem[];
   onSpinComplete: () => void;
   onScreenshot: () => void;
 }
@@ -21,23 +21,28 @@ interface FortuneWheelProps {
 /**
  * Main component for the fortune wheel that combines all wheel parts
  */
-const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete, onScreenshot }) => {
+const FortuneWheel: React.FC<FortuneWheelProps> = ({ items, onSpinComplete, onScreenshot }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
-  const [members, setMembers] = useState<TeamMember[]>(teamMembers);
+  const [wheelItems, setWheelItems] = useState<WheelItem[]>(items || []);
+
+  // Update wheelItems when items prop changes
+  useEffect(() => {
+    setWheelItems(items || []);
+  }, [items]);
 
   // Using useWheelSpin hook to manage wheel state
   const { 
     isSpinning, 
     wheelRotation, 
     spinWheel,
-    selectedTeamMember,
+    selectedItem,
     visibleSectorIndex,
     addImmunityToSelectedSector,
     setVisibleSectorBySVGPointer
   } = useWheelSpin({
-    teamMembers: members,
+    items: wheelItems,
     onSpinComplete,
   });
 
@@ -49,14 +54,9 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
     }
   }, [isSpinning, setVisibleSectorBySVGPointer]);
 
-  // Synchronize team members with props
-  useEffect(() => {
-    setMembers(teamMembers);
-  }, [teamMembers]);
-
-  // Handler for saving team members list changes
-  const handleSaveTeamMembers = useCallback((updated: TeamMember[]) => {
-    setMembers(updated);
+  // Handler for saving items list changes
+  const handleSaveItems = useCallback((updated: WheelItem[]) => {
+    setWheelItems(updated);
   }, []);
 
   // Handlers for settings dialog
@@ -64,7 +64,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
 
   // If the list is empty, show empty wheel
-  if (members.length === 0) {
+  if (!wheelItems || wheelItems.length === 0) {
     return <EmptyWheel />;
   }
 
@@ -100,8 +100,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
       <SettingsDialog 
         open={settingsDialogOpen}
         onClose={handleCloseSettings}
-        teamMembers={members}
-        onSave={handleSaveTeamMembers}
+        items={wheelItems}
+        onSave={handleSaveItems}
       />
 
       <WheelArea
@@ -111,8 +111,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         wheelRotation={wheelRotation}
         isSpinning={isSpinning}
         spinWheel={spinWheel}
-        teamMembers={members}
-        selectedTeamMember={selectedTeamMember}
+        items={wheelItems}
+        selectedItem={selectedItem}
         visibleSectorIndex={visibleSectorIndex}
         addImmunityToSelectedSector={addImmunityToSelectedSector}
       />

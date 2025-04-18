@@ -3,7 +3,7 @@ import { Box, Paper } from '@mui/material';
 import { TeamMember } from '../types';
 import { generateRandomColor } from '../constants/wheelConfig';
 import { SETTINGS } from '../constants/styleConfig';
-import TeamMemberList from '../components/settings/TeamMemberList';
+import ItemList from '../components/settings/ItemList';
 import ActionButtons from '../components/settings/ActionButtons';
 
 /**
@@ -72,7 +72,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ teamMembers, onSave }) => {
             overflow: 'hidden',
           }}
         >
-          <TeamMemberList 
+          <ItemList 
             members={members}
             onNameChange={handleNameChange}
             onRemove={handleRemoveMember}

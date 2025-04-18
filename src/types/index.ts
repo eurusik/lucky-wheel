@@ -1,8 +1,11 @@
-export interface TeamMember {
+export interface WheelItem {
   id: string;
   name: string;
-  color: string;
+  isImmune?: boolean;
+  color?: string;
 }
+
+export type TeamMember = WheelItem;
 
 export interface SpinStats {
   count: number;

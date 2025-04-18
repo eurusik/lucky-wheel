@@ -1,24 +1,24 @@
 import React from 'react';
-import { TeamMember } from '../../types';
-import { getTeamMemberSectorPath } from '../../utils/wheelGeometry';
-import TeamMemberSector from './sectors/TeamMemberSector';
+import { WheelItem } from '../../types';
+import { getItemSectorPath } from '../../utils/wheelGeometry';
+import ItemSector from './sectors/ItemSector';
 import { ANIMATION } from '../../constants/styleConfig';
 
 interface InnerWheelProps {
-  teamMembers: TeamMember[];
+  items: WheelItem[];
   rotation: number;
   isSpinning: boolean;
   radius: number;
 }
 
 const InnerWheel: React.FC<InnerWheelProps> = ({
-  teamMembers,
+  items,
   rotation,
   isSpinning,
   radius,
 }) => {
   const center = radius + 20;
-  const degreesPerMember = 360 / teamMembers.length;
+  const degreesPerItem = 360 / items.length;
 
   return (
     <g
@@ -30,13 +30,13 @@ const InnerWheel: React.FC<InnerWheelProps> = ({
         transformOrigin: 'center',
       }}
     >
-      {teamMembers.map((member, index) => {
+      {items.map((item, index) => {
         // Calculate angles for this sector (in radians)
-        const startAngle = (degreesPerMember * index * Math.PI) / 180;
-        const endAngle = (degreesPerMember * (index + 1) * Math.PI) / 180;
+        const startAngle = (degreesPerItem * index * Math.PI) / 180;
+        const endAngle = (degreesPerItem * (index + 1) * Math.PI) / 180;
         
         // Get the path and text position from our utility function
-        const { path, textPosition } = getTeamMemberSectorPath({
+        const { path, textPosition } = getItemSectorPath({
           center,
           radius,
           startAngle,
@@ -44,9 +44,9 @@ const InnerWheel: React.FC<InnerWheelProps> = ({
         });
 
         return (
-          <TeamMemberSector
-            key={member.id}
-            member={member}
+          <ItemSector
+            key={item.id}
+            item={item}
             index={index}
             path={path}
             textPosition={textPosition}

@@ -125,7 +125,7 @@ function AppContent({
 
   return currentPage === 'wheel' ? (
     <WheelPage
-      teamMembers={teamMembers}
+      items={teamMembers}
       spinStats={spinStats}
       onSettingsClick={handleSettingsClick}
       onSpinComplete={handleSpinComplete}

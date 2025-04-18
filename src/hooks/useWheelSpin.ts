@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { TeamMember } from '../types';
+import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
 import { useToast } from '../components/ui/ToastProvider';
@@ -9,7 +9,7 @@ interface WheelStateStorage {
   currentRotation: number;
   isFirstRender: boolean;
   selectedSector: number | null;
-  selectedMember: TeamMember | null;
+  selectedItem: WheelItem | null;
 }
 
 // Static storage for data between renders
@@ -17,14 +17,15 @@ const wheelState: WheelStateStorage = {
   currentRotation: 0,
   isFirstRender: true,
   selectedSector: null,
-  selectedMember: null
+  selectedItem: null
 };
 
 interface UseWheelSpinProps {
-  teamMembers: TeamMember[];
+  items: WheelItem[];
   onSpinComplete: () => void;
   config?: Partial<typeof DEFAULT_WHEEL_CONFIG>;
 }
+
 // Local storage key for saving data
 const WHEEL_STATE_KEY = 'wheelRotation';
 
@@ -54,9 +55,9 @@ function storeRotation(rotation: number): void {
 }
 
 // Calculate sector under pointer
-function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number): number {
-  if (teamMembers.length === 0) return 0;
-  const n = teamMembers.length;
+function getSectorUnderPointer(items: WheelItem[], wheelRotation: number): number {
+  if (items.length === 0) return 0;
+  const n = items.length;
   const degreesPerSector = 360 / n;
   
   // Normalize the rotation to a value between 0 and 360
@@ -81,13 +82,13 @@ function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number)
 }
 
 // Get all available sectors (without immunity)
-function getAvailableSectors(teamMembers: TeamMember[]): { index: number; member: TeamMember }[] {
-  return teamMembers
-    .map((member, index) => ({ index, member }))
+function getAvailableSectors(items: WheelItem[]): { index: number; item: WheelItem }[] {
+  return items
+    .map((item, index) => ({ index, item }))
     .filter(({ index }) => !immunityService.hasSectorImmunity(index));
 }
 
-export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps) => {
+export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
   const { showToast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   
@@ -104,23 +105,23 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
     return wheelState.currentRotation;
   });
   
-  const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMember | null>(wheelState.selectedMember);
+  const [selectedItem, setSelectedItem] = useState<WheelItem | null>(wheelState.selectedItem);
   const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(wheelState.selectedSector);
   const { spinDuration = 5000 } = { ...DEFAULT_WHEEL_CONFIG };
   
   // Reference to track current state between renders
   const currentStateRef = useRef({
     visibleSectorIndex,
-    selectedTeamMember
+    selectedItem
   });
   
   // Update the ref whenever the state changes
   useEffect(() => {
     currentStateRef.current = {
       visibleSectorIndex,
-      selectedTeamMember
+      selectedItem
     };
-  }, [visibleSectorIndex, selectedTeamMember]);
+  }, [visibleSectorIndex, selectedItem]);
   
   // Reference to track the selected sector during a spin
   const selectedSectorRef = useRef<number | null>(null);
@@ -132,9 +133,9 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
     setWheelRotation(rotation);
   }, []);
   
-  const safeSetSelectedTeamMember = useCallback((member: TeamMember | null) => {
-    wheelState.selectedMember = member;
-    setSelectedTeamMember(member);
+  const safeSetSelectedItem = useCallback((item: WheelItem | null) => {
+    wheelState.selectedItem = item;
+    setSelectedItem(item);
   }, []);
   
   const safeSetVisibleSectorIndex = useCallback((index: number | null) => {
@@ -161,18 +162,18 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
   
   // Helper function to set the selected sector and related states
   const setSelectedSector = useCallback((sectorIndex: number) => {
-    if (sectorIndex < 0 || sectorIndex >= teamMembers.length) {
+    if (sectorIndex < 0 || sectorIndex >= items.length) {
       console.error(`Invalid sector index: ${sectorIndex}`);
       return;
     }
     
     safeSetVisibleSectorIndex(sectorIndex);
-    safeSetSelectedTeamMember(teamMembers[sectorIndex]);
+    safeSetSelectedItem(items[sectorIndex]);
     
     // Also store in localStorage for persistence
     wheelState.selectedSector = sectorIndex;
-    wheelState.selectedMember = teamMembers[sectorIndex];
-  }, [safeSetVisibleSectorIndex, safeSetSelectedTeamMember, teamMembers]);
+    wheelState.selectedItem = items[sectorIndex];
+  }, [safeSetVisibleSectorIndex, safeSetSelectedItem, items]);
   
   // Calculate rotation for target sector
   const calculateRotationForSector = useCallback((
@@ -180,13 +181,13 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
     minimumRotations: number = 5,
     maximumRotations: number = 8
   ): number => {
-    if (targetSectorIndex < 0 || targetSectorIndex >= teamMembers.length) {
+    if (!items || targetSectorIndex < 0 || targetSectorIndex >= items.length) {
       console.error(`Invalid target sector index: ${targetSectorIndex}`);
       return wheelState.currentRotation;
     }
     
     const currentRotation = wheelState.currentRotation % 360;
-    const sectorAngle = 360 / teamMembers.length;
+    const sectorAngle = 360 / items.length;
     const targetSectorMiddleAngle = targetSectorIndex * sectorAngle + (sectorAngle / 2);
     
     // 270° - pointer position (top)
@@ -212,14 +213,14 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
     
     // Final rotation
     return wheelState.currentRotation + angleToTarget + (fullRotations * 360);
-  }, [teamMembers.length]);
+  }, [items]);
   
   // Spin the wheel
   const spinWheel = useCallback(() => {
     if (isSpinning) return;
     
     // Get available sectors (non-immune)
-    const availableSectors = getAvailableSectors(teamMembers);
+    const availableSectors = getAvailableSectors(items);
     if (availableSectors.length === 0) {
       showToast('All sectors are immune!', 'warning');
       return;
@@ -255,33 +256,35 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
       setIsSpinning(false);
       setWheelRotation(finalRotation);
       setSelectedSector(sectorToLandOn);
-      setSelectedTeamMember(teamMembers[sectorToLandOn]);
+      setSelectedItem(items[sectorToLandOn]);
       onSpinComplete();
       
       // Show toast with selected sector name and candy emojis
-      const selectedMember = teamMembers[sectorToLandOn];
-      showToast(`🎉 Congratulations! Selected: <b style="font-size: 1.2em">${selectedMember.name}</b> 🍬`, 'info');
+      const selectedItem = items[sectorToLandOn];
+      showToast(`🎉 Congratulations! Selected: <b style="font-size: 1.2em">${selectedItem.name}</b> 🍬`, 'info');
     }, spinDuration);
-  }, [
-    isSpinning,
-    teamMembers,
-    calculateRotationForSector,
-    safeSetWheelRotation,
-    syncRotationToDom,
-    setSelectedSector,
-    spinDuration,
-    onSpinComplete,
-    showToast
-  ]);
+  },
+    [
+      isSpinning,
+      items,
+      calculateRotationForSector,
+      safeSetWheelRotation,
+      syncRotationToDom,
+      setSelectedSector,
+      spinDuration,
+      onSpinComplete,
+      showToast
+    ]
+  );
   
   // Add immunity to selected sector
   const addImmunityToSelectedSector = useCallback(() => {
     if (visibleSectorIndex !== null) {
-      const memberName = teamMembers[visibleSectorIndex].name;
-      immunityService.addImmunity(visibleSectorIndex, memberName);
+      const itemName = items[visibleSectorIndex].name;
+      immunityService.addImmunity(visibleSectorIndex, itemName);
       window.dispatchEvent(new Event('immunityChanged'));
     }
-  }, [visibleSectorIndex, teamMembers]);
+  }, [visibleSectorIndex, items]);
 
   // Determine sector under pointer
   const setVisibleSectorBySVGPointer = useCallback((svg: SVGSVGElement | null) => {
@@ -310,21 +313,20 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
     
     // Use effective rotation to determine sector
     const effectiveRotation = wheelState.currentRotation;
-    const sectorIndex = getSectorUnderPointer(teamMembers, effectiveRotation);
+    const sectorIndex = getSectorUnderPointer(items, effectiveRotation);
     
     if (sectorIndex !== visibleSectorIndex) {
       setSelectedSector(sectorIndex);
     }
-  }, [isSpinning, teamMembers, visibleSectorIndex, setSelectedSector]);
+  }, [isSpinning, items, visibleSectorIndex, setSelectedSector]);
 
   return {
     isSpinning,
     wheelRotation,
     spinWheel,
-    selectedTeamMember,
+    selectedItem,
     visibleSectorIndex,
     addImmunityToSelectedSector,
-    setVisibleSectorIndexByPointer: safeSetVisibleSectorIndex,
-    setVisibleSectorBySVGPointer,
+    setVisibleSectorBySVGPointer
   };
-}
+};

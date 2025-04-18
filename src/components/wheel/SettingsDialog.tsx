@@ -1,97 +1,153 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, Box, Typography, IconButton } from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Paper, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import TeamMemberList from '../settings/TeamMemberList';
+import ItemList from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';
-import { TeamMember } from '../../types';
+import { WheelItem } from '../../types';
 import { generateRandomColor } from '../../constants/wheelConfig';
+import { SETTINGS } from '../../constants/styleConfig';
 
 interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
-  teamMembers: TeamMember[];
-  onSave: (members: TeamMember[]) => void;
+  items: WheelItem[];
+  onSave: (items: WheelItem[]) => void;
 }
 
-import { Paper } from '@mui/material';
-import { SETTINGS } from '../../constants/styleConfig';
+const MAX_ITEMS = 12;
 
-const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, teamMembers, onSave }) => {
-  const [members, setMembers] = useState<TeamMember[]>(teamMembers);
+const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, onSave }) => {
+  const [wheelItems, setWheelItems] = useState<WheelItem[]>(items);
+  const [showLimitError, setShowLimitError] = useState(false);
 
-  // Update local state if teamMembers change externally
+  // Update local state if items change externally
   useEffect(() => {
-    setMembers(teamMembers);
-  }, [teamMembers]);
+    setWheelItems(items);
+  }, [items]);
 
-  const handleAddMember = () => {
-    const newMember: TeamMember = {
+  const handleAddItem = () => {
+    if (wheelItems.length >= MAX_ITEMS) {
+      setShowLimitError(true);
+      return;
+    }
+
+    const newItem: WheelItem = {
       id: Date.now().toString(),
       name: '',
       color: generateRandomColor(),
     };
-    setMembers([...members, newMember]);
+    setWheelItems([...wheelItems, newItem]);
   };
 
-  const handleRemoveMember = (id: string) => {
-    setMembers(members.filter(member => member.id !== id));
+  const handleRemoveItem = (id: string) => {
+    setWheelItems(wheelItems.filter(item => item.id !== id));
   };
 
   const handleNameChange = (id: string, newName: string) => {
-    setMembers(
-      members.map(member =>
-        member.id === id ? { ...member, name: newName } : member
+    setWheelItems(
+      wheelItems.map(item =>
+        item.id === id ? { ...item, name: newName } : item
       )
     );
   };
 
   const handleSave = () => {
-    onSave(members); // Save changes globally
+    onSave(wheelItems);
     onClose();
   };
 
+  const handleCloseError = () => {
+    setShowLimitError(false);
+  };
+
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 400 } }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: '1px solid #e0e0e0' }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Settings
-        </Typography>
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      </Box>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          width: { xs: '100%', sm: 400 },
+          maxWidth: '100%',
+          height: '100%',
+          bgcolor: 'background.paper',
+        }
+      }}
+    >
       <Box
         sx={{
-          width: '100%',
-          maxWidth: SETTINGS.MAX_WIDTH,
-          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          p: SETTINGS.SPACING.PAGE_PADDING,
+          height: '100%',
           overflow: 'hidden',
         }}
       >
-        <Paper
+        <Box
           sx={{
-            flex: 1,
-            width: '100%',
+            p: SETTINGS.SPACING.CONTENT_PADDING,
+            borderBottom: 1,
+            borderColor: 'divider',
             display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <TeamMemberList
-            members={members}
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 700,
+              margin: '12px'
+            }}
+          >
+            Settings
+          </Typography>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: 'auto',
+            p: SETTINGS.SPACING.CONTENT_PADDING,
+          }}
+        >
+          <ItemList
+            items={wheelItems}
+            onRemove={handleRemoveItem}
             onNameChange={handleNameChange}
-            onRemove={handleRemoveMember}
           />
-          <ActionButtons
-            members={members}
-            onAddMember={handleAddMember}
-            onSave={handleSave}
-          />
-        </Paper>
+        </Box>
+
+        <ActionButtons
+          members={wheelItems}
+          onAddMember={handleAddItem}
+          onSave={handleSave}
+        />
       </Box>
+
+      <Snackbar 
+        open={showLimitError} 
+        autoHideDuration={3000} 
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseError} 
+          severity="warning" 
+          sx={{ 
+            width: '100%',
+            backgroundColor: '#fff3e0',
+            color: '#e65100',
+            '& .MuiAlert-icon': {
+              color: '#f57c00'
+            }
+          }}
+        >
+          Не можна додати більше 12 учасників
+        </Alert>
+      </Snackbar>
     </Drawer>
   );
 };
