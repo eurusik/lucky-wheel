@@ -72,6 +72,7 @@ const WheelArea: React.FC<WheelAreaProps> = ({
       }}
     >
       <g
+        className="wheel"
         style={{
           transform: `rotate(${wheelRotation}deg)`,
           transition: isSpinning ? ANIMATION.INNER_WHEEL_TRANSITION : 'none',

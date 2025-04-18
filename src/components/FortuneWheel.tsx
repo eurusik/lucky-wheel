@@ -30,6 +30,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
+  const prevRotationRef = useRef<number>(0);
 
   const { 
     isSpinning, 
@@ -44,12 +45,20 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
     onSpinComplete,
   });
 
+  // Логуємо зміни ротації для виявлення проблеми
+  useEffect(() => {
+    console.log(`FortuneWheel: wheelRotation changed from ${prevRotationRef.current} to ${wheelRotation}`);
+    prevRotationRef.current = wheelRotation;
+  }, [wheelRotation]);
 
   useEffect(() => {
     if (!isSpinning && wheelRef.current) {
+      console.log(`FortuneWheel: Updating wheel after spin stopped. wheelRotation=${wheelRotation}`);
+      
+      // Оновлюємо видимий сектор під вказівником
       setVisibleSectorBySVGPointer(wheelRef.current, outerRadius, wheelRotation);
     }
-  }, [isSpinning, outerRadius, wheelRotation]);
+  }, [isSpinning, outerRadius, wheelRotation, setVisibleSectorBySVGPointer]);
 
   // Local state for editing team members
   const [members, setMembers] = React.useState<TeamMember[]>(teamMembers);
