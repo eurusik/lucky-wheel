@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import { COLORS, SIZES } from '../../constants/styleConfig';
+import { Box, useTheme, useMediaQuery } from '@mui/material';
+import { COLORS, SIZES, BREAKPOINTS } from '../../constants/styleConfig';
 
 /**
  * Pointer component that indicates the winning sector on the wheel
@@ -10,17 +10,33 @@ interface WheelPointerProps {
 }
 
 const WheelPointer: React.FC<WheelPointerProps> = ({ isSpinning = false }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
+  const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
+  
+  const pointerWidth = isMobile 
+    ? SIZES.POINTER_WIDTH.mobile 
+    : isTablet 
+    ? SIZES.POINTER_WIDTH.tablet 
+    : SIZES.POINTER_WIDTH.desktop;
+    
+  const pointerHeight = isMobile 
+    ? SIZES.POINTER_HEIGHT.mobile 
+    : isTablet 
+    ? SIZES.POINTER_HEIGHT.tablet 
+    : SIZES.POINTER_HEIGHT.desktop;
+
   return (
     <Box
       id="wheel-pointer"
       data-testid="wheel-pointer"
       sx={{
         position: 'absolute',
-        top: 25,
+        top: { xs: 15, sm: 20, md: 25 },
         left: '50%',
         transform: 'translateX(-50%)',
-        width: `${SIZES.POINTER_WIDTH}px`,
-        height: `${SIZES.POINTER_HEIGHT}px`,
+        width: pointerWidth,
+        height: pointerHeight,
         zIndex: 1,
         '&::before': {
           content: '""',

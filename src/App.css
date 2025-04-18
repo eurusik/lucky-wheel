@@ -1,8 +1,46 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
+  min-height: 100vh;
+  height: auto;
+  overflow-y: auto;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Mobile (up to 640px) */
+@media (max-width: 640px) {
+  #root {
+    padding: 0;
+  }
+}
+
+/* Tablet (641px - 1299px) */
+@media (min-width: 641px) and (max-width: 1299px) {
+  #root {
+    padding: 1rem;
+    max-width: 1024px;
+  }
+}
+
+/* Desktop (from 1300px) */
+@media (min-width: 1300px) {
+  #root {
+    padding: 2rem;
+    max-width: 1280px;
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1300px) {
+  #root {
+    padding: 0.5rem;
+  }
 }
 
 body {
@@ -11,7 +49,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
   background: #f5f6fa;
 }
 

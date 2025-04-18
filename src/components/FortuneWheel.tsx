@@ -26,7 +26,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [members, setMembers] = useState<TeamMember[]>(teamMembers);
-  const spinResultTimeoutRef = useRef<number | null>(null);
 
   // Using useWheelSpin hook to manage wheel state
   const { 
@@ -43,26 +42,10 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   });
 
   // Update section under pointer after wheel stops
-  // But only if it's not a spin result
   useEffect(() => {
-    // Clear any existing timeout when isSpinning changes
-    if (spinResultTimeoutRef.current !== null) {
-      window.clearTimeout(spinResultTimeoutRef.current);
-      spinResultTimeoutRef.current = null;
-    }
-
-    // If the wheel just stopped spinning, set a timeout before allowing SVG pointer updates
-    if (!isSpinning) {
-      // Don't update sector immediately after spinning stops - the spinWheel function will handle it
-      spinResultTimeoutRef.current = window.setTimeout(() => {
-        // After 1 second, we can start updating based on pointer position again
-        spinResultTimeoutRef.current = null;
-        
-        // Only update if we're not currently spinning
-        if (!isSpinning && wheelRef.current) {
-          setVisibleSectorBySVGPointer(wheelRef.current);
-        }
-      }, 1000); // Wait 1 second after spin finishes before allowing pointer updates
+    // If the wheel just stopped spinning, update the sector immediately
+    if (!isSpinning && wheelRef.current) {
+      setVisibleSectorBySVGPointer(wheelRef.current);
     }
   }, [isSpinning, setVisibleSectorBySVGPointer]);
 
@@ -91,7 +74,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         position: 'relative',
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        alignItems: 'flex-start',
+        alignItems: { xs: 'center', md: 'flex-start' },
         justifyContent: 'center',
         width: '100%',
         m: '40px auto',
@@ -100,6 +83,11 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         boxShadow: '0 10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.01)',
         p: { xs: 3, md: 5 },
         gap: { xs: 4, md: 7 },
+        '& > *:last-child': {
+          marginLeft: { xs: 'auto', md: 'auto' },
+          marginRight: { xs: 'auto', md: 0 },
+          alignSelf: { xs: 'center', md: 'flex-start' }
+        },
         boxSizing: 'border-box',
         border: '1px solid rgba(230, 235, 255, 0.9)',
       }}

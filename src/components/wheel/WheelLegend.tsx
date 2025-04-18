@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Chip, Stack } from '@mui/material';
+import { Box, Typography, Chip, Stack, useTheme, useMediaQuery } from '@mui/material';
 import { STAR_IMMUNITY_MESSAGE } from '../../constants/wheelConfig';
 import { SectorImmunity } from '../../types';
-import { COLORS } from '../../constants/styleConfig';
+import { COLORS, BREAKPOINTS } from '../../constants/styleConfig';
 import { immunityService } from '../../services/immunityService';
-
 
 type WheelLegendProps = Record<string, never>;
 
@@ -14,6 +13,17 @@ type WheelLegendProps = Record<string, never>;
  */
 const WheelLegend: React.FC<WheelLegendProps> = () => {
   const [immunities, setImmunities] = useState<SectorImmunity[]>([]);
+  const theme = useTheme();
+  const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
+  const isMediumScreen = useMediaQuery(`(min-width: ${BREAKPOINTS.TABLET}px) and (max-width: 1300px)`);
+  
+  // Calculate sizes based on screen size
+  const getFontSize = (base: number) => {
+    if (isMediumScreen && !isTablet) {
+      return base * 0.85; // 15% smaller
+    }
+    return base;
+  };
   
   // Load immunities on component mount
   useEffect(() => {
@@ -36,7 +46,17 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
     };
   }, []);
   return (
-    <Box sx={{ mt: 2, textAlign: 'center', width: '100%' }}>
+    <Box sx={{ 
+      mt: 2, 
+      textAlign: 'center', 
+      width: '100%',
+      ...(isMediumScreen && {
+        transform: 'scale(0.92)',
+        transformOrigin: 'top center',
+        maxWidth: '420px',
+        margin: '0 auto'
+      })
+    }}>
 
       <Box
         sx={{
@@ -44,12 +64,20 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 1.5,
-          fontSize: '1rem',
+          fontSize: { 
+            xs: '1rem', 
+            sm: '0.9rem', 
+            md: isMediumScreen ? '0.92rem' : '1rem' 
+          },
           fontWeight: 500,
           color: '#664d00',
           mb: 3,
           backgroundColor: COLORS.STAR_BACKGROUND,
-          padding: '10px 16px',
+          padding: { 
+            xs: '10px 16px', 
+            sm: '8px 14px', 
+            md: isMediumScreen ? '7px 11px' : '10px 16px' 
+          },
           borderRadius: '18px',
           width: 'fit-content',
           margin: '0 auto 16px auto',
@@ -57,8 +85,17 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           border: '1px solid rgba(191, 161, 0, 0.2)',
         }}
       >
-        <span style={{ fontSize: '1.6rem' }}>🛡️</span> 
-        <Typography sx={{ fontSize: '0.95rem', lineHeight: 1.4 }}>
+        <span style={{ 
+          fontSize: isMediumScreen ? '1.4rem' : isTablet ? '1.3rem' : '1.6rem'
+        }}>🛡️</span> 
+        <Typography sx={{ 
+          fontSize: { 
+            xs: '0.95rem', 
+            sm: '0.85rem', 
+            md: isMediumScreen ? '0.92rem' : '0.95rem'
+          }, 
+          lineHeight: 1.4 
+        }}>
           {STAR_IMMUNITY_MESSAGE}
         </Typography>
       </Box>
@@ -74,7 +111,11 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
               mt: 2,
               mb: 3.5,
               letterSpacing: 0.6,
-              fontSize: '1.5rem',
+              fontSize: { 
+                xs: '1.5rem', 
+                sm: '1.3rem', 
+                md: isMediumScreen ? '1.35rem' : '1.5rem'
+              },
               position: 'relative',
               display: 'inline-block',
               '&::after': {
@@ -94,7 +135,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           </Typography>
           <Stack
             direction="row"
-            spacing={2.5}
+            spacing={1.5}
             useFlexGap
             flexWrap="wrap"
             sx={{ 
@@ -102,6 +143,11 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
               justifyContent: 'center',
               maxWidth: '100%',
               mx: 'auto',
+              gap: { 
+                xs: 2.5, 
+                sm: 1.5, 
+                md: isMediumScreen ? 0.8 : 2.5 
+              }
             }}
           >
             {immunities.map((immunity) => (
@@ -111,16 +157,40 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                 sx={{
                   backgroundColor: COLORS.STAR_BACKGROUND,
                   fontWeight: 600,
-                  mb: 2,
-                  mx: 0.8,
-                  px: 2.5,
-                  py: 1.2,
+                  mb: { 
+                    xs: 2, 
+                    sm: 1.5, 
+                    md: isMediumScreen ? 0.8 : 2 
+                  },
+                  mx: { 
+                    xs: 0.8, 
+                    sm: 0.5, 
+                    md: isMediumScreen ? 0.2 : 0.8 
+                  },
+                  px: { 
+                    xs: 2.5, 
+                    sm: 2, 
+                    md: isMediumScreen ? 1.75 : 2.5 
+                  },
+                  py: { 
+                    xs: 1.2, 
+                    sm: 1, 
+                    md: isMediumScreen ? 0.84 : 1.2 
+                  },
                   height: 'auto',
                   borderRadius: 3,
-                  fontSize: '1.1rem',
+                  fontSize: { 
+                    xs: '1.1rem', 
+                    sm: '0.95rem', 
+                    md: isMediumScreen ? '1.02rem' : '1.1rem'
+                  },
                   boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
                   transition: 'all 0.25s ease',
-                  minWidth: '80px',
+                  minWidth: { 
+                    xs: '80px', 
+                    sm: '70px', 
+                    md: isMediumScreen ? '75px' : '80px'
+                  },
                   maxWidth: 'none',
                   whiteSpace: 'nowrap',
                   overflow: 'visible',
@@ -142,7 +212,11 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                     width: '100%',
                   },
                   '& .MuiChip-deleteIcon': {
-                    fontSize: '1.1rem',
+                    fontSize: { 
+                      xs: '1.1rem', 
+                      sm: '0.95rem', 
+                      md: isMediumScreen ? '1.02rem' : '1.1rem'
+                    },
                     color: '#bfa100',
                     right: 4,
                   },

@@ -3,6 +3,15 @@
  */
 
 /**
+ * Breakpoints for responsive design
+ */
+export const BREAKPOINTS = {
+  MOBILE: 640,
+  TABLET: 1024,
+  DESKTOP: 1280,
+};
+
+/**
  * Color constants
  */
 export const COLORS = {
@@ -44,24 +53,24 @@ export const COLORS = {
 };
 
 /**
- * Size constants
+ * Size constants for responsive design
  */
 export const SIZES = {
-  POINTER_WIDTH: 35,
-  POINTER_HEIGHT: 55,
-  STROKE_WIDTH: 3,
-  FONT_SIZE: 16,
+  POINTER_WIDTH: { mobile: 28, tablet: 32, desktop: 35 },
+  POINTER_HEIGHT: { mobile: 44, tablet: 50, desktop: 56 },
+  STROKE_WIDTH: { mobile: 2, tablet: 2.5, desktop: 4 },
+  FONT_SIZE: { mobile: 13, tablet: 14, desktop: 22 },
   FONT_WEIGHT: 600,
-  LEGEND_FONT_SIZE: '1rem',
-  LEGEND_ICON_SIZE: '1.5rem',
-  WHEEL_SIZE: 550,
-  INNER_RADIUS_RATIO: 0.38, // Inner radius as a ratio of outer radius
-  WHEEL_CONTAINER_PADDING: 4,
-  WHEEL_CONTAINER_BORDER_RADIUS: 16,
+  LEGEND_FONT_SIZE: { mobile: '0.875rem', tablet: '0.925rem', desktop: '1.25rem' },
+  LEGEND_ICON_SIZE: { mobile: '1.25rem', tablet: '1.35rem', desktop: '2rem' },
+  WHEEL_SIZE: { mobile: 260, tablet: 420, desktop: 480 },
+  INNER_RADIUS_RATIO: 0.38,
+  WHEEL_CONTAINER_PADDING: { mobile: 2, tablet: 3, desktop: 5 },
+  WHEEL_CONTAINER_BORDER_RADIUS: { mobile: 8, tablet: 12, desktop: 24 },
 };
 
 /**
- * Animation constants
+ * Animation constants for wheel spinning and transitions
  */
 export const ANIMATION = {
   OUTER_WHEEL_TRANSITION: 'transform 5.5s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -71,17 +80,17 @@ export const ANIMATION = {
 };
 
 /**
- * Layout constants for settings page
+ * Layout constants for settings page with responsive values
  */
 export const SETTINGS = {
-  MAX_WIDTH: 600,
-  COLOR_SWATCH_SIZE: 32,
+  MAX_WIDTH: { mobile: '100%', tablet: 540, desktop: 600 },
+  COLOR_SWATCH_SIZE: { mobile: 24, tablet: 28, desktop: 32 },
   SPACING: {
-    ITEM_GAP: 2,
-    ITEM_MARGIN: 1,
-    PAGE_PADDING: 3,
-    CONTENT_PADDING: 3,
-    ACTIONS_PADDING: 2,
+    ITEM_GAP: { mobile: 1, tablet: 1.5, desktop: 2 },
+    ITEM_MARGIN: { mobile: 0.5, tablet: 0.75, desktop: 1 },
+    PAGE_PADDING: { mobile: 1, tablet: 2, desktop: 3 },
+    CONTENT_PADDING: { mobile: 1.5, tablet: 2, desktop: 3 },
+    ACTIONS_PADDING: { mobile: 1, tablet: 1.5, desktop: 2 },
   },
-  BORDER_RADIUS: 1,
+  BORDER_RADIUS: { mobile: 0.5, tablet: 0.75, desktop: 1 },
 };

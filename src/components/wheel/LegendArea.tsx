@@ -1,28 +1,47 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme, useMediaQuery } from '@mui/material';
 import WheelLegend from './WheelLegend';
-import { SIZES } from '../../constants/styleConfig';
+import { SIZES, BREAKPOINTS } from '../../constants/styleConfig';
 
-const LegendArea: React.FC = () => (
-  <Box
-    sx={{
-      flex: '1 1 0',
-      minWidth: { xs: '100%', md: 440 },
-      maxWidth: { md: 480 },
-      ml: { md: 7 },
-      mt: { xs: 4, md: 0 },
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: { xs: 'center', md: 'flex-start' },
-      bgcolor: 'transparent',
-      boxShadow: 'none',
-      borderRadius: { xs: 0, md: 3 },
-      p: { xs: 0, md: 3 },
-      minHeight: { md: SIZES.WHEEL_SIZE - 40 },
-    }}
-  >
-    <WheelLegend />
-  </Box>
-);
+const LegendArea: React.FC = () => {
+  const theme = useTheme();
+  const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
+  
+  const wheelSize = isTablet ? SIZES.WHEEL_SIZE.tablet : SIZES.WHEEL_SIZE.desktop;
+  
+  return (
+    <Box
+      sx={{
+        flex: '1 1 0',
+        minWidth: { 
+          xs: '100%', 
+          sm: '320px',
+          md: 440 
+        },
+        maxWidth: { 
+          sm: '320px',
+          md: 480 
+        },
+        ml: { 
+          sm: 3,
+          md: 7 
+        },
+        mt: { xs: 4, sm: 0 },
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: { xs: 'center', sm: 'flex-start' },
+        bgcolor: 'transparent',
+        boxShadow: 'none',
+        borderRadius: { xs: 0, sm: 3 },
+        p: { xs: 0, sm: 2, md: 3 },
+        minHeight: { 
+          sm: isTablet ? 380 : wheelSize - 40 
+        },
+      }}
+    >
+      <WheelLegend />
+    </Box>
+  );
+};
 
 export default LegendArea;

@@ -6,9 +6,19 @@ import { takeScreenshot } from './utils/screenshot'
 import { TeamMember, SpinStats } from './types'
 import { defaultTeamMembers } from './constants/wheelConfig'
 import { ToastProvider, useToast } from './components/ui/ToastProvider'
+import { BREAKPOINTS } from './constants/styleConfig'
 import './App.css'
 
 const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: BREAKPOINTS.MOBILE + 1,
+      md: BREAKPOINTS.TABLET + 1,
+      lg: BREAKPOINTS.DESKTOP,
+      xl: 1920,
+    },
+  },
   palette: {
     mode: 'light',
   },

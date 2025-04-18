@@ -15,8 +15,7 @@ const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
   <Fade in={true} timeout={800}>
     <Box
       sx={{
-        position: 'absolute',
-        bottom: 50,
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -25,6 +24,7 @@ const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
         padding: '8px 16px',
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        marginTop: { xs: 2, sm: 3, md: 4 }
       }}
     >
       <Typography 
@@ -54,7 +54,7 @@ const WheelPage = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         width: '100%',
         maxWidth: '1200px',
         margin: '0 auto',
