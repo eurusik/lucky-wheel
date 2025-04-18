@@ -5,14 +5,18 @@ import { COLORS, SIZES } from '../../constants/styleConfig';
 /**
  * Pointer component that indicates the winning sector on the wheel
  */
-const WheelPointer: React.FC = () => {
+interface WheelPointerProps {
+  isSpinning?: boolean;
+}
+
+const WheelPointer: React.FC<WheelPointerProps> = ({ isSpinning = false }) => {
   return (
     <Box
       id="wheel-pointer"
       data-testid="wheel-pointer"
       sx={{
         position: 'absolute',
-        top: -5,
+        top: 25,
         left: '50%',
         transform: 'translateX(-50%)',
         width: `${SIZES.POINTER_WIDTH}px`,
@@ -31,7 +35,7 @@ const WheelPointer: React.FC = () => {
           border: '4px solid #fff',
           borderRadius: '6px',
           transition: 'box-shadow 0.3s',
-          animation: 'wiggle 0.5s infinite linear',
+          animation: isSpinning ? 'wiggle 0.5s infinite linear' : 'none',
         },
         '@keyframes wiggle': {
           '0%': { transform: 'rotate(-2deg)' },

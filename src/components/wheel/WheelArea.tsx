@@ -54,7 +54,7 @@ const WheelArea: React.FC<WheelAreaProps> = ({
         zIndex: 2,
       }}
     >
-      <WheelPointer />
+      <WheelPointer isSpinning={isSpinning} />
     </Box>
     <svg
       ref={wheelRef}

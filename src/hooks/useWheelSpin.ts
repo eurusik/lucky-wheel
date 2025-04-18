@@ -25,18 +25,6 @@ interface UseWheelSpinProps {
   onSpinComplete: () => void;
   config?: Partial<typeof DEFAULT_WHEEL_CONFIG>;
 }
-
-interface UseWheelSpinReturn {
-  isSpinning: boolean;
-  wheelRotation: number;
-  selectedTeamMember: TeamMember | null;
-  visibleSectorIndex: number | null;
-  spinWheel: () => void;
-  addImmunityToSelectedSector: () => void;
-  setVisibleSectorIndexByPointer: (sectorIndex: number) => void;
-  setVisibleSectorBySVGPointer: (svg: SVGSVGElement | null) => void;
-}
-
 // Local storage key for saving data
 const WHEEL_STATE_KEY = 'wheelRotation';
 
