@@ -1,54 +1,82 @@
-# React + TypeScript + Vite
+# 🎡 Lucky Wheel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive random selection wheel application. Perfect for making decisions, choosing winners, assigning tasks, or adding an element of fun to any selection process. Whether you're picking a restaurant for lunch, deciding who goes first in a game, or selecting a random winner - Lucky Wheel makes it engaging and fair.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎯 Animated fortune wheel with smooth rotation
+- 🛡️ Immunity system for selected items
+- 📱 Responsive design (mobile, tablet, desktop)
+- 🎨 Automatic color generation for options
+- 📸 Screenshot capture functionality
+- 💾 Automatic settings persistence
+- 📊 Spin statistics tracking
+- 🌙 Light theme
 
-## Expanding the ESLint configuration
+## 🚀 How to Use
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Adding Options**
+   - Click the settings button (⚙️)
+   - Add new items using the "+" button
+   - Enter names or options
+   - Save changes
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+2. **Spinning the Wheel**
+   - Click the "Spin" button or press spacebar
+   - Wait for the animation to complete
+   - The selected item will be highlighted
+
+3. **Managing Immunity**
+   - Click the shield icon next to any option
+   - Items with immunity cannot be selected in the next spin
+   - Immunity is automatically removed after one spin
+
+4. **Additional Features**
+   - Take a screenshot using the "📸" button
+   - View spin statistics
+   - Adjust your list at any time
+
+## 🛠️ Tech Stack
+
+- React + TypeScript
+- Material-UI (MUI)
+- HTML Canvas for animations
+- LocalStorage for data persistence
+
+## 🔧 Project Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/lucky-wheel.git
+
+# Install dependencies
+cd lucky-wheel
+npm install
+
+# Run in development mode
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📝 Notes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Maximum number of participants: 12
+- All settings are saved automatically
+- Keyboard shortcuts supported
+- Works in all modern browsers
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## 🤝 Contributing
+
+We welcome your contributions and improvements! Here's how:
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
