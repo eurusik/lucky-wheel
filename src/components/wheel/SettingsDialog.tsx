@@ -54,7 +54,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, teamMemb
     <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 400 } }}>
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: '1px solid #e0e0e0' }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Налаштування
+          Settings
         </Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
