@@ -50,6 +50,10 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
       mt: 2, 
       textAlign: 'center', 
       width: '100%',
+      height: 'auto',
+      minHeight: 'min-content',
+      display: 'flex',
+      flexDirection: 'column',
       ...(isMediumScreen && {
         transform: 'scale(0.92)',
         transformOrigin: 'top center',
@@ -101,7 +105,14 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
       </Box>
       
       {immunities.length > 0 && (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ 
+          width: '100%',
+          height: 'auto',
+          minHeight: 'min-content',
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1
+        }}>
           <Typography
             variant="h5"
             color="primary"
@@ -154,6 +165,14 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
               <Chip
                 key={immunity.sectorIndex}
                 label={immunity.name}
+                onDelete={() => {
+                  immunityService.removeImmunity(immunity.sectorIndex);
+                  window.dispatchEvent(new Event('immunityChanged'));
+                }}
+                onClick={() => {
+                  immunityService.removeImmunity(immunity.sectorIndex);
+                  window.dispatchEvent(new Event('immunityChanged'));
+                }}
                 sx={{
                   backgroundColor: COLORS.STAR_BACKGROUND,
                   fontWeight: 600,
@@ -197,6 +216,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                   textOverflow: 'clip',
                   display: 'inline-flex',
                   border: '1px solid rgba(191, 161, 0, 0.15)',
+                  cursor: 'pointer',
                   '&:hover': {
                     boxShadow: '0 4px 18px rgba(0,0,0,0.18)',
                     backgroundColor: '#ffe082',
@@ -219,11 +239,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                     },
                     color: '#bfa100',
                     right: 4,
-                  },
-                }}
-                onDelete={() => {
-                  immunityService.removeImmunity(immunity.sectorIndex);
-                  window.dispatchEvent(new Event('immunityChanged'));
+                  }
                 }}
               />
             ))}

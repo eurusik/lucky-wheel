@@ -12,7 +12,7 @@ const LegendArea: React.FC = () => {
   return (
     <Box
       sx={{
-        flex: '1 1 0',
+        flex: '1 1 auto',
         minWidth: { 
           xs: '100%', 
           sm: '320px',
@@ -28,6 +28,7 @@ const LegendArea: React.FC = () => {
         },
         mt: { xs: 4, sm: 0 },
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'flex-start',
         justifyContent: { xs: 'center', sm: 'flex-start' },
         bgcolor: 'transparent',
@@ -37,6 +38,8 @@ const LegendArea: React.FC = () => {
         minHeight: { 
           sm: isTablet ? 380 : wheelSize - 40 
         },
+        height: 'auto',
+        overflow: 'visible'
       }}
     >
       <WheelLegend />
