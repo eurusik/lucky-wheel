@@ -270,9 +270,9 @@ export const useWheelSpin = ({ teamMembers, onSpinComplete }: UseWheelSpinProps)
       setSelectedTeamMember(teamMembers[sectorToLandOn]);
       onSpinComplete();
       
-      // Show toast with selected sector name
+      // Show toast with selected sector name and candy emojis
       const selectedMember = teamMembers[sectorToLandOn];
-      showToast(`Selected: ${selectedMember.name}`, 'info');
+      showToast(`🎉 Congratulations! Selected: ${selectedMember.name} 🍬`, 'info');
     }, spinDuration);
   }, [
     isSpinning,
