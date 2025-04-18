@@ -3,6 +3,14 @@ import { TeamMember } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
 
+// Статичне сховище для зберігання даних між рендерами
+const wheelState = {
+  currentRotation: 0,
+  isFirstRender: true,
+  selectedSector: null as number | null,
+  selectedMember: null as TeamMember | null
+};
+
 interface UseWheelSpinProps {
   teamMembers: TeamMember[];
   onSpinComplete: () => void;
@@ -19,20 +27,7 @@ interface UseWheelSpinReturn {
   setVisibleSectorIndexByPointer: (sectorIndex: number) => void;
 }
 
-// Статичне сховище для зберігання даних між рендерами
-// Оскільки це знаходиться поза компонентом, воно не скидається при рендері
-const wheelState = {
-  currentRotation: 0,
-  isFirstRender: true,
-  selectedSector: null as number | null,
-  selectedMember: null as TeamMember | null
-};
-
-// --- Helpers ---
-/**
- * Returns the index of the next available (non-immune) sector, starting from a given index.
- * Returns null if all sectors have immunity.
- */
+// Пошук наступного доступного сектора, починаючи з startIndex
 function findNextAvailableSector(teamMembers: TeamMember[], startIndex: number): number | null {
   const n = teamMembers.length;
   for (let i = 0; i < n; ++i) {
@@ -42,43 +37,24 @@ function findNextAvailableSector(teamMembers: TeamMember[], startIndex: number):
   return null;
 }
 
-/**
- * Calculates which sector is currently under the pointer (270°/top).
- */
+// Розрахунок сектора під вказівником
 function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number): number {
   if (teamMembers.length === 0) return 0;
   const N = teamMembers.length;
   const degreesPerSector = 360 / N;
   
-  // Нормалізуємо ротацію до 0-360
   const normalizedRotation = wheelRotation % 360;
-  
-  // Вказівник знаходиться на 270° (верх)
-  // Це означає, що кут 0° (вправо) відповідає 3/4 кола від вказівника
   const pointerAngle = 270;
-  
-  // Розраховуємо кут під вказівником
-  // Це поточне положення колеса після ротації
   let angleUnderPointer = (pointerAngle - normalizedRotation) % 360;
   if (angleUnderPointer < 0) angleUnderPointer += 360;
   
-  // Знаходимо індекс сектора
-  // Корекція на половину сектора - це дозволяє вказівнику вказувати на центр сектора
   let sectorIndex = Math.floor((angleUnderPointer - (degreesPerSector / 2)) / degreesPerSector);
-  // Обробка пограничного випадку
   if (sectorIndex < 0) sectorIndex += N;
   sectorIndex = sectorIndex % N;
-  
-  console.log(`Wheel rotation: ${normalizedRotation}°, Angle under pointer: ${angleUnderPointer}°, Sector: ${sectorIndex}`);
   
   return sectorIndex;
 }
 
-// --- Main Hook ---
-/**
- * Custom hook for managing wheel spin logic, sector selection, and immunity.
- * Now also exposes setVisibleSectorBySVGPointer for hit-testing pointer over SVG sectors.
- */
 export const useWheelSpin = ({
   teamMembers,
   onSpinComplete,
@@ -89,13 +65,11 @@ export const useWheelSpin = ({
   const [isSpinning, setIsSpinning] = useState(false);
   // Ініціалізуємо стан збереженим значенням rotation
   const [wheelRotation, setWheelRotation] = useState(() => {
-    // При першому рендері спробуємо відновити з localStorage
     if (wheelState.isFirstRender) {
       const savedRotation = localStorage.getItem('wheelRotation');
       if (savedRotation) {
         const rotation = parseFloat(savedRotation);
         if (!isNaN(rotation)) {
-          console.log(`Initializing from localStorage: rotation=${rotation}`);
           wheelState.currentRotation = rotation;
           wheelState.isFirstRender = false;
           return rotation;
@@ -103,67 +77,54 @@ export const useWheelSpin = ({
       }
       wheelState.isFirstRender = false;
     }
-    // В інших випадках використовуємо збережене значення
     return wheelState.currentRotation;
   });
   const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMember | null>(wheelState.selectedMember);
   const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(wheelState.selectedSector);
   const { spinDuration } = { ...DEFAULT_WHEEL_CONFIG, ...config };
   
-  // Перезаписуємо стандартний setState для wheelRotation
+  // Функції для безпечного оновлення стану
   const safeSetWheelRotation = useCallback((rotation: number) => {
-    console.log(`Setting wheel rotation to ${rotation}`);
-    // Зберігаємо значення в нашому статичному сховищі
     wheelState.currentRotation = rotation;
-    // Зберігаємо в localStorage для відновлення між сесіями
     if (rotation !== 0) {
       localStorage.setItem('wheelRotation', rotation.toString());
     }
-    // Оновлюємо React-стан
     setWheelRotation(rotation);
   }, []);
   
-  // Перезаписуємо стандартний setState для selectedTeamMember
   const safeSetSelectedTeamMember = useCallback((member: TeamMember | null) => {
     wheelState.selectedMember = member;
     setSelectedTeamMember(member);
   }, []);
   
-  // Перезаписуємо стандартний setState для visibleSectorIndex
   const safeSetVisibleSectorIndex = useCallback((index: number | null) => {
     wheelState.selectedSector = index;
     setVisibleSectorIndex(index);
   }, []);
   
-  // Функція для синхронізації DOM з поточним станом ротації
+  // Синхронізація DOM з поточним станом ротації
   const syncRotationToDom = useCallback(() => {
     const wheel = document.querySelector('.wheel') as HTMLElement;
     if (wheel) {
       wheel.style.transition = 'none';
       wheel.style.transform = `rotate(${wheelState.currentRotation}deg)`;
-      console.log(`Synced DOM rotation to ${wheelState.currentRotation}°`);
     }
   }, []);
   
-  // При кожному рендері оновлюємо rotation, якщо воно змінилося
+  // Оновлюємо rotation при невідповідності
   useEffect(() => {
     if (wheelRotation !== wheelState.currentRotation && !isSpinning) {
-      console.log(`Rotation mismatch detected: state=${wheelRotation}, stored=${wheelState.currentRotation}`);
       safeSetWheelRotation(wheelState.currentRotation);
       syncRotationToDom();
     }
   });
   
-  /**
-   * Spins the wheel to a random available sector (skipping immune sectors).
-   */
+  // Обертання колеса
   const spinWheel = useCallback(() => {
     if (isSpinning) return;
     setIsSpinning(true);
-
-    console.log('=== Starting wheel spin ===');
     
-    // Check if all sectors have immunity
+    // Перевірка на імунітет всіх секторів
     const allImmune = teamMembers.every((_, idx) => immunityService.hasSectorImmunity(idx));
     if (allImmune) {
       setIsSpinning(false);
@@ -182,127 +143,76 @@ export const useWheelSpin = ({
       return;
     }
     
-    // Вибираємо випадковий сектор з доступних
+    // Вибираємо випадковий сектор
     const randomIndex = Math.floor(Math.random() * availableSectors.length);
     const selectedSector = availableSectors[randomIndex];
     
-    console.log(`Selected target sector #${selectedSector.index}: ${selectedSector.member.name}`);
-    
-    // ЗАВЖДИ крутимось в позитивну сторону (за годинниковою стрілкою)
-    // Розраховуємо поточне значення ротації нормалізоване до 0-360
+    // Розрахунок ротації для забезпечення обертання за годинниковою стрілкою
     const currentRotation = wheelState.currentRotation % 360;
-    console.log(`Current rotation (normalized): ${currentRotation}°`);
-    
-    // Розраховуємо кількість обертів - ЗАВЖДИ від 5 до 8 повних обертів ЗА годинниковою стрілкою
     const minRotations = 5;
     const maxRotations = 8;
     const fullRotations = minRotations + Math.floor(Math.random() * (maxRotations - minRotations + 1));
     
-    // Розраховуємо кут для цільового сектора
     const sectorAngle = 360 / teamMembers.length;
     const targetSectorMiddleAngle = selectedSector.index * sectorAngle + (sectorAngle / 2);
     
-    // Вказівник знаходиться на 270° (верх)
-    // Для того, щоб цільовий сектор опинився під вказівником,
-    // ми повинні повернути колесо на такий кут, щоб середина сектора була на 270°
     const pointerAngle = 270;
     const targetRotationAngle = (pointerAngle - targetSectorMiddleAngle) % 360;
     
-    // Гарантуємо позитивний кут
     const positiveTargetAngle = targetRotationAngle < 0 
       ? targetRotationAngle + 360 
       : targetRotationAngle;
     
-    // Розраховуємо фінальну ротацію:
-    // 1. Беремо поточну ротацію
-    // 2. Додаємо повні оберти (мінімум 5, максимум 8)
-    // 3. Додаємо кут, необхідний для вирівнювання цільового сектора з вказівником
-    
-    // Спочатку визначаємо найближчий кут, на який треба обернути колесо,
-    // щоб від поточного положення дійти до цільового
     let angleToTarget = positiveTargetAngle - currentRotation;
     
-    // Гарантуємо, що ми завжди повертаємо колесо ЗА годинниковою стрілкою (позитивний кут)
+    // Гарантуємо обертання за годинниковою стрілкою
     if (angleToTarget <= 0) {
       angleToTarget += 360;
     }
     
-    // Фінальна ротація = поточна ротація + кут до цілі + повні оберти
     const finalRotation = wheelState.currentRotation + angleToTarget + (fullRotations * 360);
     
-    console.log(`Current rotation: ${wheelState.currentRotation}°`);
-    console.log(`Target sector angle: ${targetSectorMiddleAngle}°`);
-    console.log(`Target rotation angle: ${positiveTargetAngle}°`);
-    console.log(`Angle to target: ${angleToTarget}°`);
-    console.log(`Will do ${fullRotations} full rotations`);
-    console.log(`Final rotation: ${finalRotation}°`);
-
-    // Зберігаємо фінальну ротацію в сховищі
+    // Зберігаємо та застосовуємо ротацію
     wheelState.currentRotation = finalRotation;
     safeSetWheelRotation(finalRotation);
 
-    // Анімуємо обертання колеса
+    // Анімуємо обертання
     const wheel = document.querySelector('.wheel') as HTMLElement;
     if (wheel) {
-      console.log("Wheel element found, applying rotation animation");
-      // Використовуємо cubic-bezier для плавного прискорення і сповільнення
-      // cubic-bezier(0.32, 0, 0.15, 1) - забезпечує швидке прискорення і довге сповільнення
       wheel.style.transition = `transform ${spinDuration/1000}s cubic-bezier(0.32, 0, 0.15, 1)`;
       wheel.style.transform = `rotate(${finalRotation}deg)`;
-    } else {
-      console.error("Wheel element not found!");
     }
     
+    // Завершення обертання
     setTimeout(() => {
-      console.log(`Spin completed. Final rotation = ${finalRotation}`);
       setIsSpinning(false);
       
-      // Після завершення спіну, зберігаємо ротацію знову для певності
+      // Забезпечуємо збереження ротації
       wheelState.currentRotation = finalRotation;
       safeSetWheelRotation(finalRotation);
-      
-      // Оновлюємо DOM для певності
       syncRotationToDom();
       
       // Встановлюємо вибраний сектор
       safeSetVisibleSectorIndex(selectedSector.index);
       safeSetSelectedTeamMember(selectedSector.member);
       
-      console.log(`Wheel stopped. Selected sector #${selectedSector.index}: ${selectedSector.member.name}`);
-      
       onSpinComplete();
     }, spinDuration + 100);
   }, [isSpinning, teamMembers, spinDuration, onSpinComplete, safeSetWheelRotation, safeSetVisibleSectorIndex, safeSetSelectedTeamMember, syncRotationToDom]);
 
-  /**
-   * Hit-testing logic to determine which sector is under the pointer (SVG version).
-   * Should be called from the UI with svg ref, outerRadius, and wheelRotation.
-   */
+  // Визначення сектора під вказівником
   const setVisibleSectorBySVGPointer = useCallback((
     svg: SVGSVGElement | null,
     outerRadius: number,
     incomingRotation: number
   ) => {
-    if (!svg) return;
-
-    // Якщо колесо обертається, не оновлюємо сектор
-    if (isSpinning) {
-      console.log('Wheel is still spinning, skipping SVG pointer update');
-      return;
-    }
+    if (!svg || isSpinning) return;
     
-    console.log(`setVisibleSectorBySVGPointer called with wheelRotation=${incomingRotation}`);
-    
-    // Завжди використовуємо збережену ротацію для визначення сектора
+    // Використовуємо ефективну ротацію для визначення сектора
     const effectiveRotation = wheelState.currentRotation;
-    console.log(`Using effective rotation ${effectiveRotation}° from storage`);
-    
-    // Використовуємо функцію для визначення сектора під вказівником
     const sectorIndex = getSectorUnderPointer(teamMembers, effectiveRotation);
     
-    // Перевіряємо, чи сектор змінився
     if (sectorIndex !== visibleSectorIndex) {
-      console.log(`Setting visible sector to #${sectorIndex}: ${teamMembers[sectorIndex].name}`);
       safeSetVisibleSectorIndex(sectorIndex);
       safeSetSelectedTeamMember(teamMembers[sectorIndex]);
     }
@@ -324,4 +234,4 @@ export const useWheelSpin = ({
     setVisibleSectorIndexByPointer: safeSetVisibleSectorIndex,
     setVisibleSectorBySVGPointer,
   };
-}
+};

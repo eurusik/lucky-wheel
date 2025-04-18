@@ -45,17 +45,14 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
     onSpinComplete,
   });
 
-  // Логуємо зміни ротації для виявлення проблеми
+  // При зміні ротації оновлюємо ref
   useEffect(() => {
-    console.log(`FortuneWheel: wheelRotation changed from ${prevRotationRef.current} to ${wheelRotation}`);
     prevRotationRef.current = wheelRotation;
   }, [wheelRotation]);
 
+  // Оновлюємо секцію під вказівником після зупинки колеса
   useEffect(() => {
     if (!isSpinning && wheelRef.current) {
-      console.log(`FortuneWheel: Updating wheel after spin stopped. wheelRotation=${wheelRotation}`);
-      
-      // Оновлюємо видимий сектор під вказівником
       setVisibleSectorBySVGPointer(wheelRef.current, outerRadius, wheelRotation);
     }
   }, [isSpinning, outerRadius, wheelRotation, setVisibleSectorBySVGPointer]);
