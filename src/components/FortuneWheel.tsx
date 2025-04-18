@@ -95,7 +95,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         justifyContent: 'center',
         width: '100%',
         m: '40px auto',
-        background: 'linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%)',
+        background: '#ffffff',
         borderRadius: 8,
         boxShadow: '0 10px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.01)',
         p: { xs: 3, md: 5 },
@@ -110,7 +110,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
           left: 0,
           right: 0,
           height: '6px',
-          background: 'linear-gradient(90deg, #3f51b5 0%, #2196f3 100%)',
+          background: '#3f51b5',
           opacity: 0.8,
         }
       }}

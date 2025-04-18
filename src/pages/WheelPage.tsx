@@ -59,7 +59,6 @@ const WheelPage = ({
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        background: 'linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%)',
       }}
     >
       <FortuneWheel 

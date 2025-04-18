@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TeamMemberList from '../settings/TeamMemberList';
@@ -19,8 +19,8 @@ import { SETTINGS } from '../../constants/styleConfig';
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, teamMembers, onSave }) => {
   const [members, setMembers] = useState<TeamMember[]>(teamMembers);
 
-  // Оновлювати локальний стан, якщо teamMembers змінюються зовні
-  React.useEffect(() => {
+  // Update local state if teamMembers change externally
+  useEffect(() => {
     setMembers(teamMembers);
   }, [teamMembers]);
 
@@ -46,7 +46,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, teamMemb
   };
 
   const handleSave = () => {
-    onSave(members); // Зберегти зміни глобально
+    onSave(members); // Save changes globally
     onClose();
   };
 
