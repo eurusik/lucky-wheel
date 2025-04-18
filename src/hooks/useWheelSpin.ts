@@ -33,7 +33,7 @@ interface UseWheelSpinReturn {
   spinWheel: () => void;
   addImmunityToSelectedSector: () => void;
   setVisibleSectorIndexByPointer: (sectorIndex: number) => void;
-  setVisibleSectorBySVGPointer: (svg: SVGSVGElement | null, outerRadius: number, wheelRotation: number) => void;
+  setVisibleSectorBySVGPointer: (svg: SVGSVGElement | null) => void;
 }
 
 // Local storage key for saving data
@@ -41,28 +41,27 @@ const WHEEL_STATE_KEY = 'wheelRotation';
 
 // Get data from local storage
 function getStoredRotation(): number | null {
-  const stored = localStorage.getItem(WHEEL_STATE_KEY);
-  if (!stored) return null;
-  
-  const rotation = parseFloat(stored);
-  return isNaN(rotation) ? null : rotation;
+  try {
+    const stored = localStorage.getItem(WHEEL_STATE_KEY);
+    if (!stored) return null;
+    
+    const rotation = parseFloat(stored);
+    return isNaN(rotation) ? null : rotation;
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+    return null;
+  }
 }
 
 // Save rotation to local storage
 function storeRotation(rotation: number): void {
-  if (rotation !== 0) {
-    localStorage.setItem(WHEEL_STATE_KEY, rotation.toString());
+  try {
+    if (rotation !== 0) {
+      localStorage.setItem(WHEEL_STATE_KEY, rotation.toString());
+    }
+  } catch (error) {
+    console.error('Error writing to localStorage:', error);
   }
-}
-
-// Find next available sector starting from startIndex
-function findNextAvailableSector(teamMembers: TeamMember[], startIndex: number): number | null {
-  const n = teamMembers.length;
-  for (let i = 0; i < n; ++i) {
-    const idx = (startIndex + i) % n;
-    if (!immunityService.hasSectorImmunity(idx)) return idx;
-  }
-  return null;
 }
 
 // Calculate sector under pointer
@@ -88,8 +87,6 @@ function getSectorUnderPointer(teamMembers: TeamMember[], wheelRotation: number)
   
   // Ensure we have a valid sector index
   sectorIndex = ((sectorIndex % n) + n) % n;
-  
-  console.log(`🔍 Calculating sector: Rotation=${wheelRotation}°, Normalized=${normalizedRotation}°, Angle=${angleUnderPointer}°, Sector=${sectorIndex}`);
   
   return sectorIndex;
 }
@@ -159,15 +156,6 @@ export function useWheelSpin({
     setVisibleSectorIndex(index);
   }, []);
   
-  // Helper function to log immunity state for debugging
-  const logImmunityState = useCallback((teamMembers: TeamMember[]) => {
-    console.log('🛡️ Current immunity state:');
-    teamMembers.forEach((member, index) => {
-      const hasImmunity = immunityService.hasSectorImmunity(index);
-      console.log(`Sector #${index} (${member.name}): ${hasImmunity ? '🛡️ IMMUNE' : '⚔️ NOT IMMUNE'}`);
-    });
-  }, []);
-  
   // Synchronize DOM with current rotation state
   const syncRotationToDom = useCallback(() => {
     const wheel = document.querySelector('.wheel') as HTMLElement;
@@ -187,6 +175,11 @@ export function useWheelSpin({
   
   // Helper function to set the selected sector and related states
   const setSelectedSector = useCallback((sectorIndex: number) => {
+    if (sectorIndex < 0 || sectorIndex >= teamMembers.length) {
+      console.error(`Invalid sector index: ${sectorIndex}`);
+      return;
+    }
+    
     safeSetVisibleSectorIndex(sectorIndex);
     safeSetSelectedTeamMember(teamMembers[sectorIndex]);
     
@@ -201,6 +194,11 @@ export function useWheelSpin({
     minimumRotations: number = 5,
     maximumRotations: number = 8
   ): number => {
+    if (targetSectorIndex < 0 || targetSectorIndex >= teamMembers.length) {
+      console.error(`Invalid target sector index: ${targetSectorIndex}`);
+      return wheelState.currentRotation;
+    }
+    
     const currentRotation = wheelState.currentRotation % 360;
     const sectorAngle = 360 / teamMembers.length;
     const targetSectorMiddleAngle = targetSectorIndex * sectorAngle + (sectorAngle / 2);
@@ -233,17 +231,7 @@ export function useWheelSpin({
   // Spin the wheel
   const spinWheel = useCallback(() => {
     if (isSpinning) return;
-  
-    // Log immunity state before spinning
-    logImmunityState(teamMembers);
-
-    // Store current state before resetting
-    const previousState = {
-      visibleSectorIndex: visibleSectorIndex,
-      selectedTeamMember: selectedTeamMember,
-    };
-    console.log('📊 State before spinning:', previousState);
-
+    
     // Get available sectors (non-immune)
     const availableSectors = getAvailableSectors(teamMembers);
     if (availableSectors.length === 0) {
@@ -256,11 +244,8 @@ export function useWheelSpin({
     const targetSector = availableSectors[selectedSectorIndex];
     const sectorToLandOn = targetSector.index;
     
-    console.log('🎯 Selected sector to land on:', sectorToLandOn, 'Team member:', targetSector.member);
-
     // Calculate target rotation using the existing function
     const finalRotation = calculateRotationForSector(sectorToLandOn);
-    console.log(`🔄 Starting spin from ${wheelRotation}° to ${finalRotation}° to land on sector ${sectorToLandOn}`);
 
     // Store the selected sector for recovery if needed
     selectedSectorRef.current = sectorToLandOn;
@@ -282,7 +267,6 @@ export function useWheelSpin({
     // After spin completes, update the state
     setTimeout(() => {
       setIsSpinning(false);
-      console.log('🛑 Wheel stopped at rotation:', finalRotation);
       
       // Ensure rotation state is consistent
       wheelState.currentRotation = finalRotation;
@@ -290,7 +274,6 @@ export function useWheelSpin({
       syncRotationToDom();
       
       // Force-set the correct sector and team member
-      console.log('🔄 Setting visible sector to:', sectorToLandOn);
       setSelectedSector(sectorToLandOn);
       
       // Call the provided callback
@@ -300,29 +283,14 @@ export function useWheelSpin({
     }, spinDuration + 100);
   }, [
     isSpinning,
-    logImmunityState,
     teamMembers,
-    visibleSectorIndex,
-    selectedTeamMember,
     calculateRotationForSector,
     safeSetWheelRotation,
     syncRotationToDom,
     setSelectedSector,
     spinDuration,
-    onSpinComplete,
-    wheelRotation
+    onSpinComplete
   ]);
-  
-  // Helper function to check and recover state if needed
-  const checkAndRecoverState = useCallback((expectedSector: number) => {
-    const currentVisibleSector = currentStateRef.current.visibleSectorIndex;
-    if (currentVisibleSector !== expectedSector) {
-      console.warn('🚨 State recovery needed! Current:', currentVisibleSector, 'Expected:', expectedSector);
-      setSelectedSector(expectedSector);
-    } else {
-      console.log(`✅ Sector verified: ${expectedSector}`);
-    }
-  }, [setSelectedSector]);
   
   // Add immunity to selected sector
   const addImmunityToSelectedSector = useCallback(() => {
@@ -334,14 +302,9 @@ export function useWheelSpin({
   }, [visibleSectorIndex, teamMembers]);
 
   // Determine sector under pointer
-  const setVisibleSectorBySVGPointer = useCallback((
-    svg: SVGSVGElement | null,
-    outerRadius: number,
-    incomingRotation: number
-  ) => {
+  const setVisibleSectorBySVGPointer = useCallback((svg: SVGSVGElement | null) => {
     // Skip if we're spinning or don't have an SVG reference
     if (!svg || isSpinning) {
-      console.log('🔄 Wheel is spinning or no SVG ref, skipping setVisibleSectorBySVGPointer');
       return;
     }
     
@@ -351,7 +314,6 @@ export function useWheelSpin({
       
       // Check if we should apply our selected sector instead of calculating from rotation
       if (selectedSector !== visibleSectorIndex) {
-        console.log(`🎯 Using pre-selected sector ${selectedSector} instead of calculating from rotation`);
         setSelectedSector(selectedSector);
         // Clear the selected sector ref so future rotations can be handled normally
         setTimeout(() => {
@@ -368,10 +330,7 @@ export function useWheelSpin({
     const effectiveRotation = wheelState.currentRotation;
     const sectorIndex = getSectorUnderPointer(teamMembers, effectiveRotation);
     
-    console.log(`🔄 Wheel rotation: ${effectiveRotation}°, Sector under pointer: ${sectorIndex}`);
-    
     if (sectorIndex !== visibleSectorIndex) {
-      console.log(`🔍 Setting visible sector from ${visibleSectorIndex} to ${sectorIndex} based on rotation ${effectiveRotation}°`);
       setSelectedSector(sectorIndex);
     }
   }, [isSpinning, teamMembers, visibleSectorIndex, setSelectedSector]);
