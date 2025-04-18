@@ -25,11 +25,10 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
-  const prevRotationRef = useRef<number>(0);
   const [members, setMembers] = useState<TeamMember[]>(teamMembers);
   const spinResultTimeoutRef = useRef<number | null>(null);
 
-  // Використовуємо хук useWheelSpin для управління станом колеса
+  // Using useWheelSpin hook to manage wheel state
   const { 
     isSpinning, 
     wheelRotation, 
@@ -43,13 +42,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
     onSpinComplete,
   });
 
-  // При зміні ротації оновлюємо ref
-  useEffect(() => {
-    prevRotationRef.current = wheelRotation;
-  }, [wheelRotation]);
-
-  // Оновлюємо секцію під вказівником після зупинки колеса
-  // Але тільки якщо це не результат спіна
+  // Update section under pointer after wheel stops
+  // But only if it's not a spin result
   useEffect(() => {
     // Clear any existing timeout when isSpinning changes
     if (spinResultTimeoutRef.current !== null) {
@@ -66,27 +60,27 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         
         // Only update if we're not currently spinning
         if (!isSpinning && wheelRef.current) {
-          setVisibleSectorBySVGPointer(wheelRef.current, outerRadius, wheelRotation);
+          setVisibleSectorBySVGPointer(wheelRef.current);
         }
       }, 1000); // Wait 1 second after spin finishes before allowing pointer updates
     }
-  }, [isSpinning, outerRadius, wheelRotation, setVisibleSectorBySVGPointer]);
+  }, [isSpinning, setVisibleSectorBySVGPointer]);
 
-  // Синхронізуємо членів команди з пропсами
+  // Synchronize team members with props
   useEffect(() => {
     setMembers(teamMembers);
   }, [teamMembers]);
 
-  // Обробник збереження змін списку команди
+  // Handler for saving team members list changes
   const handleSaveTeamMembers = useCallback((updated: TeamMember[]) => {
     setMembers(updated);
   }, []);
 
-  // Обробники для діалогу налаштувань
+  // Handlers for settings dialog
   const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);
   const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
 
-  // Якщо список порожній, показуємо порожнє колесо
+  // If the list is empty, show empty wheel
   if (members.length === 0) {
     return <EmptyWheel />;
   }
