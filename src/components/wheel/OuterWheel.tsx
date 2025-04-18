@@ -1,5 +1,4 @@
 import React from 'react';
-import { OUTER_SECTORS_COUNT } from '../../constants/wheelConfig';
 import { ANIMATION } from '../../constants/styleConfig';
 import WheelSector from './sectors/WheelSector';
 
@@ -11,6 +10,7 @@ interface OuterWheelProps {
   isSpinning: boolean;
   innerRadius: number;
   outerRadius: number;
+  teamMembersCount: number;
 }
 
 /**
@@ -21,9 +21,11 @@ const OuterWheel: React.FC<OuterWheelProps> = ({
   isSpinning,
   innerRadius,
   outerRadius,
+  teamMembersCount
 }) => {
   const center = outerRadius;
-  const degreesPerSector = 360 / OUTER_SECTORS_COUNT;
+  // Use the same number of sectors as team members
+  const degreesPerSector = 360 / teamMembersCount;
   const rotationStyle = {
     transform: `rotate(${rotation}deg)`,
     transition: isSpinning
@@ -34,7 +36,7 @@ const OuterWheel: React.FC<OuterWheelProps> = ({
 
   return (
     <g style={rotationStyle}>
-      {Array.from({ length: OUTER_SECTORS_COUNT }).map((_, index) => (
+      {Array.from({ length: teamMembersCount }).map((_, index) => (
         <WheelSector
           key={index}
           sectorIndex={index}

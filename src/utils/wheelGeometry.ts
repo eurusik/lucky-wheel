@@ -126,3 +126,20 @@ export function getTeamMemberSectorPath({
     }
   };
 }
+
+/**
+ * Calculate optimal number of sectors based on number of items
+ * Maximum number of sectors is limited to 10
+ */
+export function calculateOptimalSectors(itemCount: number): number {
+  if (itemCount <= 0) return 0;
+  
+  // Maximum limit of 10 sectors
+  if (itemCount > 10) return 10;
+  
+  // For small numbers, use the same number of sectors as items
+  if (itemCount <= 6) return itemCount;
+  
+  // For medium numbers (7-10), round up to nearest even number
+  return Math.ceil(itemCount / 2) * 2;
+}

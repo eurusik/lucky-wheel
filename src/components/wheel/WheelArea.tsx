@@ -90,11 +90,12 @@ const WheelArea: React.FC<WheelAreaProps> = ({
             transformOrigin: 'center',
           }}
         >
-          <OuterWheel 
+          <OuterWheel
             rotation={0}
             isSpinning={false}
             innerRadius={innerRadius}
             outerRadius={outerRadius}
+            teamMembersCount={teamMembers.length}
           />
           <InnerWheel 
             teamMembers={teamMembers}
