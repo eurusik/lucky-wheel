@@ -174,4 +174,4 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
   );
 };
 
-export default ItemList;
+export default React.memo(ItemList);

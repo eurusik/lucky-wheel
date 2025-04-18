@@ -104,5 +104,4 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ items = [], onAddItem, on
   );
 };
 
-// Use React.memo to prevent unnecessary re-renders
 export default React.memo(ActionButtons);

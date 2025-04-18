@@ -32,5 +32,4 @@ const StarSector: React.FC<SectorProps> = ({ path, textPosition }) => {
   );
 };
 
-// Use React.memo to prevent unnecessary re-renders
 export default React.memo(StarSector);

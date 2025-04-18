@@ -30,5 +30,4 @@ const RegularSector: React.FC<SectorProps> = ({ path, color = 'transparent', has
   </>
 );
 
-// Use React.memo to prevent unnecessary re-renders
 export default React.memo(RegularSector);

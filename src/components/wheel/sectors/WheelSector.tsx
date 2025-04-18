@@ -98,5 +98,4 @@ const WheelSector: React.FC<WheelSectorProps> = ({
   );
 };
 
-// Use React.memo to prevent unnecessary re-renders
 export default React.memo(WheelSector);
