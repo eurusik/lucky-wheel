@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { TeamMember } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
@@ -15,23 +15,21 @@ import LegendArea from './wheel/LegendArea';
 interface FortuneWheelProps {
   teamMembers: TeamMember[];
   onSpinComplete: () => void;
+  onScreenshot: () => void;
 }
 
 /**
  * Main component for the fortune wheel that combines all wheel parts
  */
-interface FortuneWheelProps {
-  teamMembers: TeamMember[];
-  onSpinComplete: () => void;
-  onScreenshot: () => void;
-}
-
 const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete, onScreenshot }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
-  const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const prevRotationRef = useRef<number>(0);
+  const [members, setMembers] = useState<TeamMember[]>(teamMembers);
+  const spinResultTimeoutRef = useRef<number | null>(null);
 
+  // Використовуємо хук useWheelSpin для управління станом колеса
   const { 
     isSpinning, 
     wheelRotation, 
@@ -41,7 +39,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
     addImmunityToSelectedSector,
     setVisibleSectorBySVGPointer
   } = useWheelSpin({
-    teamMembers,
+    teamMembers: members,
     onSpinComplete,
   });
 
@@ -51,23 +49,44 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
   }, [wheelRotation]);
 
   // Оновлюємо секцію під вказівником після зупинки колеса
+  // Але тільки якщо це не результат спіна
   useEffect(() => {
-    if (!isSpinning && wheelRef.current) {
-      setVisibleSectorBySVGPointer(wheelRef.current, outerRadius, wheelRotation);
+    // Clear any existing timeout when isSpinning changes
+    if (spinResultTimeoutRef.current !== null) {
+      window.clearTimeout(spinResultTimeoutRef.current);
+      spinResultTimeoutRef.current = null;
+    }
+
+    // If the wheel just stopped spinning, set a timeout before allowing SVG pointer updates
+    if (!isSpinning) {
+      // Don't update sector immediately after spinning stops - the spinWheel function will handle it
+      spinResultTimeoutRef.current = window.setTimeout(() => {
+        // After 1 second, we can start updating based on pointer position again
+        spinResultTimeoutRef.current = null;
+        
+        // Only update if we're not currently spinning
+        if (!isSpinning && wheelRef.current) {
+          setVisibleSectorBySVGPointer(wheelRef.current, outerRadius, wheelRotation);
+        }
+      }, 1000); // Wait 1 second after spin finishes before allowing pointer updates
     }
   }, [isSpinning, outerRadius, wheelRotation, setVisibleSectorBySVGPointer]);
 
-  // Local state for editing team members
-  const [members, setMembers] = React.useState<TeamMember[]>(teamMembers);
+  // Синхронізуємо членів команди з пропсами
   useEffect(() => {
     setMembers(teamMembers);
   }, [teamMembers]);
 
-  const handleSaveTeamMembers = (updated: TeamMember[]) => {
+  // Обробник збереження змін списку команди
+  const handleSaveTeamMembers = useCallback((updated: TeamMember[]) => {
     setMembers(updated);
-    // If there is a global onSaveTeamMembers, call it here
-  };
+  }, []);
 
+  // Обробники для діалогу налаштувань
+  const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);
+  const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
+
+  // Якщо список порожній, показуємо порожнє колесо
   if (members.length === 0) {
     return <EmptyWheel />;
   }
@@ -103,15 +122,17 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
       }}
     >
       <WheelToolbar 
-        onSettingsClick={() => setSettingsDialogOpen(true)}
+        onSettingsClick={handleOpenSettings}
         onScreenshotClick={onScreenshot}
       />
+
       <SettingsDialog 
         open={settingsDialogOpen}
-        onClose={() => setSettingsDialogOpen(false)}
+        onClose={handleCloseSettings}
         teamMembers={members}
         onSave={handleSaveTeamMembers}
       />
+
       <WheelArea
         wheelRef={wheelRef}
         innerRadius={innerRadius}
@@ -124,9 +145,10 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         visibleSectorIndex={visibleSectorIndex}
         addImmunityToSelectedSector={addImmunityToSelectedSector}
       />
+
       <LegendArea />
     </Box>
   );
 };
 
-export default FortuneWheel;
+export default React.memo(FortuneWheel);
