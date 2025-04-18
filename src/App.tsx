@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'

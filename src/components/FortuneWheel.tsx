@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { TeamMember } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
@@ -102,17 +102,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ teamMembers, onSpinComplete
         gap: { xs: 4, md: 7 },
         boxSizing: 'border-box',
         border: '1px solid rgba(230, 235, 255, 0.9)',
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '6px',
-          background: '#3f51b5',
-          opacity: 0.8,
-        }
       }}
     >
       <WheelToolbar 

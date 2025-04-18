@@ -48,28 +48,27 @@ const WheelPage = ({
   spinStats, 
   onSpinComplete, 
   onScreenshot,
-  onSettingsClick 
 }: WheelPageProps) => {
   return (
-    <Box
-      sx={{
-        height: '100vh',
+      <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative',
-      }}
-    >
-      <FortuneWheel 
-        teamMembers={teamMembers} 
-        onSpinComplete={onSpinComplete} 
-        onScreenshot={onScreenshot} 
-      />
-      {spinStats.count > 0 && (
-        <SpinStatistics stats={spinStats} />
-      )}
-    </Box>
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '20px'
+      }}>
+          <FortuneWheel
+              teamMembers={teamMembers}
+              onSpinComplete={onSpinComplete}
+              onScreenshot={onScreenshot}
+          />
+          {spinStats.count > 0 && (
+              <SpinStatistics stats={spinStats} />
+          )}
+      </div>
   );
 };
 
