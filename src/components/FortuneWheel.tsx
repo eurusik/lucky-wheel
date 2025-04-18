@@ -16,12 +16,18 @@ interface FortuneWheelProps {
   items: WheelItem[];
   onSpinComplete: () => void;
   onScreenshot: () => void;
+  onItemsChange?: (items: WheelItem[]) => void;
 }
 
 /**
  * Main component for the fortune wheel that combines all wheel parts
  */
-const FortuneWheel: React.FC<FortuneWheelProps> = ({ items, onSpinComplete, onScreenshot }) => {
+const FortuneWheel: React.FC<FortuneWheelProps> = ({ 
+  items, 
+  onSpinComplete, 
+  onScreenshot,
+  onItemsChange 
+}) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
@@ -57,7 +63,11 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({ items, onSpinComplete, onSc
   // Handler for saving items list changes
   const handleSaveItems = useCallback((updated: WheelItem[]) => {
     setWheelItems(updated);
-  }, []);
+    // Call the parent component's onItemsChange if provided
+    if (onItemsChange) {
+      onItemsChange(updated);
+    }
+  }, [onItemsChange]);
 
   // Handlers for settings dialog
   const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);

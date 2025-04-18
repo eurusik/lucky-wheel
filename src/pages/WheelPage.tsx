@@ -1,14 +1,15 @@
 import { memo } from 'react';
 import { Box, Typography, Fade } from '@mui/material';
-import { TeamMember, SpinStats } from '../types';
+import { SpinStats, WheelItem } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
 
 interface WheelPageProps {
-  items: TeamMember[];
+  items: WheelItem[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
   onScreenshot: () => void;
   onSettingsClick: () => void;
+  onItemsChange?: (items: WheelItem[]) => void;
 }
 
 const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
@@ -48,6 +49,8 @@ const WheelPage = ({
   spinStats, 
   onSpinComplete, 
   onScreenshot,
+  onSettingsClick,
+  onItemsChange
 }: WheelPageProps) => {
   return (
       <div style={{
@@ -64,6 +67,7 @@ const WheelPage = ({
               items={items}
               onSpinComplete={onSpinComplete}
               onScreenshot={onScreenshot}
+              onItemsChange={onItemsChange}
           />
           {spinStats.count > 0 && (
               <SpinStatistics stats={spinStats} />

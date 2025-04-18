@@ -36,19 +36,26 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
       name: '',
       color: generateRandomColor(),
     };
-    setWheelItems([...wheelItems, newItem]);
+    const newItems = [...wheelItems, newItem];
+    setWheelItems(newItems);
+    // Save changes immediately after adding
+    onSave(newItems);
   };
 
   const handleRemoveItem = (id: string) => {
-    setWheelItems(wheelItems.filter(item => item.id !== id));
+    const newItems = wheelItems.filter(item => item.id !== id);
+    setWheelItems(newItems);
+    // Save changes immediately after removing
+    onSave(newItems);
   };
 
   const handleNameChange = (id: string, newName: string) => {
-    setWheelItems(
-      wheelItems.map(item =>
-        item.id === id ? { ...item, name: newName } : item
-      )
+    const newItems = wheelItems.map(item =>
+      item.id === id ? { ...item, name: newName } : item
     );
+    setWheelItems(newItems);
+    // Save changes immediately after changing name
+    onSave(newItems);
   };
 
   const handleSave = () => {
@@ -121,8 +128,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
         </Box>
 
         <ActionButtons
-          members={wheelItems}
-          onAddMember={handleAddItem}
+          items={wheelItems}
+          onAddItem={handleAddItem}
           onSave={handleSave}
         />
       </Box>
@@ -145,7 +152,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             }
           }}
         >
-          Не можна додати більше 12 учасників
+          Cannot add more than 12 participants
         </Alert>
       </Snackbar>
     </Drawer>

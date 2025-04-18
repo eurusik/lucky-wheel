@@ -3,7 +3,7 @@ import { ThemeProvider, CssBaseline, createTheme } from '@mui/material'
 import WheelPage from './pages/WheelPage'
 import SettingsPage from './pages/SettingsPage'
 import { takeScreenshot } from './utils/screenshot'
-import { TeamMember, SpinStats } from './types'
+import { WheelItem, SpinStats } from './types'
 import { defaultTeamMembers } from './constants/wheelConfig'
 import { ToastProvider, useToast } from './components/ui/ToastProvider'
 import { BREAKPOINTS } from './constants/styleConfig'
@@ -55,14 +55,23 @@ const theme = createMuiTheme({
 })
 
 const STORAGE_KEYS = {
-  TEAM_MEMBERS: 'teamMembers',
+  ITEMS: 'wheelItems',
   SPIN_STATS: 'spinStats'
+} as const
+
+const DEFAULT_VALUES = {
+  SPIN_STATS: { count: 0, lastSpinTime: null },
+  ITEMS: defaultTeamMembers
 } as const
 
 function getStoredData<T>(key: string, defaultValue: T): T {
   try {
     const saved = localStorage.getItem(key)
-    return saved ? JSON.parse(saved) : defaultValue
+    if (saved === null) {
+      setStoredData(key, defaultValue)
+      return defaultValue
+    }
+    return JSON.parse(saved)
   } catch (error) {
     console.error(`Error reading from localStorage (${key}):`, error)
     return defaultValue
@@ -80,15 +89,15 @@ function setStoredData<T>(key: string, value: T): void {
 function App() {
   const [currentPage, setCurrentPage] = useState<'wheel' | 'settings'>('wheel')
   const [spinStats, setSpinStats] = useState<SpinStats>(() => 
-    getStoredData(STORAGE_KEYS.SPIN_STATS, { count: 0, lastSpinTime: null })
+    getStoredData(STORAGE_KEYS.SPIN_STATS, DEFAULT_VALUES.SPIN_STATS)
   )
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => 
-    getStoredData(STORAGE_KEYS.TEAM_MEMBERS, defaultTeamMembers)
+  const [items, setItems] = useState<WheelItem[]>(() => 
+    getStoredData(STORAGE_KEYS.ITEMS, DEFAULT_VALUES.ITEMS)
   )
 
-  const handleSaveTeamMembers = useCallback((members: TeamMember[]) => {
-    setTeamMembers(members)
-    setStoredData(STORAGE_KEYS.TEAM_MEMBERS, members)
+  const handleSaveItems = useCallback((newItems: WheelItem[]) => {
+    setItems(newItems)
+    setStoredData(STORAGE_KEYS.ITEMS, newItems)
     setCurrentPage('wheel')
   }, [])
 
@@ -108,10 +117,10 @@ function App() {
         <AppContent
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          teamMembers={teamMembers}
+          items={items}
           spinStats={spinStats}
           handleSpinComplete={handleSpinComplete}
-          handleSaveTeamMembers={handleSaveTeamMembers}
+          handleSaveItems={handleSaveItems}
         />
       </ThemeProvider>
     </ToastProvider>
@@ -121,19 +130,19 @@ function App() {
 interface AppContentProps {
   currentPage: 'wheel' | 'settings';
   setCurrentPage: (page: 'wheel' | 'settings') => void;
-  teamMembers: TeamMember[];
+  items: WheelItem[];
   spinStats: SpinStats;
   handleSpinComplete: () => void;
-  handleSaveTeamMembers: (members: TeamMember[]) => void;
+  handleSaveItems: (items: WheelItem[]) => void;
 }
 
 function AppContent({ 
   currentPage, 
   setCurrentPage, 
-  teamMembers, 
+  items, 
   spinStats, 
   handleSpinComplete, 
-  handleSaveTeamMembers 
+  handleSaveItems 
 }: AppContentProps) {
   const { showToast } = useToast();
 
@@ -155,16 +164,17 @@ function AppContent({
 
   return currentPage === 'wheel' ? (
     <WheelPage
-      items={teamMembers}
+      items={items}
       spinStats={spinStats}
       onSettingsClick={handleSettingsClick}
       onSpinComplete={handleSpinComplete}
       onScreenshot={handleScreenshot}
+      onItemsChange={handleSaveItems}
     />
   ) : (
     <SettingsPage
-      teamMembers={teamMembers}
-      onSave={handleSaveTeamMembers}
+      items={items}
+      onSave={handleSaveItems}
     />
   );
 }

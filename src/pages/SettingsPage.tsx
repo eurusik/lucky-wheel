@@ -1,42 +1,42 @@
 import React, { useState } from 'react';
-import { Box, Paper } from '@mui/material';
-import { TeamMember } from '../types';
-import { generateRandomColor } from '../constants/wheelConfig';
-import { SETTINGS } from '../constants/styleConfig';
+import { Box } from '@mui/material';
 import ItemList from '../components/settings/ItemList';
 import ActionButtons from '../components/settings/ActionButtons';
+import { WheelItem } from '../types';
+import { generateRandomColor } from '../constants/wheelConfig';
+import { SETTINGS } from '../constants/styleConfig';
 
 /**
  * Props for the SettingsPage component
  */
 interface SettingsPageProps {
-  teamMembers: TeamMember[];
-  onSave: (members: TeamMember[]) => void;
+  items: WheelItem[];
+  onSave: (items: WheelItem[]) => void;
 }
 
 /**
  * Page component for managing team members
  */
-const SettingsPage: React.FC<SettingsPageProps> = ({ teamMembers, onSave }) => {
-  const [members, setMembers] = useState<TeamMember[]>(teamMembers);
+const SettingsPage: React.FC<SettingsPageProps> = ({ items, onSave }) => {
+  const [currentItems, setCurrentItems] = useState<WheelItem[]>(items);
 
-  const handleAddMember = () => {
-    const newMember: TeamMember = {
+  const handleAddItem = () => {
+    const newItem: WheelItem = {
       id: Date.now().toString(),
       name: '',
       color: generateRandomColor(),
     };
-    setMembers([...members, newMember]);
+    setCurrentItems([...currentItems, newItem]);
   };
 
-  const handleRemoveMember = (id: string) => {
-    setMembers(members.filter(member => member.id !== id));
+  const handleRemoveItem = (id: string) => {
+    setCurrentItems(currentItems.filter(item => item.id !== id));
   };
 
   const handleNameChange = (id: string, newName: string) => {
-    setMembers(
-      members.map(member =>
-        member.id === id ? { ...member, name: newName } : member
+    setCurrentItems(
+      currentItems.map(item =>
+        item.id === id ? { ...item, name: newName } : item
       )
     );
   };
@@ -63,27 +63,17 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ teamMembers, onSave }) => {
           overflow: 'hidden',
         }}
       >
-        <Paper
-          sx={{
-            flex: 1,
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          <ItemList 
-            members={members}
-            onNameChange={handleNameChange}
-            onRemove={handleRemoveMember}
-          />
+        <ItemList 
+          items={currentItems}
+          onNameChange={handleNameChange}
+          onRemove={handleRemoveItem}
+        />
 
-          <ActionButtons 
-            members={members}
-            onAddMember={handleAddMember}
-            onSave={onSave}
-          />
-        </Paper>
+        <ActionButtons 
+          items={currentItems}
+          onAddItem={handleAddItem}
+          onSave={onSave}
+        />
       </Box>
     </Box>
   );

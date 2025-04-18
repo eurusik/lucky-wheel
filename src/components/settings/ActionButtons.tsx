@@ -1,29 +1,24 @@
 import React from 'react';
 import { Box, Button, Stack } from '@mui/material';
 import { Add as AddIcon, Save as SaveIcon } from '@mui/icons-material';
-import { TeamMember } from '../../types';
-import { SETTINGS } from '../../constants/styleConfig';
-import { COLORS } from '../../constants/styleConfig';
+import { WheelItem } from '../../types';
+import { SETTINGS, COLORS } from '../../constants/styleConfig';
 
 /**
  * Props for the ActionButtons component
  */
 interface ActionButtonsProps {
-  members: TeamMember[];
-  onAddMember: () => void;
-  onSave: (members: TeamMember[]) => void;
+  items: WheelItem[];
+  onAddItem: () => void;
+  onSave: (items: WheelItem[]) => void;
 }
 
 /**
  * Component for action buttons in the settings page
  */
-const ActionButtons: React.FC<ActionButtonsProps> = ({
-  members,
-  onAddMember,
-  onSave
-}) => {
-  // Check if any team member has an empty name
-  const hasEmptyNames = members.some(member => !member.name.trim());
+const ActionButtons: React.FC<ActionButtonsProps> = ({ items = [], onAddItem, onSave }) => {
+  // Check if any item has an empty name
+  const hasEmptyNames = Array.isArray(items) && items.some(item => !item?.name?.trim());
   
   return (
     <Box
@@ -52,7 +47,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       >
         <Button
           variant="outlined"
-          onClick={onAddMember}
+          onClick={onAddItem}
           startIcon={<AddIcon />}
           sx={{
             borderRadius: '24px',
@@ -73,11 +68,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             }
           }}
         >
-          Add Member
+          Add Item
         </Button>
         <Button
           variant="contained"
-          onClick={() => onSave(members)}
+          onClick={() => onSave(items || [])}
           disabled={hasEmptyNames}
           startIcon={<SaveIcon />}
           sx={{

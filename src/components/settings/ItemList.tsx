@@ -99,7 +99,7 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
               size="small"
               value={item.name}
               onChange={(e) => onNameChange(item.id, e.target.value)}
-              placeholder="Введіть ім'я"
+              placeholder="Enter name"
               variant="standard"
               sx={{
                 '& .MuiInput-root': {
@@ -124,10 +124,10 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
               }}
             />
             {item.isImmune && (
-              <Tooltip title="Імунітет">
+              <Tooltip title="Immunity">
                 <Chip
                   icon={<ShieldIcon sx={{ fontSize: '0.9rem' }} />}
-                  label="Імунітет"
+                  label="Immunity"
                   size="small"
                   sx={{
                     height: '24px',
@@ -148,7 +148,7 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
               </Tooltip>
             )}
           </Box>
-          <Tooltip title="Видалити">
+          <Tooltip title="Delete">
             <IconButton
               onClick={() => onRemove(item.id)}
               className="delete-button"
