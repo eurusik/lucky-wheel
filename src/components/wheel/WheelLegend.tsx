@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Chip, Stack, useTheme, useMediaQuery } from '@mui/material';
-import Button from '../ui/Button';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import ImmunityPlaceholder from './ImmunityPlaceholder';
+import ClearAllImmunityChip from './ClearAllImmunityChip';
 
 
 import { SectorImmunity } from '../../types';
@@ -101,7 +101,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
         </Box>
       </Box>
 
-      {immunities.length > 0 && (
+      {immunities.length > 0 ? (
         <Box sx={{ 
           width: '100%',
           height: 'auto',
@@ -145,27 +145,17 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                 />
               ))}
             </Box>
-            <Chip
-              label="Clear All"
-              onDelete={() => {
+            <ClearAllImmunityChip
+              onClear={() => {
                 immunityService.clearAllImmunities();
                 setImmunities([]);
                 window.dispatchEvent(new Event('immunityChanged'));
               }}
-              deleteIcon={<DeleteSweepIcon />}
-              sx={{
-                backgroundColor: COLORS.STAR_BACKGROUND,
-                fontWeight: 600,
-                mb: { xs: 2, sm: 1.5, md: isMediumScreen ? 0.8 : 2 },
-                '& .MuiChip-deleteIcon': {
-                  fontSize: isMediumScreen ? '1.02rem' : '1.1rem',
-                  color: '#bfa100',
-                  right: 4,
-                },
-              }}
             />
           </Stack>
         </Box>
+      ) : (
+        <ImmunityPlaceholder />
       )}
     </Box>
   );
