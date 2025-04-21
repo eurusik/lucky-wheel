@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { defaultTeamMembers } from '../constants/wheelConfig';
-import { saveWheel } from '../utils/wheelStorage';
+
 import { v4 as uuidv4 } from 'uuid';
+import { saveWheel } from '../utils/wheelDataProvider';
 import Button from '../components/ui/Button';
 import WheelCreatedModal from '../components/ui/WheelCreatedModal';
 import { useNavigate } from 'react-router-dom';

@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import WheelPage from './pages/WheelPage'
-import { useMemo } from 'react';
+
 import HomePage from './pages/HomePage';
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
-import { getWheelById } from './utils/wheelStorage';
+
 import { WheelItem, SpinStats } from './types';
 import { defaultTeamMembers } from './constants/wheelConfig';
 import './App.css'
@@ -12,6 +12,7 @@ import { createTheme as createMuiTheme } from '@mui/material/styles'
 import { ThemeProvider } from '@mui/material'
 import { ToastProvider } from './components/ui/ToastProvider';
 import NotFoundPage from './pages/NotFoundPage';
+import { getWheelById } from './utils/wheelDataProvider';
 
 const theme = createMuiTheme({
   components: {
@@ -104,7 +105,27 @@ function App() {
 
   function WheelPageWrapper() {
     const { id } = useParams<{ id: string }>();
-    const wheelData = useMemo(() => (id ? getWheelById(id) : undefined), [id]);
+    const [wheelData, setWheelData] = React.useState<import('./utils/wheelFirestore').FirestoreWheelData | null>(null);
+    const [loading, setLoading] = React.useState<boolean>(!!id);
+
+    React.useEffect(() => {
+      let isMounted = true;
+      if (id) {
+        setLoading(true);
+        getWheelById(id).then((data) => {
+          if (isMounted) {
+            setWheelData(data);
+            setLoading(false);
+          }
+        });
+      } else {
+        setWheelData(null);
+        setLoading(false);
+      }
+      return () => { isMounted = false; };
+    }, [id]);
+
+    if (loading) return <div style={{textAlign:'center',marginTop:80,fontSize:22}}>Loading...</div>;
     if (id && !wheelData) {
       return <NotFoundPage />;
     }

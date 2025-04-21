@@ -14,7 +14,7 @@ export function getAllWheels(): Record<string, StoredWheelData> {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     return JSON.parse(raw);
-  } catch (e) {
+  } catch {
     return {};
   }
 }
