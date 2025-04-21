@@ -38,6 +38,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   }, [items]);
 
   // Using useWheelSpin hook to manage wheel state
+  // Assume wheelId is available from items[0]?.id for this refactor (should be improved in the future)
+  const wheelId = wheelItems[0]?.id || '';
   const { 
     isSpinning, 
     wheelRotation, 
@@ -46,6 +48,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     addImmunityToSelectedSector,
     setVisibleSectorBySVGPointer
   } = useWheelSpin({
+    wheelId,
     items: wheelItems,
     onSpinComplete,
   });
@@ -130,9 +133,10 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
         items={wheelItems}
         visibleSectorIndex={visibleSectorIndex}
         addImmunityToSelectedSector={addImmunityToSelectedSector}
+        wheelId={wheelId}
       />
 
-      <LegendArea />
+      <LegendArea wheelId={wheelId} />
     </Box>
   );
 };

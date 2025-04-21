@@ -3,7 +3,11 @@ import { Box, useTheme, useMediaQuery } from '@mui/material';
 import WheelLegend from './WheelLegend';
 import { SIZES, BREAKPOINTS } from '../../constants/styleConfig';
 
-const LegendArea: React.FC = () => {
+interface LegendAreaProps {
+  wheelId: string;
+}
+
+const LegendArea: React.FC<LegendAreaProps> = ({ wheelId }) => {
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
   
@@ -42,7 +46,7 @@ const LegendArea: React.FC = () => {
         overflow: 'visible'
       }}
     >
-      <WheelLegend />
+      <WheelLegend wheelId={wheelId} />
     </Box>
   );
 };

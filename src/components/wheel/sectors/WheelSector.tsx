@@ -17,22 +17,34 @@ interface WheelSectorProps {
 /**
  * A single sector of the outer wheel that decides which type to render
  */
+interface WheelSectorProps {
+  sectorIndex: number;
+  wheelCenterPoint: number;
+  sectorInnerRadius: number;
+  sectorOuterRadius: number;
+  sectorAngle: number;
+  wheelId: string;
+}
+
 const WheelSector: React.FC<WheelSectorProps> = ({
   sectorIndex,
   wheelCenterPoint,
   sectorInnerRadius,
   sectorOuterRadius,
-  sectorAngle
+  sectorAngle,
+  wheelId
 }) => {
   const [hasImmunity, setHasImmunity] = useState(false);
   
   // Check if the sector has immunity
   useEffect(() => {
-    setHasImmunity(immunityService.hasSectorImmunity(sectorIndex));
-    
+    const checkImmunity = async () => {
+      setHasImmunity(await immunityService.hasSectorImmunity(wheelId, sectorIndex));
+    };
+    checkImmunity();
     // Function to update immunity state
-    const handleImmunityChange = () => {
-      setHasImmunity(immunityService.hasSectorImmunity(sectorIndex));
+    const handleImmunityChange = async () => {
+      setHasImmunity(await immunityService.hasSectorImmunity(wheelId, sectorIndex));
     };
     
     // Subscribe to immunity changes

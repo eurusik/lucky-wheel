@@ -5,7 +5,7 @@ import OuterWheel from './OuterWheel';
 import InnerWheel from './InnerWheel';
 import ImmunityButton from './ImmunityButton';
 import { WheelItem } from '../../types';
-import { SIZES, ANIMATION, BREAKPOINTS } from '../../constants/styleConfig';
+import { SIZES, BREAKPOINTS } from '../../constants/styleConfig';
 import EmptyWheel from './EmptyWheel';
 
 interface WheelAreaProps {
@@ -18,6 +18,7 @@ interface WheelAreaProps {
   items: WheelItem[];
   visibleSectorIndex: number | null;
   addImmunityToSelectedSector: () => void;
+  wheelId: string;
 }
 
 const WheelArea: React.FC<WheelAreaProps> = ({
@@ -30,6 +31,7 @@ const WheelArea: React.FC<WheelAreaProps> = ({
   items = [],
   visibleSectorIndex,
   addImmunityToSelectedSector,
+  wheelId,
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
@@ -86,28 +88,21 @@ const WheelArea: React.FC<WheelAreaProps> = ({
           padding: 1,
         }}
       >
-        <g
-          className="wheel"
-          style={{
-            transform: `rotate(${wheelRotation}deg)`,
-            transition: isSpinning ? ANIMATION.INNER_WHEEL_TRANSITION : 'none',
-            transformOrigin: 'center',
-          }}
-        >
-          <OuterWheel
-            rotation={0}
-            isSpinning={false}
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            itemsCount={items.length}
-          />
-          <InnerWheel 
-            items={items}
-            rotation={0}
-            isSpinning={false}
-            radius={innerRadius}
-          />
-        </g>
+        <OuterWheel 
+          rotation={wheelRotation}
+          isSpinning={isSpinning}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          itemsCount={items.length}
+          wheelId={wheelId}
+        />
+        <InnerWheel 
+          items={items}
+          rotation={wheelRotation}
+          isSpinning={isSpinning}
+          radius={innerRadius}
+          center={outerRadius}
+        />
       </svg>
       <ImmunityButton 
           onClick={addImmunityToSelectedSector}

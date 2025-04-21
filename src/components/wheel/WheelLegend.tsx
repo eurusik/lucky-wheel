@@ -8,13 +8,15 @@ import { SectorImmunity } from '../../types';
 import { COLORS, BREAKPOINTS, STACK_GAP } from '../../constants/styleConfig';
 import { immunityService } from '../../services/immunityService';
 
-type WheelLegendProps = Record<string, never>;
+interface WheelLegendProps {
+  wheelId: string;
+}
 
 /**
  * Legend component that explains the meaning of the star symbol on the wheel
  * and shows the sectors with immunity
  */
-const WheelLegend: React.FC<WheelLegendProps> = () => {
+const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
   const [immunities, setImmunities] = useState<SectorImmunity[]>([]);
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between(BREAKPOINTS.MOBILE, BREAKPOINTS.DESKTOP));
@@ -22,24 +24,21 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
 
   // Load immunities on component mount
   useEffect(() => {
-    setImmunities(immunityService.getImmunities());
-    
-    // Function to update immunities on localStorage change
-    const handleStorageChange = () => {
-      setImmunities(immunityService.getImmunities());
+    const loadImmunities = async () => {
+      setImmunities(await immunityService.getImmunities(wheelId));
     };
-    
-    // Subscribe to localStorage changes
+    loadImmunities();
+    // Function to update immunities on localStorage/Firestore change
+    const handleStorageChange = async () => {
+      setImmunities(await immunityService.getImmunities(wheelId));
+    };
     window.addEventListener('storage', handleStorageChange);
-    
-
     window.addEventListener('immunityChanged', handleStorageChange);
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('immunityChanged', handleStorageChange);
     };
-  }, []);
+  }, [wheelId]);
   return (
     <Box sx={{ 
       mt: { xs: 4, sm: 6 }, 
@@ -129,7 +128,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                   key={immunity.sectorIndex}
                   label={immunity.name}
                   onDelete={() => {
-                    immunityService.removeImmunity(immunity.sectorIndex);
+                    immunityService.removeImmunity(wheelId, immunity.sectorIndex);
                     window.dispatchEvent(new Event('immunityChanged'));
                   }}
                   sx={{
@@ -147,8 +146,8 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
               ))}
             </Box>
             <ClearAllImmunityChip
-              onClear={() => {
-                immunityService.clearAllImmunities();
+              onClear={async () => {
+                await immunityService.clearAllImmunities(wheelId);
                 setImmunities([]);
                 window.dispatchEvent(new Event('immunityChanged'));
               }}

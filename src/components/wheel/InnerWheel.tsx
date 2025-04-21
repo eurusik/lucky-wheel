@@ -1,6 +1,6 @@
 import React from 'react';
 import { WheelItem } from '../../types';
-import { getItemSectorPath } from '../../utils/wheelGeometry';
+
 import ItemSector from './sectors/ItemSector';
 import { ANIMATION } from '../../constants/styleConfig';
 
@@ -9,15 +9,18 @@ interface InnerWheelProps {
   rotation: number;
   isSpinning: boolean;
   radius: number;
+  center: number;
 }
+
+import { getItemSectorPath } from '../../utils/wheelGeometry';
 
 const InnerWheel: React.FC<InnerWheelProps> = ({
   items,
   rotation,
   isSpinning,
   radius,
+  center,
 }) => {
-  const center = radius + 20;
   const degreesPerItem = 360 / items.length;
 
   return (
@@ -25,7 +28,7 @@ const InnerWheel: React.FC<InnerWheelProps> = ({
       style={{
         transform: `rotate(${rotation}deg)`,
         transition: isSpinning
-          ? ANIMATION.INNER_WHEEL_TRANSITION
+          ? ANIMATION.WHEEL_TRANSITION
           : 'none',
         transformOrigin: 'center',
       }}
@@ -34,8 +37,6 @@ const InnerWheel: React.FC<InnerWheelProps> = ({
         // Calculate angles for this sector (in radians)
         const startAngle = (degreesPerItem * index * Math.PI) / 180;
         const endAngle = (degreesPerItem * (index + 1) * Math.PI) / 180;
-        
-        // Get the path and text position from our utility function
         const { path, textPosition } = getItemSectorPath({
           center,
           radius,

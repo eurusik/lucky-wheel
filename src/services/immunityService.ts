@@ -1,92 +1,49 @@
 import { SectorImmunity } from '../types';
-
-const IMMUNITY_STORAGE_KEY = 'wheel_immunities';
+import * as immunityDataProvider from '../utils/immunityDataProvider';
 
 /**
- * Service for working with sector immunities
+ * Service for working with sector immunities (unified for Firestore/localStorage)
  */
 export const immunityService = {
   /**
-   * Get all immunities from localStorage
+   * Get all immunities for a wheel
    */
-  getImmunities(): SectorImmunity[] {
-    try {
-      const stored = localStorage.getItem(IMMUNITY_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error('Error getting immunities from localStorage:', error);
-      return [];
-    }
+  async getImmunities(wheelId: string): Promise<SectorImmunity[]> {
+    return immunityDataProvider.getImmunities(wheelId);
   },
 
   /**
    * Add immunity for a sector
    */
-  addImmunity(sectorIndex: number, name: string): SectorImmunity {
-    const immunities = this.getImmunities();
-    
-    // Check if immunity already exists for this sector
-    const existingIndex = immunities.findIndex(
-      immunity => immunity.sectorIndex === sectorIndex
-    );
-    
-    const newImmunity: SectorImmunity = {
-      sectorIndex,
-      name,
-      createdAt: new Date().toISOString(),
-    };
-    
-    if (existingIndex >= 0) {
-      // Update existing immunity
-      immunities[existingIndex] = newImmunity;
-    } else {
-      // Add new immunity
-      immunities.push(newImmunity);
-    }
-    
-    localStorage.setItem(IMMUNITY_STORAGE_KEY, JSON.stringify(immunities));
-    return newImmunity;
+  async addImmunity(wheelId: string, sectorIndex: number, name: string): Promise<SectorImmunity> {
+    return immunityDataProvider.addImmunity(wheelId, sectorIndex, name);
   },
 
   /**
    * Remove immunity for a sector
    */
-  removeImmunity(sectorIndex: number): boolean {
-    const immunities = this.getImmunities();
-    const initialLength = immunities.length;
-    
-    const filteredImmunities = immunities.filter(
-      immunity => immunity.sectorIndex !== sectorIndex
-    );
-    
-    if (filteredImmunities.length !== initialLength) {
-      localStorage.setItem(IMMUNITY_STORAGE_KEY, JSON.stringify(filteredImmunities));
-      return true;
-    }
-    
-    return false;
+  async removeImmunity(wheelId: string, sectorIndex: number): Promise<boolean> {
+    return immunityDataProvider.removeImmunity(wheelId, sectorIndex);
   },
 
   /**
    * Check if a sector has immunity
    */
-  hasSectorImmunity(sectorIndex: number): boolean {
-    const immunities = this.getImmunities();
-    return immunities.some(immunity => immunity.sectorIndex === sectorIndex);
+  async hasSectorImmunity(wheelId: string, sectorIndex: number): Promise<boolean> {
+    return immunityDataProvider.hasSectorImmunity(wheelId, sectorIndex);
   },
 
   /**
    * Get immunity for a sector
    */
-  getSectorImmunity(sectorIndex: number): SectorImmunity | null {
-    const immunities = this.getImmunities();
-    return immunities.find(immunity => immunity.sectorIndex === sectorIndex) || null;
+  async getSectorImmunity(wheelId: string, sectorIndex: number): Promise<SectorImmunity | null> {
+    return immunityDataProvider.getSectorImmunity(wheelId, sectorIndex);
   },
 
   /**
    * Clear all immunities
    */
-  clearAllImmunities(): void {
-    localStorage.removeItem(IMMUNITY_STORAGE_KEY);
+  async clearAllImmunities(wheelId: string): Promise<void> {
+    return immunityDataProvider.clearAllImmunities(wheelId);
   }
 };

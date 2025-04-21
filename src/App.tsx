@@ -12,7 +12,7 @@ import { createTheme as createMuiTheme } from '@mui/material/styles'
 import { ThemeProvider } from '@mui/material'
 import { ToastProvider } from './components/ui/ToastProvider';
 import NotFoundPage from './pages/NotFoundPage';
-import { getWheelById } from './utils/wheelDataProvider';
+import { getWheelById, saveWheel } from './utils/wheelDataProvider';
 
 const theme = createMuiTheme({
   components: {
@@ -49,59 +49,66 @@ const theme = createMuiTheme({
   },
 })
 
-const STORAGE_KEYS = {
-  ITEMS: 'wheelItems',
-  SPIN_STATS: 'spinStats',
-} as const
-
 const DEFAULT_VALUES = {
   SPIN_STATS: { count: 0, lastSpinTime: null },
   ITEMS: defaultTeamMembers
 } as const
 
-function getStoredData<T>(key: string, defaultValue: T): T {
-  try {
-    const saved = localStorage.getItem(key)
-    if (saved === null) {
-      setStoredData(key, defaultValue)
-      return defaultValue
-    }
-    return JSON.parse(saved)
-  } catch (error) {
-    console.error(`Error reading from localStorage (${key}):`, error)
-    return defaultValue
-  }
-}
-
-function setStoredData<T>(key: string, value: T): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch (error) {
-    console.error(`Error writing to localStorage (${key}):`, error)
-  }
-}
-
 function App() {
-  const [spinStats, setSpinStats] = useState<SpinStats>(() => 
-    getStoredData(STORAGE_KEYS.SPIN_STATS, DEFAULT_VALUES.SPIN_STATS)
-  );
-  const [items, setItems] = useState<WheelItem[]>(() => 
-    getStoredData(STORAGE_KEYS.ITEMS, DEFAULT_VALUES.ITEMS)
-  );
+  const [spinStats, setSpinStats] = useState<SpinStats>({ count: 0, lastSpinTime: null });
+  const [items, setItems] = useState<WheelItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSaveItems = useCallback((newItems: WheelItem[]) => {
-    setItems(newItems);
-    setStoredData(STORAGE_KEYS.ITEMS, newItems);
+  // Load wheel from provider on mount
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadLocalWheel() {
+      // Try to get wheel with id 'local' (or fallback to localStorage for legacy)
+      const localWheel = await getWheelById('local');
+      if (localWheel) {
+        if (isMounted) {
+          setItems(localWheel.items || []);
+          setSpinStats(localWheel.spinStats || { count: 0, lastSpinTime: null });
+          setLoading(false);
+        }
+      } else {
+        // fallback to defaults
+        setItems(DEFAULT_VALUES.ITEMS);
+        setSpinStats(DEFAULT_VALUES.SPIN_STATS);
+        setLoading(false);
+      }
+    }
+    loadLocalWheel();
+    return () => { isMounted = false; };
   }, []);
 
-  const handleSpinComplete = useCallback(() => {
+  // Save items via provider
+  const handleSaveItems = useCallback(async (newItems: WheelItem[]) => {
+    setItems(newItems);
+    const newWheel = {
+      id: 'local',
+      name: 'Local Wheel',
+      items: newItems,
+      spinStats,
+    };
+    await saveWheel(newWheel);
+  }, [spinStats]);
+
+  // Save stats via provider
+  const handleSpinComplete = useCallback(async () => {
     const newStats = {
       count: spinStats.count + 1,
       lastSpinTime: new Date().toLocaleString('uk-UA')
     };
     setSpinStats(newStats);
-    setStoredData(STORAGE_KEYS.SPIN_STATS, newStats);
-  }, [spinStats.count]);
+    const newWheel = {
+      id: 'local',
+      name: 'Local Wheel',
+      items,
+      spinStats: newStats,
+    };
+    await saveWheel(newWheel);
+  }, [spinStats, items]);
 
   function WheelPageWrapper() {
     const { id } = useParams<{ id: string }>();
@@ -140,6 +147,10 @@ function App() {
         onItemsChange={handleSaveItems}
       />
     );
+  }
+
+  if (loading) {
+    return <div style={{textAlign:'center',marginTop:80,fontSize:22}}>Loading...</div>;
   }
 
   return (

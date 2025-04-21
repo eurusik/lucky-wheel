@@ -26,33 +26,7 @@ interface UseWheelSpinProps {
   config?: Partial<typeof DEFAULT_WHEEL_CONFIG>;
 }
 
-// Local storage key for saving data
-const WHEEL_STATE_KEY = 'wheelRotation';
-
-// Get data from local storage
-function getStoredRotation(): number | null {
-  try {
-    const stored = localStorage.getItem(WHEEL_STATE_KEY);
-    if (!stored) return null;
-    
-    const rotation = parseFloat(stored);
-    return isNaN(rotation) ? null : rotation;
-  } catch (error) {
-    console.error('Error reading from localStorage:', error);
-    return null;
-  }
-}
-
-// Save rotation to local storage
-function storeRotation(rotation: number): void {
-  try {
-    if (rotation !== 0) {
-      localStorage.setItem(WHEEL_STATE_KEY, rotation.toString());
-    }
-  } catch (error) {
-    console.error('Error writing to localStorage:', error);
-  }
-}
+import { getStoredRotation, storeRotation } from '../utils/wheelStateStorage';
 
 // Calculate sector under pointer
 function getSectorUnderPointer(items: WheelItem[], wheelRotation: number): number {
@@ -82,13 +56,25 @@ function getSectorUnderPointer(items: WheelItem[], wheelRotation: number): numbe
 }
 
 // Get all available sectors (without immunity)
-function getAvailableSectors(items: WheelItem[]): { index: number; item: WheelItem }[] {
-  return items
-    .map((item, index) => ({ index, item }))
-    .filter(({ index }) => !immunityService.hasSectorImmunity(index));
+async function getAvailableSectors(wheelId: string, items: WheelItem[]): Promise<{ index: number; item: WheelItem }[]> {
+  const results: { index: number; item: WheelItem }[] = [];
+  for (let index = 0; index < items.length; index++) {
+    const hasImmunity = await immunityService.hasSectorImmunity(wheelId, index);
+    if (!hasImmunity) {
+      results.push({ index, item: items[index] });
+    }
+  }
+  return results;
 }
 
-export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
+interface UseWheelSpinProps {
+  wheelId: string;
+  items: WheelItem[];
+  onSpinComplete: () => void;
+  config?: Partial<typeof DEFAULT_WHEEL_CONFIG>;
+}
+
+export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinProps) => {
   const { showToast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   
@@ -216,11 +202,11 @@ export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
   }, [items]);
   
   // Spin the wheel
-  const spinWheel = useCallback(() => {
+  const spinWheel = useCallback(async () => {
     if (isSpinning) return;
     
     // Get available sectors (non-immune)
-    const availableSectors = getAvailableSectors(items);
+    const availableSectors = await getAvailableSectors(wheelId, items);
     if (availableSectors.length === 0) {
       showToast('All sectors are immune!', 'warning');
       return;
@@ -269,11 +255,11 @@ export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
       items,
       calculateRotationForSector,
       safeSetWheelRotation,
-      syncRotationToDom,
       setSelectedSector,
       spinDuration,
       onSpinComplete,
-      showToast
+      showToast,
+      wheelId
     ]
   );
   
@@ -281,10 +267,10 @@ export const useWheelSpin = ({ items, onSpinComplete }: UseWheelSpinProps) => {
   const addImmunityToSelectedSector = useCallback(() => {
     if (visibleSectorIndex !== null) {
       const itemName = items[visibleSectorIndex].name;
-      immunityService.addImmunity(visibleSectorIndex, itemName);
+      immunityService.addImmunity(wheelId, visibleSectorIndex, itemName);
       window.dispatchEvent(new Event('immunityChanged'));
     }
-  }, [visibleSectorIndex, items]);
+  }, [visibleSectorIndex, items, wheelId]);
 
   // Determine sector under pointer
   const setVisibleSectorBySVGPointer = useCallback((svg: SVGSVGElement | null) => {

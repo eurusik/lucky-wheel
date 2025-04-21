@@ -11,6 +11,7 @@ interface OuterWheelProps {
   innerRadius: number;
   outerRadius: number;
   itemsCount: number;
+  wheelId: string;
 }
 
 /**
@@ -21,7 +22,8 @@ const OuterWheel: React.FC<OuterWheelProps> = ({
   isSpinning,
   innerRadius,
   outerRadius,
-  itemsCount
+  itemsCount,
+  wheelId
 }) => {
   const center = outerRadius;
   // Use the same number of sectors as items
@@ -29,7 +31,7 @@ const OuterWheel: React.FC<OuterWheelProps> = ({
   const rotationStyle = {
     transform: `rotate(${rotation}deg)`,
     transition: isSpinning
-      ? ANIMATION.OUTER_WHEEL_TRANSITION
+      ? ANIMATION.WHEEL_TRANSITION
       : 'none',
     transformOrigin: 'center',
   };
@@ -44,6 +46,7 @@ const OuterWheel: React.FC<OuterWheelProps> = ({
           sectorInnerRadius={innerRadius}
           sectorOuterRadius={outerRadius}
           sectorAngle={degreesPerSector}
+          wheelId={wheelId}
         />
       ))}
     </g>

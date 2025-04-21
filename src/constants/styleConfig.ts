@@ -69,8 +69,9 @@ export const SIZES = {
  * Animation constants for wheel spinning and transitions
  */
 export const ANIMATION = {
-  OUTER_WHEEL_TRANSITION: 'transform 5.5s cubic-bezier(0.16, 1, 0.3, 1)',
-  INNER_WHEEL_TRANSITION: 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)',
+  WHEEL_TRANSITION: 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)', // unified for both wheels
+  OUTER_WHEEL_TRANSITION: 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)', // alias for legacy code
+  INNER_WHEEL_TRANSITION: 'transform 5s cubic-bezier(0.16, 1, 0.3, 1)', // alias for legacy code
   SPIN_DURATION: 5000, // ms
   SPIN_EASING: 'cubic-bezier(0.16, 1, 0.3, 1)', // Expo.out easing
 };
