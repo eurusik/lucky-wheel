@@ -11,6 +11,7 @@ import './App.css'
 import { createTheme as createMuiTheme } from '@mui/material/styles'
 import { ThemeProvider } from '@mui/material'
 import { ToastProvider } from './components/ui/ToastProvider';
+import NotFoundPage from './pages/NotFoundPage';
 
 const theme = createMuiTheme({
   components: {
@@ -104,6 +105,9 @@ function App() {
   function WheelPageWrapper() {
     const { id } = useParams<{ id: string }>();
     const wheelData = useMemo(() => (id ? getWheelById(id) : undefined), [id]);
+    if (id && !wheelData) {
+      return <NotFoundPage />;
+    }
     const wheelItems = wheelData?.items || items;
     const wheelStats = wheelData?.spinStats || spinStats;
 

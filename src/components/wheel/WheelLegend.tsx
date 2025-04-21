@@ -135,7 +135,8 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
                   sx={{
                     backgroundColor: COLORS.STAR_BACKGROUND,
                     fontWeight: 600,
-                    mb: { xs: 2, sm: 1.5, md: isMediumScreen ? 0.8 : 2 },
+                    mr: STACK_GAP,
+                    mb: { xs: 2, sm: 0 },
                     '& .MuiChip-deleteIcon': {
                       fontSize: isMediumScreen ? '1.02rem' : '1.1rem',
                       color: '#bfa100',
