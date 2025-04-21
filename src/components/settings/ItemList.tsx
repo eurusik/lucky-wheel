@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, TextField, Paper } from '@mui/material';
+import { Box, Paper } from '@mui/material';
+import Input from '../ui/Input';
 import { STACK_GAP } from '../../constants/styleConfig';
 import Chip from '../ui/Chip';
 import IconButton from '../ui/IconButton';
@@ -97,32 +98,28 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
               pl: 2,
             }}
           >
-            <TextField
+            <Input
               fullWidth
               size="small"
               value={item.name}
               onChange={(e) => onNameChange(item.id, e.target.value)}
               placeholder="Enter name"
-              variant="standard"
               sx={{
-                '& .MuiInput-root': {
-                  fontSize: '0.95rem',
-                  transition: 'all 0.2s',
-                  '&:before': {
-                    borderBottom: '1px solid rgba(0,0,0,0.1)',
-                  },
-                  '&:hover:not(.Mui-disabled):before': {
-                    borderBottom: '1px solid rgba(0,0,0,0.3)',
-                  },
-                  '&.Mui-focused:after': {
-                    borderBottom: '2px solid #ffd54f',
-                  },
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '10px',
+                  fontSize: '0.97rem',
+                  background: '#fff',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                 },
-                '& .MuiInput-input': {
-                  padding: '6px 0',
-                  '&::placeholder': {
-                    opacity: 0.5,
-                  },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#e0e0e0',
+                },
+                '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#ffd54f',
+                  borderWidth: 2,
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#ffe082',
                 },
               }}
             />
