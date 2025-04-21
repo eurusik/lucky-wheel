@@ -1,13 +1,16 @@
 import { useState, useCallback } from 'react'
 
 import WheelPage from './pages/WheelPage'
+import { useMemo } from 'react';
 import HomePage from './pages/HomePage';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
+import { getWheelById } from './utils/wheelStorage';
 import { WheelItem, SpinStats } from './types';
 import { defaultTeamMembers } from './constants/wheelConfig';
 import './App.css'
 import { createTheme as createMuiTheme } from '@mui/material/styles'
 import { ThemeProvider } from '@mui/material'
+import { ToastProvider } from './components/ui/ToastProvider';
 
 const theme = createMuiTheme({
   components: {
@@ -99,11 +102,15 @@ function App() {
   }, [spinStats.count]);
 
   function WheelPageWrapper() {
+    const { id } = useParams<{ id: string }>();
+    const wheelData = useMemo(() => (id ? getWheelById(id) : undefined), [id]);
+    const wheelItems = wheelData?.items || items;
+    const wheelStats = wheelData?.spinStats || spinStats;
+
     return (
       <WheelPage
-        items={items}
-        spinStats={spinStats}
-        onSettingsClick={() => {}}
+        items={wheelItems}
+        spinStats={wheelStats}
         onSpinComplete={handleSpinComplete}
         onItemsChange={handleSaveItems}
       />
@@ -111,14 +118,16 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path=":id" element={<WheelPageWrapper />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <ToastProvider>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path=":id" element={<WheelPageWrapper />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ToastProvider>
   );
 }
 

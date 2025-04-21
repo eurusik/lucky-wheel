@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { defaultTeamMembers } from '../constants/wheelConfig';
+import { saveWheel } from '../utils/wheelStorage';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../components/ui/Button';
 import WheelCreatedModal from '../components/ui/WheelCreatedModal';
@@ -53,9 +55,17 @@ const HomePage: React.FC = () => {
     e.preventDefault();
 
     const newId = uuidv4();
+    // Зберігаємо нове колесо в localStorage
+    saveWheel({
+      id: newId,
+      name: wheelName.trim(),
+      items: defaultTeamMembers,
+      spinStats: { count: 0, lastSpinTime: null }
+    });
     setPendingId(newId);
     setShowModal(true);
   };
+
 
   const handleModalClose = () => {
     if (pendingId) {
