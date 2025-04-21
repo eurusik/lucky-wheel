@@ -264,13 +264,23 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
   );
   
   // Add immunity to selected sector
-  const addImmunityToSelectedSector = useCallback(() => {
+  const addImmunityToSelectedSector = useCallback(async () => {
     if (visibleSectorIndex !== null) {
       const itemName = items[visibleSectorIndex].name;
-      immunityService.addImmunity(wheelId, visibleSectorIndex, itemName);
-      window.dispatchEvent(new Event('immunityChanged'));
+      try {
+        const hasImmunity = await immunityService.hasSectorImmunity(wheelId, visibleSectorIndex);
+        if (hasImmunity) {
+          showToast(`Sector "${itemName}" already has immunity!`, 'warning');
+          return;
+        }
+        await immunityService.addImmunity(wheelId, visibleSectorIndex, itemName);
+        window.dispatchEvent(new Event('immunityChanged'));
+        showToast(`Immunity added to sector "${itemName}" 🛡️`, 'success');
+      } catch (error) {
+        showToast('Failed to add immunity. Please try again.', 'error');
+      }
     }
-  }, [visibleSectorIndex, items, wheelId]);
+  }, [visibleSectorIndex, items, wheelId, showToast]);
 
   // Determine sector under pointer
   const setVisibleSectorBySVGPointer = useCallback((svg: SVGSVGElement | null) => {
