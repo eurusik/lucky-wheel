@@ -83,11 +83,11 @@ function App() {
   }, []);
 
   // Save items via provider
-  const handleSaveItems = useCallback(async (newItems: WheelItem[]) => {
+  const handleSaveItems = useCallback(async (newItems: WheelItem[], id?: string) => {
     setItems(newItems);
     const newWheel = {
-      id: 'local',
-      name: 'Local Wheel',
+      id: id || 'local',
+      name: id ? `Wheel ${id}` : 'Local Wheel',
       items: newItems,
       spinStats,
     };
@@ -95,15 +95,15 @@ function App() {
   }, [spinStats]);
 
   // Save stats via provider
-  const handleSpinComplete = useCallback(async () => {
+  const handleSpinComplete = useCallback(async (id?: string) => {
     const newStats = {
       count: spinStats.count + 1,
       lastSpinTime: new Date().toLocaleString('uk-UA')
     };
     setSpinStats(newStats);
     const newWheel = {
-      id: 'local',
-      name: 'Local Wheel',
+      id: id || 'local',
+      name: id ? `Wheel ${id}` : 'Local Wheel',
       items,
       spinStats: newStats,
     };
@@ -139,12 +139,16 @@ function App() {
     const wheelItems = wheelData?.items || items;
     const wheelStats = wheelData?.spinStats || spinStats;
 
+    const handleSpin = () => handleSpinComplete(id);
+    const handleItemsChange = (newItems: WheelItem[]) => handleSaveItems(newItems, id);
+
     return (
       <WheelPage
+        id={id}
         items={wheelItems}
         spinStats={wheelStats}
-        onSpinComplete={handleSpinComplete}
-        onItemsChange={handleSaveItems}
+        onSpinComplete={handleSpin}
+        onItemsChange={handleItemsChange}
       />
     );
   }

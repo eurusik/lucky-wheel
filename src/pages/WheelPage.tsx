@@ -4,6 +4,7 @@ import { SpinStats, WheelItem } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
 
 interface WheelPageProps {
+  id?: string;
   items: WheelItem[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
@@ -43,6 +44,7 @@ const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
 SpinStatistics.displayName = 'SpinStatistics';
 
 const WheelPage = ({ 
+  id,
   items, 
   spinStats, 
   onSpinComplete, 
@@ -60,6 +62,7 @@ const WheelPage = ({
         padding: '20px'
       }}>
           <FortuneWheel
+              id={id}
               items={items}
               onSpinComplete={onSpinComplete}
               onItemsChange={onItemsChange}

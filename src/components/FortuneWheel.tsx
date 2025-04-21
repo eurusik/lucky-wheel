@@ -14,6 +14,7 @@ import LegendArea from './wheel/LegendArea';
  * Props for the FortuneWheel component
  */
 interface FortuneWheelProps {
+  id?: string;
   items: WheelItem[];
   onSpinComplete: () => void;
   onItemsChange?: (items: WheelItem[]) => void;
@@ -23,6 +24,7 @@ interface FortuneWheelProps {
  * Main component for the fortune wheel that combines all wheel parts
  */
 const FortuneWheel: React.FC<FortuneWheelProps> = ({ 
+  id,
   items, 
   onSpinComplete, 
   onItemsChange
@@ -38,8 +40,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   }, [items]);
 
   // Using useWheelSpin hook to manage wheel state
-  // Assume wheelId is available from items[0]?.id for this refactor (should be improved in the future)
-  const wheelId = wheelItems[0]?.id || '';
+  const wheelId = id || wheelItems[0]?.id || '';
   const { 
     isSpinning, 
     wheelRotation, 
