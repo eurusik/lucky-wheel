@@ -5,7 +5,6 @@ import { STACK_GAP } from '../../constants/styleConfig';
 import Chip from '../ui/Chip';
 import IconButton from '../ui/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ShieldIcon from '@mui/icons-material/Shield';
 import { WheelItem } from '../../types';
 
 /**
@@ -151,6 +150,9 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
             className="delete-button"
             size="small"
             tooltip="Delete"
+            sx={{
+              mr: 2,
+            }}
 
           >
             <DeleteIcon sx={{ fontSize: '1.1rem' }} />

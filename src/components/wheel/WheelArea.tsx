@@ -111,13 +111,10 @@ const WheelArea: React.FC<WheelAreaProps> = ({
           />
         </g>
       </svg>
-      {selectedItem && visibleSectorIndex !== null && (
-        <ImmunityButton 
+      <ImmunityButton 
           onClick={addImmunityToSelectedSector}
-          isVisible={!isSpinning}
-          selectedSectorName={items[visibleSectorIndex]?.name || ''}
+          selectedSectorName={visibleSectorIndex != null && items[visibleSectorIndex] ? items[visibleSectorIndex].name : null}
         />
-      )}
     </Box>
   );
 };

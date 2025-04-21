@@ -3,7 +3,6 @@ import Button from '../ui/Button';
 import ShieldIcon from '@mui/icons-material/Shield';
 
 interface ImmunityButtonProps {
-  isVisible: boolean;
   onClick: () => void;
   selectedSectorName: string | null;
 }
@@ -12,11 +11,10 @@ interface ImmunityButtonProps {
  * Button to add immunity to the selected sector. Disabled if no sector is selected or not visible.
  */
 const ImmunityButton: React.FC<ImmunityButtonProps> = ({ 
-  isVisible, 
   onClick, 
   selectedSectorName 
 }) => {
-  const disabled = !isVisible || !selectedSectorName;
+  const disabled =!selectedSectorName;
 
   return (
     <Button

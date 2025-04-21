@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Chip, Stack, useTheme, useMediaQuery } from '@mui/material';
-import { STAR_IMMUNITY_MESSAGE } from '../../constants/wheelConfig';
+import Button from '../ui/Button';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+
+
 import { SectorImmunity } from '../../types';
 import { COLORS, BREAKPOINTS, STACK_GAP } from '../../constants/styleConfig';
 import { immunityService } from '../../services/immunityService';
@@ -39,7 +42,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
   }, []);
   return (
     <Box sx={{ 
-      mt: 2, 
+      mt: { xs: 4, sm: 6 }, 
       textAlign: 'center', 
       width: '100%',
       height: 'auto',
@@ -57,9 +60,10 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 1.5,
+          gap: 1,
           fontSize: { 
             xs: '1rem', 
             sm: '0.9rem', 
@@ -70,9 +74,9 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           mb: 3,
           backgroundColor: COLORS.STAR_BACKGROUND,
           padding: { 
-            xs: '10px 16px', 
-            sm: '8px 14px', 
-            md: isMediumScreen ? '7px 11px' : '10px 16px' 
+            xs: '12px 18px', 
+            sm: '10px 16px', 
+            md: isMediumScreen ? '9px 13px' : '12px 18px' 
           },
           borderRadius: '18px',
           width: 'fit-content',
@@ -81,21 +85,22 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           border: '1px solid rgba(191, 161, 0, 0.2)',
         }}
       >
-        <span style={{ 
-          fontSize: isMediumScreen ? '1.4rem' : isTablet ? '1.3rem' : '1.6rem'
-        }}>🛡️</span> 
-        <Typography sx={{ 
-          fontSize: { 
-            xs: '0.95rem', 
-            sm: '0.85rem', 
-            md: isMediumScreen ? '0.92rem' : '0.95rem'
-          }, 
-          lineHeight: 1.4 
-        }}>
-          {STAR_IMMUNITY_MESSAGE}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <span style={{ 
+            fontSize: isMediumScreen ? '1.4rem' : isTablet ? '1.3rem' : '1.6rem'
+          }}>🛡️</span>
+          <Typography sx={{
+            fontWeight: 700,
+            fontSize: { xs: '1.1rem', sm: '1rem', md: isMediumScreen ? '1.08rem' : '1.15rem' },
+            color: '#664d00',
+            textAlign: 'center',
+            mb: 0,
+          }}>
+            Sectors with immunity:
+          </Typography>
+        </Box>
       </Box>
-      
+
       {immunities.length > 0 && (
         <Box sx={{ 
           width: '100%',
@@ -105,131 +110,60 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           flexDirection: 'column',
           flexGrow: 1
         }}>
-          <Typography
-            variant="h5"
-            color="primary"
-            sx={{
-              textAlign: 'center',
-              fontWeight: 700,
-              mt: 2,
-              mb: 3.5,
-              letterSpacing: 0.6,
-              fontSize: { 
-                xs: '1.5rem', 
-                sm: '1.3rem', 
-                md: isMediumScreen ? '1.35rem' : '1.5rem'
-              },
-              position: 'relative',
-              display: 'inline-block',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                bottom: -8,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '60px',
-                height: '3px',
-                backgroundColor: 'primary.main',
-                borderRadius: '2px',
-              }
-            }}
-          >
-            Sectors with immunity:
-          </Typography>
           <Stack
-            direction="row"
+            direction={{ xs: 'column', sm: 'row' }}
             useFlexGap
             flexWrap="wrap"
-            sx={{ 
-              mb: 3.5, 
-              justifyContent: 'center',
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{
+              mb: 3.5,
               maxWidth: '100%',
               mx: 'auto',
               gap: STACK_GAP
             }}
           >
-            {immunities.map((immunity) => (
-              <Chip
-                key={immunity.sectorIndex}
-                label={immunity.name}
-                onDelete={() => {
-                  immunityService.removeImmunity(immunity.sectorIndex);
-                  window.dispatchEvent(new Event('immunityChanged'));
-                }}
-                onClick={() => {
-                  immunityService.removeImmunity(immunity.sectorIndex);
-                  window.dispatchEvent(new Event('immunityChanged'));
-                }}
-                sx={{
-                  backgroundColor: COLORS.STAR_BACKGROUND,
-                  fontWeight: 600,
-                  mb: { 
-                    xs: 2, 
-                    sm: 1.5, 
-                    md: isMediumScreen ? 0.8 : 2 
-                  },
-                  mx: { 
-                    xs: 0.8, 
-                    sm: 0.5, 
-                    md: isMediumScreen ? 0.2 : 0.8 
-                  },
-                  px: { 
-                    xs: 2.5, 
-                    sm: 2, 
-                    md: isMediumScreen ? 1.75 : 2.5 
-                  },
-                  py: { 
-                    xs: 1.2, 
-                    sm: 1, 
-                    md: isMediumScreen ? 0.84 : 1.2 
-                  },
-                  height: 'auto',
-                  borderRadius: 3,
-                  fontSize: { 
-                    xs: '1.1rem', 
-                    sm: '0.95rem', 
-                    md: isMediumScreen ? '1.02rem' : '1.1rem'
-                  },
-                  boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
-                  transition: 'all 0.25s ease',
-                  minWidth: { 
-                    xs: '80px', 
-                    sm: '70px', 
-                    md: isMediumScreen ? '75px' : '80px'
-                  },
-                  maxWidth: 'none',
-                  whiteSpace: 'nowrap',
-                  overflow: 'visible',
-                  textOverflow: 'clip',
-                  display: 'inline-flex',
-                  border: '1px solid rgba(191, 161, 0, 0.15)',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    boxShadow: '0 4px 18px rgba(0,0,0,0.18)',
-                    backgroundColor: '#ffe082',
-                  },
-                  '& .MuiChip-label': {
-                    paddingLeft: 0,
-                    whiteSpace: 'nowrap',
-                    overflow: 'visible',
-                    textOverflow: 'clip',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '100%',
-                  },
-                  '& .MuiChip-deleteIcon': {
-                    fontSize: { 
-                      xs: '1.1rem', 
-                      sm: '0.95rem', 
-                      md: isMediumScreen ? '1.02rem' : '1.1rem'
+            <Box sx={{ flexGrow: 1, display: 'flex', flexWrap: 'wrap', gap: STACK_GAP }}>
+              {immunities.map((immunity) => (
+                <Chip
+                  key={immunity.sectorIndex}
+                  label={immunity.name}
+                  onDelete={() => {
+                    immunityService.removeImmunity(immunity.sectorIndex);
+                    window.dispatchEvent(new Event('immunityChanged'));
+                  }}
+                  sx={{
+                    backgroundColor: COLORS.STAR_BACKGROUND,
+                    fontWeight: 600,
+                    mb: { xs: 2, sm: 1.5, md: isMediumScreen ? 0.8 : 2 },
+                    '& .MuiChip-deleteIcon': {
+                      fontSize: isMediumScreen ? '1.02rem' : '1.1rem',
+                      color: '#bfa100',
+                      right: 4,
                     },
-                    color: '#bfa100',
-                    right: 4,
-                  }
-                }}
-              />
-            ))}
+                  }}
+                />
+              ))}
+            </Box>
+            <Chip
+              label="Clear All"
+              onDelete={() => {
+                immunityService.clearAllImmunities();
+                setImmunities([]);
+                window.dispatchEvent(new Event('immunityChanged'));
+              }}
+              deleteIcon={<DeleteSweepIcon />}
+              sx={{
+                backgroundColor: COLORS.STAR_BACKGROUND,
+                fontWeight: 600,
+                mb: { xs: 2, sm: 1.5, md: isMediumScreen ? 0.8 : 2 },
+                '& .MuiChip-deleteIcon': {
+                  fontSize: isMediumScreen ? '1.02rem' : '1.1rem',
+                  color: '#bfa100',
+                  right: 4,
+                },
+              }}
+            />
           </Stack>
         </Box>
       )}
