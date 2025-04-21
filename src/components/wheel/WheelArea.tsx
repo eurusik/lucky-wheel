@@ -16,7 +16,6 @@ interface WheelAreaProps {
   isSpinning: boolean;
   spinWheel: () => void;
   items: WheelItem[];
-  selectedItem: WheelItem | null;
   visibleSectorIndex: number | null;
   addImmunityToSelectedSector: () => void;
 }
@@ -29,7 +28,6 @@ const WheelArea: React.FC<WheelAreaProps> = ({
   isSpinning,
   spinWheel,
   items = [],
-  selectedItem,
   visibleSectorIndex,
   addImmunityToSelectedSector,
 }) => {

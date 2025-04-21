@@ -7,8 +7,6 @@ interface WheelPageProps {
   items: WheelItem[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
-  onScreenshot: () => void;
-  onSettingsClick: () => void;
   onItemsChange?: (items: WheelItem[]) => void;
 }
 
@@ -48,7 +46,6 @@ const WheelPage = ({
   items, 
   spinStats, 
   onSpinComplete, 
-  onScreenshot,
   onItemsChange
 }: WheelPageProps) => {
   return (
@@ -65,7 +62,6 @@ const WheelPage = ({
           <FortuneWheel
               items={items}
               onSpinComplete={onSpinComplete}
-              onScreenshot={onScreenshot}
               onItemsChange={onItemsChange}
           />
           {spinStats.count > 0 && (

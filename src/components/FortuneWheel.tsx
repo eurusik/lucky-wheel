@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Box } from '@mui/material';
+import { takeScreenshot } from '../utils/screenshot';
 import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
@@ -15,7 +16,6 @@ import LegendArea from './wheel/LegendArea';
 interface FortuneWheelProps {
   items: WheelItem[];
   onSpinComplete: () => void;
-  onScreenshot: () => void;
   onItemsChange?: (items: WheelItem[]) => void;
 }
 
@@ -25,8 +25,7 @@ interface FortuneWheelProps {
 const FortuneWheel: React.FC<FortuneWheelProps> = ({ 
   items, 
   onSpinComplete, 
-  onScreenshot,
-  onItemsChange 
+  onItemsChange
 }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
@@ -43,7 +42,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     isSpinning, 
     wheelRotation, 
     spinWheel,
-    selectedItem,
     visibleSectorIndex,
     addImmunityToSelectedSector,
     setVisibleSectorBySVGPointer
@@ -72,6 +70,14 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   // Handlers for settings dialog
   const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);
   const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
+
+  // Screenshot handler (copies screenshot of the wheel to clipboard)
+  const handleScreenshot = useCallback(async () => {
+    if (wheelRef.current) {
+      // Optionally, you could screenshot just the SVG or the whole area
+      await takeScreenshot();
+    }
+  }, []);
 
   // If the list is empty, show empty wheel
   if (!wheelItems || wheelItems.length === 0) {
@@ -104,7 +110,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     >
       <WheelToolbar 
         onSettingsClick={handleOpenSettings}
-        onScreenshotClick={onScreenshot}
+        onScreenshotClick={handleScreenshot}
       />
 
       <SettingsDialog 
@@ -122,7 +128,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
         isSpinning={isSpinning}
         spinWheel={spinWheel}
         items={wheelItems}
-        selectedItem={selectedItem}
         visibleSectorIndex={visibleSectorIndex}
         addImmunityToSelectedSector={addImmunityToSelectedSector}
       />
