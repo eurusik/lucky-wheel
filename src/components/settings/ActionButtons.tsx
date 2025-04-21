@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
+import Button from '../ui/Button';
 import { Add as AddIcon, Save as SaveIcon } from '@mui/icons-material';
 import { WheelItem } from '../../types';
-import { SETTINGS, COLORS } from '../../constants/styleConfig';
+import { SETTINGS, STACK_GAP } from '../../constants/styleConfig';
 
 /**
  * Props for the ActionButtons component
@@ -38,35 +39,19 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ items = [], onAddItem, on
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        spacing={4}
         sx={{ 
           width: '100%',
           maxWidth: '500px',
-          m: 0.5
+          m: 0.5,
+          gap: STACK_GAP
         }}
       >
         <Button
           variant="outlined"
           onClick={onAddItem}
           startIcon={<AddIcon />}
-          sx={{
-            borderRadius: '24px',
-            borderColor: 'rgba(255, 213, 79, 0.5)',
-            color: '#000000',
-            px: 3,
-            py: 1,
-            m: 0.5,
-            fontSize: '0.95rem',
-            fontWeight: 500,
-            backgroundColor: 'rgba(255, 213, 79, 0.04)',
-            textTransform: 'none',
-            minWidth: '160px',
-            '&:hover': {
-              borderColor: 'rgba(255, 213, 79, 0.8)',
-              backgroundColor: 'rgba(255, 213, 79, 0.08)',
-              boxShadow: '0 2px 8px rgba(255, 213, 79, 0.15)'
-            }
-          }}
+
+          tooltip="Add participant"
         >
           Add Item
         </Button>
@@ -75,27 +60,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ items = [], onAddItem, on
           onClick={() => onSave(items || [])}
           disabled={hasEmptyNames}
           startIcon={<SaveIcon />}
-          sx={{
-            borderRadius: '24px',
-            py: 1.2,
-            px: 4,
-            m: 0.5,
-            fontSize: '0.95rem',
-            fontWeight: 500,
-            backgroundColor: COLORS.STAR_BACKGROUND,
-            color: '#000000',
-            textTransform: 'none',
-            minWidth: '160px',
-            boxShadow: '0 2px 6px rgba(255, 213, 79, 0.25)',
-            '&:hover': {
-              backgroundColor: COLORS.STAR_BACKGROUND_HOVER,
-              boxShadow: '0 4px 12px rgba(255, 213, 79, 0.3)'
-            },
-            '&:disabled': {
-              backgroundColor: 'rgba(255, 213, 79, 0.5)',
-              color: 'rgba(0, 0, 0, 0.38)'
-            }
-          }}
+
+          tooltip={hasEmptyNames ? 'Fill in all names' : 'Save changes'}
         >
           Save Changes
         </Button>

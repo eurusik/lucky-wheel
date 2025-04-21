@@ -1,5 +1,8 @@
 import React from 'react';
-import { Box, TextField, IconButton, Tooltip, Chip, Paper } from '@mui/material';
+import { Box, TextField, Paper } from '@mui/material';
+import { STACK_GAP } from '../../constants/styleConfig';
+import Chip from '../ui/Chip';
+import IconButton from '../ui/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShieldIcon from '@mui/icons-material/Shield';
 import { WheelItem } from '../../types';
@@ -22,7 +25,7 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 1.2,
+        gap: STACK_GAP,
         maxHeight: '65vh',
         overflowY: 'auto',
         overflowX: 'hidden',
@@ -124,50 +127,37 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
               }}
             />
             {item.isImmune && (
-              <Tooltip title="Immunity">
-                <Chip
-                  icon={<ShieldIcon sx={{ fontSize: '0.9rem' }} />}
-                  label="Immunity"
-                  size="small"
-                  sx={{
-                    height: '24px',
-                    backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              <Chip
+                label="Immunity"
+                color="#1b5e20"
+                onDelete={() => {}}
+                selected={true}
+                sx={{
+                  backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                  color: '#1b5e20',
+                  borderRadius: '12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  '& .MuiChip-icon': {
                     color: '#1b5e20',
-                    borderRadius: '12px',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    '& .MuiChip-icon': {
-                      color: '#1b5e20',
-                      marginLeft: '4px',
-                    },
-                    '& .MuiChip-label': {
-                      padding: '0 8px',
-                    },
-                  }}
-                />
-              </Tooltip>
+                    marginLeft: '4px',
+                  },
+                  '& .MuiChip-label': {
+                    padding: '0 8px',
+                  },
+                }}
+              />
             )}
           </Box>
-          <Tooltip title="Delete">
-            <IconButton
-              onClick={() => onRemove(item.id)}
-              className="delete-button"
-              size="small"
-              sx={{
-                color: '#000000',
-                opacity: 0,
-                transform: 'translateX(10px)',
-                transition: 'all 0.2s ease',
-                padding: '8px',
-                marginRight: '8px',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
-            >
-              <DeleteIcon sx={{ fontSize: '1.1rem' }} />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={() => onRemove(item.id)}
+            className="delete-button"
+            size="small"
+            tooltip="Delete"
+
+          >
+            <DeleteIcon sx={{ fontSize: '1.1rem' }} />
+          </IconButton>
         </Paper>
       ))}
     </Box>

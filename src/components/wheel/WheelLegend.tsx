@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Chip, Stack, useTheme, useMediaQuery } from '@mui/material';
 import { STAR_IMMUNITY_MESSAGE } from '../../constants/wheelConfig';
 import { SectorImmunity } from '../../types';
-import { COLORS, BREAKPOINTS } from '../../constants/styleConfig';
+import { COLORS, BREAKPOINTS, STACK_GAP } from '../../constants/styleConfig';
 import { immunityService } from '../../services/immunityService';
 
 type WheelLegendProps = Record<string, never>;
@@ -138,7 +138,6 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
           </Typography>
           <Stack
             direction="row"
-            spacing={1.5}
             useFlexGap
             flexWrap="wrap"
             sx={{ 
@@ -146,11 +145,7 @@ const WheelLegend: React.FC<WheelLegendProps> = () => {
               justifyContent: 'center',
               maxWidth: '100%',
               mx: 'auto',
-              gap: { 
-                xs: 2.5, 
-                sm: 1.5, 
-                md: isMediumScreen ? 0.8 : 2.5 
-              }
+              gap: STACK_GAP
             }}
           >
             {immunities.map((immunity) => (

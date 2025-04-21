@@ -78,6 +78,55 @@ export const ANIMATION = {
 /**
  * Layout constants for settings page with responsive values
  */
+// Universal button style for all project buttons. Extend or override via sx in components if needed.
+// Responsive chip style for mobile, tablet, desktop
+// Responsive gap for Stack components (chips, buttons, etc.)
+export const STACK_GAP = { xs: 2.5, sm: 1.5, md: 0.8 }; // 20px, 12px, 6.4px
+
+export const CHIP = {
+  borderRadius: 8,
+  fontWeight: 600,
+  fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1.05rem' },
+  height: { xs: 28, sm: 32, md: 36 },
+  padding: '0 10px',
+  backgroundColor: '#fffbe6',
+  color: '#ad8e00',
+  boxShadow: '0 1px 4px rgba(255, 213, 79, 0.10)',
+  letterSpacing: 0.2,
+  transition: 'background 0.2s, box-shadow 0.2s, color 0.2s',
+  '&:hover': {
+    backgroundColor: '#fff3c0',
+    color: '#c59d00',
+    boxShadow: '0 2px 8px rgba(255, 213, 79, 0.18)'
+  },
+  '& .MuiChip-label': {
+    padding: '0 8px',
+    fontWeight: 600,
+  },
+};
+
+export const BUTTONS = {
+  border: 'none',
+  borderRadius: 8,
+  fontWeight: 600,
+  textTransform: 'none',
+  minWidth: 120,
+  padding: '8px 24px',
+  color: '#222',
+  backgroundColor: COLORS.STAR_BACKGROUND,
+  boxShadow: '0 2px 8px rgba(60, 80, 180, 0.10)',
+  transition: 'background 0.2s, box-shadow 0.2s, color 0.2s',
+  '&:hover': {
+    backgroundColor: COLORS.STAR_BACKGROUND_HOVER,
+    color: '#ad8e00',
+    boxShadow: '0 4px 12px rgba(255, 213, 79, 0.18)'
+  },
+  '&:disabled': {
+    backgroundColor: 'rgba(255, 213, 79, 0.5)',
+    color: 'rgba(0,0,0,0.38)'
+  }
+};
+
 export const SETTINGS = {
   MAX_WIDTH: { mobile: '100%', tablet: 540, desktop: 600 },
   COLOR_SWATCH_SIZE: { mobile: 24, tablet: 28, desktop: 32 },
