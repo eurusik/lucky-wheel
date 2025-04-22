@@ -5,6 +5,7 @@ import RenameWheelModal from '../components/ui/RenameWheelModal';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { updateWheel, getWheelById } from '../utils/wheelDataProvider';
+import { useToast } from '../components/ui/ToastProvider';
 import { useNavigate } from 'react-router-dom';
 import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
@@ -20,6 +21,7 @@ interface WheelSummary {
 }
 
 const WheelsBrowserPage: React.FC = () => {
+  const { showToast } = useToast();
   const [wheels, setWheels] = useState<WheelSummary[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,6 +63,7 @@ const WheelsBrowserPage: React.FC = () => {
         ) || null
       );
     }
+    showToast('Wheel name successfully changed!', 'success');
     closeRenameModal();
   };
 
