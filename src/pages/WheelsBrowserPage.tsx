@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Link as MuiLink } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
