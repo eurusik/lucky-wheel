@@ -6,6 +6,8 @@ import Loader from '../components/ui/Loader';
 import Button from '../components/ui/Button';
 import BackToHomeButton from '../components/ui/BackToHomeButton';
 
+import { FirestoreWheelData } from '../utils/wheelFirestore';
+
 interface WheelSummary {
   id: string;
   name: string;
@@ -22,7 +24,7 @@ const WheelsBrowserPage: React.FC = () => {
       setLoading(true);
       const all = await getAllWheels(); // [{id, name, items: [...]}, ...]
       setWheels(
-        all.map((w: any) => ({
+        all.map((w: FirestoreWheelData) => ({
           id: w.id,
           name: w.name || 'Untitled Wheel',
           itemsCount: Array.isArray(w.items) ? w.items.length : 0,
