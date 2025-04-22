@@ -81,7 +81,7 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
   // Initialize state with saved rotation value
   const [wheelRotation, setWheelRotation] = useState(() => {
     if (wheelState.isFirstRender) {
-      const storedRotation = getStoredRotation();
+      const storedRotation = getStoredRotation(wheelId);
       if (storedRotation !== null) {
         wheelState.currentRotation = storedRotation;
       }
@@ -115,9 +115,9 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
   // Functions for safe state updates
   const safeSetWheelRotation = useCallback((rotation: number) => {
     wheelState.currentRotation = rotation;
-    storeRotation(rotation);
+    storeRotation(wheelId, rotation);
     setWheelRotation(rotation);
-  }, []);
+  }, [wheelId]);
   
   const safeSetSelectedItem = useCallback((item: WheelItem | null) => {
     wheelState.selectedItem = item;
@@ -276,7 +276,7 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
         await immunityService.addImmunity(wheelId, visibleSectorIndex, itemName);
         window.dispatchEvent(new Event('immunityChanged'));
         showToast(`Immunity added to sector "${itemName}" 🛡️`, 'success');
-      } catch (error) {
+      } catch {
         showToast('Failed to add immunity. Please try again.', 'error');
       }
     }

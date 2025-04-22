@@ -8,11 +8,14 @@ export interface WheelStateStorage {
   selectedItem: import('../types').WheelItem | null;
 }
 
-const STATE_KEY = 'wheelRotation';
+// Returns the storage key for a given wheelId
+function getRotationKey(wheelId: string) {
+  return `wheelRotation_${wheelId}`;
+}
 
-export function getStoredRotation(): number | null {
+export function getStoredRotation(wheelId: string): number | null {
   try {
-    const stored = localStorage.getItem(STATE_KEY);
+    const stored = localStorage.getItem(getRotationKey(wheelId));
     if (!stored) return null;
     const rotation = parseFloat(stored);
     return isNaN(rotation) ? null : rotation;
@@ -22,10 +25,10 @@ export function getStoredRotation(): number | null {
   }
 }
 
-export function storeRotation(rotation: number): void {
+export function storeRotation(wheelId: string, rotation: number): void {
   try {
     if (rotation !== 0) {
-      localStorage.setItem(STATE_KEY, rotation.toString());
+      localStorage.setItem(getRotationKey(wheelId), rotation.toString());
     }
   } catch (error) {
     console.error('Error writing to localStorage:', error);

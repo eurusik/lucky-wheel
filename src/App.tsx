@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 
 import WheelPage from './pages/WheelPage'
 
@@ -82,71 +82,77 @@ function App() {
     return () => { isMounted = false; };
   }, []);
 
-  // Save items via provider
-  const handleSaveItems = useCallback(async (newItems: WheelItem[], id?: string) => {
-    setItems(newItems);
-    const newWheel = {
-      id: id || 'local',
-      name: id ? `Wheel ${id}` : 'Local Wheel',
-      items: newItems,
-      spinStats,
-    };
-    await saveWheel(newWheel);
-  }, [spinStats]);
-
-  // Save stats via provider
-  const handleSpinComplete = useCallback(async (id?: string) => {
-    const newStats = {
-      count: spinStats.count + 1,
-      lastSpinTime: new Date().toLocaleString('uk-UA')
-    };
-    setSpinStats(newStats);
-    const newWheel = {
-      id: id || 'local',
-      name: id ? `Wheel ${id}` : 'Local Wheel',
-      items,
-      spinStats: newStats,
-    };
-    await saveWheel(newWheel);
-  }, [spinStats, items]);
 
   function WheelPageWrapper() {
     const { id } = useParams<{ id: string }>();
-    const [wheelData, setWheelData] = React.useState<import('./utils/wheelFirestore').FirestoreWheelData | null>(null);
+    // Локальний стейт для items та spinStats
+    const [localItems, setLocalItems] = React.useState<WheelItem[]>([]);
+    const [localSpinStats, setLocalSpinStats] = React.useState<SpinStats>({ count: 0, lastSpinTime: null });
     const [loading, setLoading] = React.useState<boolean>(!!id);
+    const [notFound, setNotFound] = React.useState<boolean>(false);
 
+    // Завантажуємо дані з бази лише при монтуванні/зміні id
     React.useEffect(() => {
       let isMounted = true;
       if (id) {
         setLoading(true);
+        setNotFound(false);
         getWheelById(id).then((data) => {
           if (isMounted) {
-            setWheelData(data);
-            setLoading(false);
+            if (data) {
+              setLocalItems(data.items || []);
+              setLocalSpinStats(data.spinStats || { count: 0, lastSpinTime: null });
+              setLoading(false);
+            } else {
+              setNotFound(true);
+              setLoading(false);
+            }
           }
         });
       } else {
-        setWheelData(null);
+        setLocalItems(items);
+        setLocalSpinStats(spinStats);
         setLoading(false);
+        setNotFound(false);
       }
       return () => { isMounted = false; };
     }, [id]);
 
+    // Зберігаємо дані у базу при кожній зміні локального стейту
+    const saveToDb = React.useCallback((itemsToSave: WheelItem[], statsToSave: SpinStats) => {
+      const newWheel = {
+        id: id || 'local',
+        name: id ? `Wheel ${id}` : 'Local Wheel',
+        items: itemsToSave,
+        spinStats: statsToSave,
+      };
+      saveWheel(newWheel);
+    }, [id]);
+
+    // Хендлери для змін
+    const handleSpin = () => {
+      const newStats = {
+        count: localSpinStats.count + 1,
+        lastSpinTime: new Date().toLocaleString('uk-UA')
+      };
+      setLocalSpinStats(newStats);
+      saveToDb(localItems, newStats);
+    };
+    const handleItemsChange = (newItems: WheelItem[]) => {
+      setLocalItems(newItems);
+      saveToDb(newItems, localSpinStats);
+    };
+
     if (loading) return <div style={{textAlign:'center',marginTop:80,fontSize:22}}>Loading...</div>;
-    if (id && !wheelData) {
+    if (notFound) {
       return <NotFoundPage />;
     }
-    const wheelItems = wheelData?.items || items;
-    const wheelStats = wheelData?.spinStats || spinStats;
-
-    const handleSpin = () => handleSpinComplete(id);
-    const handleItemsChange = (newItems: WheelItem[]) => handleSaveItems(newItems, id);
 
     return (
       <WheelPage
         id={id}
-        items={wheelItems}
-        spinStats={wheelStats}
+        items={localItems}
+        spinStats={localSpinStats}
         onSpinComplete={handleSpin}
         onItemsChange={handleItemsChange}
       />
@@ -170,5 +176,6 @@ function App() {
     </ToastProvider>
   );
 }
+
 
 export default App
