@@ -30,3 +30,9 @@ export function getWheelById(id: string): StoredWheelData | undefined {
   const all = getAllWheels();
   return all[id];
 }
+
+export function deleteWheel(id: string): void {
+  const all = getAllWheels();
+  delete all[id];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
