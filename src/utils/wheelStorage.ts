@@ -1,6 +1,7 @@
 import { WheelItem, SpinStats } from '../types';
 
 export interface StoredWheelData {
+  lastRotation?: number;
   id: string;
   name: string;
   items: WheelItem[];

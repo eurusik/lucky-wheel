@@ -14,6 +14,7 @@ import {
 import { WheelItem, SpinStats } from '../types';
 
 export interface FirestoreWheelData {
+  lastRotation?: number;
   id: string;
   name: string;
   items: WheelItem[];

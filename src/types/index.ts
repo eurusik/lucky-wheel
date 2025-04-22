@@ -12,6 +12,22 @@ export interface SpinStats {
   lastSpinTime: string | null;
 }
 
+export interface FirestoreWheelData {
+  id: string;
+  name: string;
+  items: WheelItem[];
+  spinStats: SpinStats;
+  lastRotation?: number;
+}
+
+export interface StoredWheelData {
+  id: string;
+  name: string;
+  items: WheelItem[];
+  spinStats: SpinStats;
+  lastRotation?: number;
+}
+
 /**
  * Sector immunity information
  */

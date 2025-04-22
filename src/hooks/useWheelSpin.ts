@@ -27,6 +27,7 @@ interface UseWheelSpinProps {
 }
 
 import { getStoredRotation, storeRotation } from '../utils/wheelStateStorage';
+import * as wheelDataProvider from '../utils/wheelDataProvider';
 
 // Calculate sector under pointer
 function getSectorUnderPointer(items: WheelItem[], wheelRotation: number): number {
@@ -90,6 +91,16 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
     }
     return wheelState.currentRotation;
   });
+
+  useEffect(() => {
+    if (!wheelId) return;
+    wheelDataProvider.getWheelById(wheelId).then(wheel => {
+      if (wheel && typeof wheel.lastRotation === 'number') {
+        wheelState.currentRotation = wheel.lastRotation;
+        setWheelRotation(wheel.lastRotation);
+      }
+    });
+  }, [wheelId]);
   
   const [selectedItem, setSelectedItem] = useState<WheelItem | null>(wheelState.selectedItem);
   const [visibleSectorIndex, setVisibleSectorIndex] = useState<number | null>(wheelState.selectedSector);
@@ -244,6 +255,15 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
       setSelectedSector(sectorToLandOn);
       setSelectedItem(items[sectorToLandOn]);
       onSpinComplete();
+
+      wheelDataProvider.getWheelById(wheelId).then(wheel => {
+        if (wheel) {
+          wheelDataProvider.saveWheel({
+            ...wheel,
+            lastRotation: finalRotation
+          });
+        }
+      });
       
       // Show toast with selected sector name and candy emojis
       const selectedItem = items[sectorToLandOn];
