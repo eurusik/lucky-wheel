@@ -38,14 +38,12 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
     };
     const newItems = [...wheelItems, newItem];
     setWheelItems(newItems);
-    // Save changes immediately after adding
     onSave(newItems);
   };
 
   const handleRemoveItem = (id: string) => {
     const newItems = wheelItems.filter(item => item.id !== id);
     setWheelItems(newItems);
-    // Save changes immediately after removing
     onSave(newItems);
   };
 
@@ -53,8 +51,6 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
     const newItems = wheelItems.map(item =>
       item.id === id ? { ...item, name: newName } : item
     );
-    setWheelItems(newItems);
-    // Save changes immediately after changing name
     onSave(newItems);
   };
 
