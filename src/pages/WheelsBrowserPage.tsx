@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
+import IconButton from '../components/ui/IconButton';
+import RenameWheelModal from '../components/ui/RenameWheelModal';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { updateWheel, getWheelById } from '../utils/wheelDataProvider';
 import { useNavigate } from 'react-router-dom';
 import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
@@ -17,6 +22,49 @@ interface WheelSummary {
 const WheelsBrowserPage: React.FC = () => {
   const [wheels, setWheels] = useState<WheelSummary[] | null>(null);
   const [loading, setLoading] = useState(true);
+
+
+  const [renameModalOpen, setRenameModalOpen] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const openRenameModal = (id: string, name: string) => {
+    setRenameTarget({ id, name });
+    setRenameModalOpen(true);
+  };
+  const closeRenameModal = () => {
+    setRenameModalOpen(false);
+    setRenameTarget(null);
+  };
+
+
+
+  const handleDeleteWheel = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this wheel?')) return;
+    try {
+      const { removeWheel } = await import('../utils/wheelDataProvider');
+      await removeWheel(id);
+      setWheels(wheels => wheels?.filter(w => w.id !== id) || null);
+    } catch {
+      alert('Failed to delete wheel.');
+    }
+  };
+
+  const handleRenameSave = async (newName: string) => {
+    if (!renameTarget) return;
+    // Get the full wheel object, update name, save
+    const wheelData = await getWheelById(renameTarget.id);
+    if (wheelData) {
+      await updateWheel({ ...wheelData, name: newName });
+      setWheels(wheels =>
+        wheels?.map(w =>
+          w.id === renameTarget.id ? { ...w, name: newName } : w
+        ) || null
+      );
+    }
+    closeRenameModal();
+  };
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +99,7 @@ const WheelsBrowserPage: React.FC = () => {
       }}
     >
       <BackToHomeButton />
+
       <Typography
         variant="h1"
         sx={{
@@ -91,7 +140,7 @@ const WheelsBrowserPage: React.FC = () => {
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                   <span style={{ fontSize: 22, marginRight: 6, filter: 'drop-shadow(0 1px 4px #e91e6344)' }} role="img" aria-label="wheel">🎡</span>
-                  <Typography sx={{ fontWeight: 800, fontSize: { xs: 16, sm: 22 }, color: '#222', fontFamily: 'inherit', mb: 0.5 }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: { xs: 16, sm: 22 }, color: '#222', fontFamily: 'inherit', mb: 0.5, display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
                     {wheel.name || 'Untitled Wheel'}
                   </Typography>
                 </Box>
@@ -99,14 +148,41 @@ const WheelsBrowserPage: React.FC = () => {
                   {wheel.itemsCount} items
                 </Typography>
               </Box>
-              <Button onClick={() => navigate(`/${wheel.id}`)} sx={{ fontSize: { xs: 14, sm: 16 }, px: { xs: 1.8, sm: 2.5 }, py: { xs: 0.8, sm: 1.1 }, borderRadius: 99, minWidth: 64 }}>
-                Open
-              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Button onClick={() => navigate(`/${wheel.id}`)} sx={{ fontSize: { xs: 14, sm: 16 }, px: { xs: 1.8, sm: 2.5 }, py: { xs: 0.8, sm: 1.1 }, borderRadius: 99, minWidth: 64 }}>
+                  Open
+                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                  <IconButton
+                    onClick={() => openRenameModal(wheel.id, wheel.name)}
+                    aria-label="Rename wheel"
+                    size="small"
+                    tooltip="Rename"
+                  >
+                    <EditIcon sx={{ fontSize: '1.1rem' }} />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleDeleteWheel(wheel.id)}
+                    aria-label="Delete wheel"
+                    size="small"
+                    tooltip="Delete"
+                  >
+                    <DeleteIcon sx={{ fontSize: '1.1rem' }} />
+                  </IconButton>
+                </Box>
+              </Box>
             </Box>
           ))}
         </Box>
       )}
-    </Box>
+    {/* Modal for renaming wheel */}
+    <RenameWheelModal
+      open={renameModalOpen}
+      initialName={renameTarget?.name || ''}
+      onSave={handleRenameSave}
+      onClose={closeRenameModal}
+    />
+  </Box>
   );
 };
 
