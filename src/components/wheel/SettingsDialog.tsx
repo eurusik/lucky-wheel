@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, Box, Typography, IconButton, Snackbar, Alert } from '@mui/material';
+import { useToast } from '../ui/ToastProvider';
 import CloseIcon from '@mui/icons-material/Close';
 import ItemList from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';
@@ -19,6 +20,7 @@ const MAX_ITEMS = 14;
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, onSave }) => {
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items);
   const [showLimitError, setShowLimitError] = useState(false);
+  const { showToast } = useToast();
 
   // Update local state if items change externally
   useEffect(() => {
@@ -38,26 +40,26 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
     };
     const newItems = [...wheelItems, newItem];
     setWheelItems(newItems);
-    onSave(newItems);
   };
 
   const handleRemoveItem = (id: string) => {
     const newItems = wheelItems.filter(item => item.id !== id);
     setWheelItems(newItems);
-    onSave(newItems);
   };
 
   const handleNameChange = (id: string, newName: string) => {
     const newItems = wheelItems.map(item =>
       item.id === id ? { ...item, name: newName } : item
     );
-    onSave(newItems);
+    setWheelItems(newItems);
   };
 
   const handleSave = () => {
     onSave(wheelItems);
+    showToast('Changes saved!', 'success');
     onClose();
   };
+
 
   const handleCloseError = () => {
     setShowLimitError(false);
