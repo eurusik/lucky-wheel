@@ -9,8 +9,8 @@ An interactive random selection wheel application. Perfect for making decisions,
 - 🎯 Animated fortune wheel with smooth rotation
 - 🛡️ Flexible immunity system: add immunity to any sector, immunity is visually shown with a star, and immune sectors are skipped automatically
 - 🔄 Unified wheel data provider: supports both Firestore and localStorage, switchable via config
-- 📱 Optimized mobile UI/UX: centered content, adaptive toolbars, and responsive navigation/buttons
-- 🧭 Improved navigation: Back to Home and Back to Wheels Browser buttons, responsive browser button
+- 📱 Mobile-first, fully responsive UI
+- 🧭 Intuitive, adaptive navigation
 - 🎨 Automatic color generation for options
 - 📸 Screenshot capture functionality
 - 💾 Automatic settings persistence
@@ -31,10 +31,9 @@ An interactive random selection wheel application. Perfect for making decisions,
    - The selected item will be highlighted
 
 3. **Managing Immunity**
-   - After spinning, click the "Add Immunity" button to make any sector immune
-   - Sectors with immunity display a ⭐ and are skipped on the next spin
-   - Immunity can be added to any sector, not just a special one
-   - Immunity is automatically removed after one spin
+   - After spinning, click "Add Immunity" to make any sector immune
+   - Immune sectors show a 🛡️ (shield) and are skipped on the next spin
+   - Immunity can be added to any sector
 
 4. **Additional Features**
    - Take a screenshot using the "📸" button
