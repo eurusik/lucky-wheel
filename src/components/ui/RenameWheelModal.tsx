@@ -94,7 +94,7 @@ const RenameWheelModal: React.FC<RenameWheelModalProps> = ({ open, initialName, 
                 />
               </DialogContent>
               <DialogActions sx={{ justifyContent: 'center', gap: 2, mt: 1.5 }}>
-                <Button onClick={onClose} color="secondary" variant="outlined" sx={{ borderRadius: 99, px: 3, fontWeight: 700, fontSize: 16 }}>
+                <Button onClick={onClose} color="secondary" variant="outlined" sx={{ borderRadius: 99, px: 3, fontWeight: 700, fontSize: 16, boxShadow: 'none' }}>
                   <CloseIcon sx={{ fontSize: 20, mr: 1 }} />
                   Cancel
                 </Button>
@@ -104,7 +104,7 @@ const RenameWheelModal: React.FC<RenameWheelModalProps> = ({ open, initialName, 
                   }}
                   color="primary"
                   variant="contained"
-                  sx={{ borderRadius: 99, px: 3, fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px #e91e6344' }}
+                  sx={{ borderRadius: 99, px: 3, fontWeight: 700, fontSize: 16, boxShadow: 'none' }}
                   disabled={!name.trim()}
                 >
                   <SaveIcon sx={{ fontSize: 20, mr: 1 }} />
