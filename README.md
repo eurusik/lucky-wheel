@@ -9,13 +9,11 @@ An interactive random selection wheel application. Perfect for making decisions,
 - 🎯 Animated fortune wheel with smooth rotation
 - 🛡️ Flexible immunity system: add immunity to any sector, immunity is visually shown with a star, and immune sectors are skipped automatically
 - 🔄 Unified wheel data provider: supports both Firestore and localStorage, switchable via config
-- 📱 Mobile-first, fully responsive UI
-- 🧭 Intuitive, adaptive navigation
+- 📱 Mobile responsive UI
 - 🎨 Automatic color generation for options
 - 📸 Screenshot capture functionality
 - 💾 Automatic settings persistence
 - 📊 Spin statistics tracking
-- 🌙 Light theme
 
 ## 🚀 How to Use
 
