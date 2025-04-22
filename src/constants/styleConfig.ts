@@ -107,6 +107,7 @@ export const CHIP = {
 };
 
 export const BUTTONS = {
+  border: 'none',
   borderRadius: 8 as const,
   fontWeight: 600,
   textTransform: 'none' as const,
