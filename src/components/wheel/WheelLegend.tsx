@@ -127,8 +127,9 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
                 <Chip
                   key={immunity.sectorIndex}
                   label={immunity.name}
-                  onDelete={() => {
-                    immunityService.removeImmunity(wheelId, immunity.sectorIndex);
+                  onDelete={async () => {
+                    await immunityService.removeImmunity(wheelId, immunity.sectorIndex);
+                    setImmunities((prev) => prev.filter(im => im.sectorIndex !== immunity.sectorIndex));
                     window.dispatchEvent(new Event('immunityChanged'));
                   }}
                   sx={{
