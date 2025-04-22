@@ -6,6 +6,7 @@ import { saveWheel } from '../utils/wheelDataProvider';
 import Button from '../components/ui/Button';
 import WheelCreatedModal from '../components/ui/WheelCreatedModal';
 import { useNavigate } from 'react-router-dom';
+import HomeLogo from '../components/ui/HomeLogo';
 
 // Inline styles matching Lucky Wheel app's design
 const containerStyle: React.CSSProperties = {
@@ -78,6 +79,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={containerStyle}>
+      <HomeLogo />
       <h1 style={titleStyle}>Create Your Wheel</h1>
       <p style={subtitleStyle}>Enter a name for your wheel and start playing!</p>
       <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', marginTop: 32 }}>
