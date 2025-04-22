@@ -129,13 +129,13 @@ export function getItemSectorPath({
 
 /**
  * Calculate optimal number of sectors based on number of items
- * Maximum number of sectors is limited to 10
+ * Maximum number of sectors is limited to 14
  */
 export function calculateOptimalSectors(itemCount: number): number {
   if (itemCount <= 0) return 0;
   
-  // Maximum limit of 10 sectors
-  if (itemCount > 10) return 10;
+  // Maximum limit of 14 sectors
+  if (itemCount > 14) return 14;
   
   // For small numbers, use the same number of sectors as items
   if (itemCount <= 6) return itemCount;

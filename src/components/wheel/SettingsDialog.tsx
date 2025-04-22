@@ -14,7 +14,7 @@ interface SettingsDialogProps {
   onSave: (items: WheelItem[]) => void;
 }
 
-const MAX_ITEMS = 12;
+const MAX_ITEMS = 14;
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, onSave }) => {
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items);
@@ -148,7 +148,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             }
           }}
         >
-          Cannot add more than 12 participants
+          Cannot add more than 14 participants
         </Alert>
       </Snackbar>
     </Drawer>
