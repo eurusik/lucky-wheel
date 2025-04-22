@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { SIZES } from '../../constants/styleConfig';
 
 /**
  * Placeholder component shown when there are no team members to display
@@ -8,8 +9,8 @@ const EmptyWheel: React.FC = () => {
   return (
     <Box
       sx={{
-        width: 400,
-        height: 400,
+        width: { xs: SIZES.WHEEL_SIZE.mobile, sm: SIZES.WHEEL_SIZE.tablet, md: SIZES.WHEEL_SIZE.desktop },
+        height: { xs: SIZES.WHEEL_SIZE.mobile, sm: SIZES.WHEEL_SIZE.tablet, md: SIZES.WHEEL_SIZE.desktop },
         borderRadius: '50%',
         border: '2px dashed #ccc',
         display: 'flex',

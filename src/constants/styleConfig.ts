@@ -59,7 +59,7 @@ export const SIZES = {
   FONT_WEIGHT: 600,
   LEGEND_FONT_SIZE: { mobile: '0.875rem', tablet: '0.925rem', desktop: '1.25rem' },
   LEGEND_ICON_SIZE: { mobile: '1.25rem', tablet: '1.35rem', desktop: '2rem' },
-  WHEEL_SIZE: { mobile: 260, tablet: 420, desktop: 480 },
+  WHEEL_SIZE: { mobile: 380, tablet: 450, desktop: 500 },
   INNER_RADIUS_RATIO: 0.38,
   WHEEL_CONTAINER_PADDING: { mobile: 2, tablet: 3, desktop: 5 },
   WHEEL_CONTAINER_BORDER_RADIUS: { mobile: 8, tablet: 12, desktop: 24 },
