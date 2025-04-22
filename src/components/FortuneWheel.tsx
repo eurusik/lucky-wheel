@@ -93,8 +93,12 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       sx={{
         position: 'relative',
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-        alignItems: { xs: 'center', md: 'flex-start' },
+        flexDirection: { xs: 'column', sm: 'column', md: 'row', lg: 'row' },
+        alignItems: { xs: 'center', sm: 'center', md: 'flex-start', lg: 'flex-start' },
+        '@media (max-width:1024px)': {
+          flexDirection: 'column',
+          alignItems: 'center',
+        },
         justifyContent: 'center',
         width: '100%',
         m: '40px auto',
@@ -106,7 +110,17 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
         '& > *:last-child': {
           marginLeft: { xs: 'auto', md: 'auto' },
           marginRight: { xs: 'auto', md: 0 },
-          alignSelf: { xs: 'center', md: 'flex-start' }
+          alignSelf: { xs: 'center', md: 'flex-start' },
+          '@media (max-width:1024px)': {
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            alignSelf: 'center',
+          },
+          '@media (max-width:900px)': {
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            alignSelf: 'center',
+          }
         },
         boxSizing: 'border-box',
         border: '1px solid rgba(230, 235, 255, 0.9)',
