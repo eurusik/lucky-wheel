@@ -50,7 +50,7 @@ const HomePage: React.FC = () => {
     e.preventDefault();
 
     const newId = uuidv4();
-    // Зберігаємо нове колесо в localStorage
+    // Save the new wheel to localStorage
     saveWheel({
       id: newId,
       name: wheelName.trim(),

@@ -15,19 +15,23 @@ interface WheelToolbarProps {
 const WheelToolbar: React.FC<WheelToolbarProps> = ({ onSettingsClick, onScreenshotClick }) => (
   <Box
     sx={{
-      position: 'absolute',
-      top: 16,
-      right: 24,
+      position: { xs: 'static', sm: 'static', md: 'absolute' },
+      top: { md: 16 },
+      right: { md: 24 },
+      left: { xs: 0, sm: 0, md: 'auto' },
       display: 'flex',
       flexDirection: 'row',
-      gap: 2,
+      gap: { xs: 1, sm: 1.5, md: 2 },
       zIndex: 10,
       background: 'rgba(255,255,255,0.93)',
-      borderRadius: '24px',
+      borderRadius: { xs: '16px', sm: '18px', md: '24px' },
       boxShadow: '0 2px 12px rgba(60, 80, 180, 0.10)',
-      px: 2,
-      py: 0.5,
+      px: { xs: 1, sm: 1.5, md: 2 },
+      py: { xs: 0.5, sm: 0.7, md: 0.5 },
       alignItems: 'center',
+      width: { xs: 'fit-content', sm: 'fit-content', md: 'auto' },
+      mx: { xs: 'auto', sm: 'auto', md: 0 },
+      mt: { xs: 1, sm: 1.5, md: 0 },
     }}
   >
     <IconButton
