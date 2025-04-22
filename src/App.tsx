@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
-import WheelPage from './pages/WheelPage'
+import WheelPage from './pages/WheelPage';
+import WheelsBrowserPage from './pages/WheelsBrowserPage';
 
 import HomePage from './pages/HomePage';
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
@@ -89,6 +90,7 @@ function App() {
     // Локальний стейт для items та spinStats
     const [localItems, setLocalItems] = React.useState<WheelItem[]>([]);
     const [localSpinStats, setLocalSpinStats] = React.useState<SpinStats>({ count: 0, lastSpinTime: null });
+    const [localName, setLocalName] = React.useState<string>('');
     const [loading, setLoading] = React.useState<boolean>(!!id);
     const [notFound, setNotFound] = React.useState<boolean>(false);
 
@@ -103,6 +105,7 @@ function App() {
             if (data) {
               setLocalItems(data.items || []);
               setLocalSpinStats(data.spinStats || { count: 0, lastSpinTime: null });
+              setLocalName(data.name || '');
               setLoading(false);
             } else {
               setNotFound(true);
@@ -113,6 +116,7 @@ function App() {
       } else {
         setLocalItems(items);
         setLocalSpinStats(spinStats);
+        setLocalName('');
         setLoading(false);
         setNotFound(false);
       }
@@ -121,14 +125,30 @@ function App() {
 
     // Зберігаємо дані у базу при кожній зміні локального стейту
     const saveToDb = React.useCallback((itemsToSave: WheelItem[], statsToSave: SpinStats) => {
+      // Only allow name to be set on creation. For updates, always reuse the existing name in DB.
+      let nameToSave = localName;
+      if (id) {
+        // For updates, fetch the existing wheel and use its name
+        const existing = window.localStorage.getItem('wheels');
+        if (existing) {
+          try {
+            const all = JSON.parse(existing);
+            if (all && all[id] && all[id].name) {
+              nameToSave = all[id].name;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
       const newWheel = {
         id: id || 'local',
-        name: id ? `Wheel ${id}` : 'Local Wheel',
+        name: nameToSave,
         items: itemsToSave,
         spinStats: statsToSave,
       };
       saveWheel(newWheel);
-    }, [id]);
+    }, [id, localName]);
 
     // Хендлери для змін
     const handleSpin = () => {
@@ -170,6 +190,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomePage />} />
+        <Route path="/wheels-browser" element={<WheelsBrowserPage />} />
             <Route path=":id" element={<WheelPageWrapper />} />
           </Routes>
         </BrowserRouter>
