@@ -115,7 +115,7 @@ export function getItemSectorPath({
   ].join(' ');
   
   const midAngle = (startAngle + endAngle) / 2;
-  const textRadius = radius * 0.65;
+  const textRadius = radius * 0.78; // Increased from 0.65 to 0.78 to raise the label position
   
   return {
     path,
