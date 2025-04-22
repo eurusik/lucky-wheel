@@ -21,7 +21,7 @@ export async function getWheelById(id: string): Promise<FirestoreWheelData | nul
   if (DATA_SOURCE === 'firebase') {
     return getWheelFromFirestore(id);
   } else {
-    return wheelStorage.getWheelById(id);
+    return wheelStorage.getWheelById(id) ?? null;
   }
 }
 
