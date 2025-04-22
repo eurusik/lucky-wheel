@@ -2,6 +2,9 @@ import { memo } from 'react';
 import { Box, Typography, Fade } from '@mui/material';
 import { SpinStats, WheelItem } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
+import BackToBrowserButton from '../components/ui/BackToBrowserButton';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface WheelPageProps {
   id?: string;
@@ -50,27 +53,31 @@ const WheelPage = ({
   onSpinComplete, 
   onItemsChange
 }: WheelPageProps) => {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+
   return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        width: '100%',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '20px'
-      }}>
-          <FortuneWheel
-              id={id}
-              items={items}
-              onSpinComplete={onSpinComplete}
-              onItemsChange={onItemsChange}
-          />
-          {spinStats.count > 0 && (
-              <SpinStatistics stats={spinStats} />
-          )}
-      </div>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      width: '100%',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '20px'
+    }}>
+      {isDesktop && <BackToBrowserButton />}
+      <FortuneWheel
+        id={id}
+        items={items}
+        onSpinComplete={onSpinComplete}
+        onItemsChange={onItemsChange}
+      />
+      {spinStats.count > 0 && (
+        <SpinStatistics stats={spinStats} />
+      )}
+    </div>
   );
 };
 

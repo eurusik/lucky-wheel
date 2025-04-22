@@ -10,14 +10,6 @@ import HomeLogo from '../components/ui/HomeLogo';
 import WheelBrowserButton from '../components/ui/WheelBrowserButton';
 
 // Inline styles matching Lucky Wheel app's design
-const containerStyle: React.CSSProperties = {
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 24,
-};
 const titleStyle: React.CSSProperties = {
   fontSize: 38,
   fontWeight: 700,
@@ -79,32 +71,32 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <>
-      <WheelBrowserButton />
-      <div style={containerStyle}>
-      <HomeLogo />
-      <h1 style={titleStyle}>Create Your Wheel</h1>
-      <p style={subtitleStyle}>Enter a name for your wheel and start playing!</p>
-      <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', marginTop: 32 }}>
-        <input
-          type="text"
-          value={wheelName}
-          onChange={e => setWheelName(e.target.value)}
-          placeholder="Wheel name"
-          style={inputStyle}
-          aria-label="Wheel name"
-          required
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+        <WheelBrowserButton />
+        <HomeLogo />
+        <h1 style={titleStyle}>Create Your Wheel</h1>
+        <p style={subtitleStyle}>Enter a name for your wheel and start playing!</p>
+        <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', marginTop: 32 }}>
+          <input
+            type="text"
+            value={wheelName}
+            onChange={e => setWheelName(e.target.value)}
+            placeholder="Wheel name"
+            style={inputStyle}
+            aria-label="Wheel name"
+            required
+          />
+          <Button type="submit" style={{ fontSize: 20, padding: '12px 32px', borderRadius: 12 }}>Create Wheel</Button>
+        </form>
+        <WheelCreatedModal
+          open={showModal}
+          onClose={handleModalClose}
+          wheelName={wheelName.trim()}
+          wheelId={pendingId || ''}
         />
-        <Button type="submit" style={{ fontSize: 20, padding: '12px 32px', borderRadius: 12 }}>Create Wheel</Button>
-      </form>
-      <WheelCreatedModal
-        open={showModal}
-        onClose={handleModalClose}
-        wheelName={wheelName.trim()}
-        wheelId={pendingId || ''}
-      />
+      </div>
     </div>
-    </>
   );
 };
 

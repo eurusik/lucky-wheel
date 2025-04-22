@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
 import Button from '../components/ui/Button';
+import BackToHomeButton from '../components/ui/BackToHomeButton';
 
 interface WheelSummary {
   id: string;
@@ -47,6 +48,7 @@ const WheelsBrowserPage: React.FC = () => {
         p: { xs: 1.5, sm: 3, md: 5 },
       }}
     >
+      <BackToHomeButton />
       <Typography
         variant="h1"
         sx={{
