@@ -2,11 +2,15 @@
 
 An interactive random selection wheel application. Perfect for making decisions, choosing winners, assigning tasks, or adding an element of fun to any selection process. Whether you're picking a restaurant for lunch, deciding who goes first in a game, or selecting a random winner - Lucky Wheel makes it engaging and fair.
 
+> _This app was created in a "vibe coding" style — with a focus on creativity, fun, and rapid development. Enjoy the process and the result!_
+
 ## ✨ Features
 
 - 🎯 Animated fortune wheel with smooth rotation
-- 🛡️ Immunity system for selected items
-- 📱 Responsive design (mobile, tablet, desktop)
+- 🛡️ Flexible immunity system: add immunity to any sector, immunity is visually shown with a star, and immune sectors are skipped automatically
+- 🔄 Unified wheel data provider: supports both Firestore and localStorage, switchable via config
+- 📱 Optimized mobile UI/UX: centered content, adaptive toolbars, and responsive navigation/buttons
+- 🧭 Improved navigation: Back to Home and Back to Wheels Browser buttons, responsive browser button
 - 🎨 Automatic color generation for options
 - 📸 Screenshot capture functionality
 - 💾 Automatic settings persistence
@@ -27,8 +31,9 @@ An interactive random selection wheel application. Perfect for making decisions,
    - The selected item will be highlighted
 
 3. **Managing Immunity**
-   - Click the shield icon next to any option
-   - Items with immunity cannot be selected in the next spin
+   - After spinning, click the "Add Immunity" button to make any sector immune
+   - Sectors with immunity display a ⭐ and are skipped on the next spin
+   - Immunity can be added to any sector, not just a special one
    - Immunity is automatically removed after one spin
 
 4. **Additional Features**
@@ -41,6 +46,7 @@ An interactive random selection wheel application. Perfect for making decisions,
 - React + TypeScript
 - Material-UI (MUI)
 - HTML Canvas for animations
+- Firestore (optional, via config)
 - LocalStorage for data persistence
 
 ## 🔧 Project Setup
@@ -59,6 +65,22 @@ npm run dev
 # Build for production
 npm run build
 ```
+
+### Firebase Setup (Optional)
+If you want to use Firestore as a backend:
+1. Create a Firebase project and Firestore database.
+2. Add a `.env.local` file with these variables:
+   - `VITE_FIREBASE_API_KEY`
+   - `VITE_FIREBASE_AUTH_DOMAIN`
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
+3. Set `DATA_SOURCE` in `src/config.ts` to `firebase`.
+
+### Troubleshooting
+- If you see errors related to Firebase, check your `.env.local` configuration and make sure all variables are set.
+- For local-only mode, set `DATA_SOURCE` to `localStorage`.
 
 ## 📝 Notes
 
