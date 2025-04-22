@@ -13,6 +13,7 @@ import { ThemeProvider } from '@mui/material'
 import { ToastProvider } from './components/ui/ToastProvider';
 import NotFoundPage from './pages/NotFoundPage';
 import { getWheelById, saveWheel } from './utils/wheelDataProvider';
+import Loader from './components/ui/Loader';
 
 const theme = createMuiTheme({
   components: {
@@ -143,7 +144,7 @@ function App() {
       saveToDb(newItems, localSpinStats);
     };
 
-    if (loading) return <div style={{textAlign:'center',marginTop:80,fontSize:22}}>Loading...</div>;
+    if (loading) return <Loader label="Loading wheel..." />;
     if (notFound) {
       return <NotFoundPage />;
     }
@@ -160,7 +161,7 @@ function App() {
   }
 
   if (loading) {
-    return <div style={{textAlign:'center',marginTop:80,fontSize:22}}>Loading...</div>;
+    return <Loader label="Loading wheel..." />;
   }
 
   return (

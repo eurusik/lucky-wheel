@@ -6,6 +6,7 @@ import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
 import EmptyWheel from './wheel/EmptyWheel';
 import WheelToolbar from './wheel/WheelToolbar';
+import Loader from './ui/Loader';
 import SettingsDialog from './wheel/SettingsDialog';
 import WheelArea from './wheel/WheelArea';
 import LegendArea from './wheel/LegendArea';
@@ -41,7 +42,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
 
   // Using useWheelSpin hook to manage wheel state
   const wheelId = id || wheelItems[0]?.id || '';
-  const { 
+  const {
+    isInitializing,
     isSpinning, 
     wheelRotation, 
     spinWheel,
@@ -82,6 +84,16 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       await takeScreenshot();
     }
   }, []);
+
+  // Show minimal loader if wheelItems not yet initialized (very first render)
+  if (!wheelItems || wheelItems.length === 0) {
+    return <Loader label="Loading wheel..." container={false} />;
+  }
+
+  // If isInitializing but wheelItems exist, render nothing (or could render skeleton)
+  if (isInitializing) {
+    return null;
+  }
 
   // If the list is empty, show empty wheel
   if (!wheelItems || wheelItems.length === 0) {

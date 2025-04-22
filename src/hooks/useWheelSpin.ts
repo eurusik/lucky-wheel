@@ -76,6 +76,7 @@ interface UseWheelSpinProps {
 }
 
 export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinProps) => {
+  const [isInitializing, setIsInitializing] = useState(true);
   const { showToast } = useToast();
   const [isSpinning, setIsSpinning] = useState(false);
   
@@ -93,13 +94,17 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
   });
 
   useEffect(() => {
-    if (!wheelId) return;
+    if (!wheelId) {
+      setIsInitializing(false);
+      return;
+    }
     wheelDataProvider.getWheelById(wheelId).then(wheel => {
       if (wheel && typeof wheel.lastRotation === 'number') {
         wheelState.currentRotation = wheel.lastRotation;
         setWheelRotation(wheel.lastRotation);
       }
-    });
+      setIsInitializing(false);
+    }).catch(() => setIsInitializing(false));
   }, [wheelId]);
   
   const [selectedItem, setSelectedItem] = useState<WheelItem | null>(wheelState.selectedItem);
@@ -337,6 +342,7 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
   }, [isSpinning, items, visibleSectorIndex, setSelectedSector]);
 
   return {
+    isInitializing,
     isSpinning,
     wheelRotation,
     spinWheel,
