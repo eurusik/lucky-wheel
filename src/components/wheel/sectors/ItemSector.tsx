@@ -10,6 +10,9 @@ interface ItemSectorProps {
   index: number;
   path: string;
   textPosition: { x: number; y: number; rotation: number };
+  radius: number;
+  startAngle: number;
+  endAngle: number;
 }
 
 /**
@@ -20,6 +23,9 @@ const ItemSector: React.FC<ItemSectorProps> = ({
   index,
   path,
   textPosition,
+  radius,
+  startAngle,
+  endAngle
 }) => {
   // Get color from palette based on sector index
   const colorIndex = index % COLORS.WHEEL_PALETTE.length;
@@ -34,16 +40,58 @@ const ItemSector: React.FC<ItemSectorProps> = ({
         strokeWidth={COLORS.STROKE_WIDTH}
       />
       <g transform={`rotate(${textPosition.rotation}, ${textPosition.x}, ${textPosition.y})`}>
-        <text
-          x={textPosition.x}
-          y={textPosition.y}
-          fontSize={14}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill={COLORS.TEXT}
-        >
-          {item.name}
-        </text>
+        {(() => {
+          // Calculate max text width for this sector
+          const maxTextWidth = Math.max(32, 2 * 0.78 * 0.92 * radius * Math.sin((endAngle - startAngle) / 2)); // 92% of chord length
+          let displayName = item.name;
+          let fontSize = 14;
+          // Try to fit text, reduce font size if needed
+          if (item.name.length > 16) displayName = item.name.slice(0, 14) + '…';
+          if (displayName.length > 12) fontSize = 13;
+          if (displayName.length > 15) fontSize = 12;
+          if (displayName.length > 18) fontSize = 11;
+          if (displayName.length > 22) fontSize = 10;
+
+          // Estimate actual text width in px (very rough, but enough for our case)
+          const approxCharWidth = fontSize * 0.6; // average width per char
+          const actualTextWidth = displayName.length * approxCharWidth;
+          const needsCompression = actualTextWidth > maxTextWidth;
+
+          if (needsCompression) {
+            return (
+              <text
+                x={textPosition.x}
+                y={textPosition.y}
+                fontSize={fontSize}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={COLORS.TEXT}
+                style={{ pointerEvents: 'auto', cursor: item.name.length > 16 ? 'pointer' : 'default' }}
+                textLength={maxTextWidth}
+                lengthAdjust="spacingAndGlyphs"
+              >
+                <title>{item.name}</title>
+                {displayName}
+              </text>
+            );
+          } else {
+            return (
+              <text
+                x={textPosition.x}
+                y={textPosition.y}
+                fontSize={fontSize}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={COLORS.TEXT}
+                style={{ pointerEvents: 'auto', cursor: item.name.length > 16 ? 'pointer' : 'default' }}
+              >
+                <title>{item.name}</title>
+                {displayName}
+              </text>
+            );
+          }
+        })()}
+
       </g>
     </g>
   );

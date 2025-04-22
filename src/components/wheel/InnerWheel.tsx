@@ -51,6 +51,9 @@ const InnerWheel: React.FC<InnerWheelProps> = ({
             index={index}
             path={path}
             textPosition={textPosition}
+            radius={radius}
+            startAngle={startAngle}
+            endAngle={endAngle}
           />
         );
       })}
