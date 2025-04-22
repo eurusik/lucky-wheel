@@ -125,17 +125,16 @@ const ItemList: React.FC<ItemListProps> = ({ items, onRemove, onNameChange }) =>
             {item.isImmune && (
               <Chip
                 label="Immunity"
-                color="#1b5e20"
+                color="default"
                 onDelete={() => {}}
-                selected={true}
                 sx={{
-                  backgroundColor: 'rgba(76, 175, 80, 0.08)',
-                  color: '#1b5e20',
+                  backgroundColor: '#1b5e20',
+                  color: '#fff',
                   borderRadius: '12px',
                   fontSize: '0.75rem',
                   fontWeight: 500,
                   '& .MuiChip-icon': {
-                    color: '#1b5e20',
+                    color: '#fff',
                     marginLeft: '4px',
                   },
                   '& .MuiChip-label': {
