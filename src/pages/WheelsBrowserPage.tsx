@@ -46,6 +46,7 @@ const WheelsBrowserPage: React.FC = () => {
       const { removeWheel } = await import('../utils/wheelDataProvider');
       await removeWheel(id);
       setWheels(wheels => wheels?.filter(w => w.id !== id) || null);
+      showToast('Wheel deleted!', 'error');
     } catch {
       alert('Failed to delete wheel.');
     }
