@@ -2,8 +2,9 @@ import React from 'react';
 import Button from './Button';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import { SxProps, Theme } from '@mui/system';
 
-const BackToBrowserButton: React.FC<{ sx?: any }> = ({ sx }) => {
+const BackToBrowserButton: React.FC<{ sx?: SxProps<Theme> }> = ({ sx }) => {
   const navigate = useNavigate();
   return (
     <Button

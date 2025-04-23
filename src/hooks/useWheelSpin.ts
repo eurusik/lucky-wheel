@@ -1,8 +1,9 @@
+import React from 'react';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { immunityService } from '../services/immunityService';
-import { useToast } from '../components/ui/ToastProvider';
+import { useToast } from '../components/ui/ToastTypes';
 
 // Types for storing wheel state
 interface WheelStateStorage {
@@ -272,7 +273,21 @@ export const useWheelSpin = ({ wheelId, items, onSpinComplete }: UseWheelSpinPro
       
       // Show toast with selected sector name and candy emojis
       const selectedItem = items[sectorToLandOn];
-      showToast(`🎉 Congratulations! Selected: <b style="font-size: 1.2em">${selectedItem.name}</b> 🍬`, 'info');
+      const emojiCongrats = String.fromCodePoint(0x1F389); // 🎉
+      const emojiCandy = String.fromCodePoint(0x1F36C); // 🍬
+      showToast(
+        React.createElement(
+          'span',
+          null,
+          emojiCongrats,
+          ' Congratulations! Selected: ',
+          React.createElement('b', { style: { fontSize: '1.2em' } }, selectedItem.name),
+          ' ',
+          emojiCandy
+        ),
+        'info',
+        true
+      );
     }, spinDuration);
   },
     [

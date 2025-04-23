@@ -1,79 +1,49 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Snackbar, Alert, Box } from '@mui/material';
+import React, { createContext, useState, useCallback } from 'react';
+import { Snackbar, Alert } from '@mui/material';
 import ConfettiAnimation from './ConfettiAnimation';
 
-// Define toast types
-type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastContent = string | React.ReactNode;
 
-// Define toast content type
-type ToastContent = string | React.ReactNode;
-
-// Define toast context type
-interface ToastContextType {
-  showToast: (message: ToastContent, type?: ToastType) => void;
+export interface ToastContextType {
+  showToast: (message: ToastContent, type?: ToastType, confetti?: boolean) => void;
 }
 
-// Create toast context
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+export const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-// Toast provider component
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<ToastContent>('');
-  const [type, setType] = useState<ToastType>('info');
-  const [showAnimation, setShowAnimation] = useState(false);
+  const [severity, setSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  // Show toast function
-  const showToast = useCallback((content: ToastContent, toastType: ToastType = 'info') => {
-    setMessage(content);
-    setType(toastType);
-    setOpen(true);
-    
-    // Show animation for info toasts (selected sector)
-    if (toastType === 'info') {
-      setShowAnimation(true);
-    }
+  const showToast = useCallback(
+    (message: ToastContent, type: ToastType = 'info', confetti = false) => {
+      setMessage(message);
+      setSeverity(type);
+      setOpen(true);
+      setShowConfetti(confetti);
+    },
+    []
+  );
+
+  const handleClose = useCallback((_: unknown, reason?: string) => {
+    if (reason === 'clickaway') return;
+    setOpen(false);
+    setShowConfetti(false);
   }, []);
 
-  // Handle close
-  const handleClose = () => {
-    setOpen(false);
-    setShowAnimation(false);
-  };
-
-  // Render message content with HTML support
-  const renderMessage = (content: ToastContent) => {
-    if (typeof content === 'string') {
-      return <div dangerouslySetInnerHTML={{ __html: content }} />;
-    }
-    return content;
-  };
+  const value = { showToast };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={value}>
       {children}
-      <Snackbar
-        open={open}
-        autoHideDuration={4000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Box sx={{ position: 'relative' }}>
-          <Alert onClose={handleClose} severity={type} sx={{ width: '100%' }}>
-            {renderMessage(message)}
-          </Alert>
-          {showAnimation && <ConfettiAnimation count={100} size={6} duration={2} />}
-        </Box>
+      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert onClose={handleClose} severity={severity} sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+          {message}
+          {showConfetti && <ConfettiAnimation />}
+        </Alert>
       </Snackbar>
     </ToastContext.Provider>
   );
-};
-
-// Custom hook to use toast
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (context === undefined) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
 };

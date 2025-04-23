@@ -10,16 +10,17 @@ import Loader from './ui/Loader';
 import SettingsDialog from './wheel/SettingsDialog';
 import WheelArea from './wheel/WheelArea';
 import LegendArea from './wheel/LegendArea';
-import { useToast } from './ui/ToastProvider';
+import { useToast } from './ui/ToastTypes';
 
 /**
  * Props for the FortuneWheel component
  */
 interface FortuneWheelProps {
   id?: string;
+  name: string;
   items: WheelItem[];
   onSpinComplete: () => void;
-  onItemsChange?: (items: WheelItem[]) => void;
+  onWheelNameChange: (newName: string) => void;
 }
 
 /**
@@ -27,20 +28,29 @@ interface FortuneWheelProps {
  */
 const FortuneWheel: React.FC<FortuneWheelProps> = ({ 
   id,
+  name,
   items, 
-  onSpinComplete, 
-  onItemsChange
+  onSpinComplete,
+  onWheelNameChange
 }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items || []);
+  const [wheelName, setWheelName] = useState(name || '');
   const { showToast } = useToast();
 
   // Update wheelItems when items prop changes
   useEffect(() => {
     setWheelItems(items || []);
   }, [items]);
+
+  // Update wheelName when name prop changes or when dialog opens
+  useEffect(() => {
+    if (settingsDialogOpen) {
+      setWheelName(name || '');
+    }
+  }, [name, settingsDialogOpen]);
 
   // Using useWheelSpin hook to manage wheel state
   const wheelId = id || wheelItems[0]?.id || '';
@@ -66,15 +76,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     }
   }, [isSpinning, setVisibleSectorBySVGPointer]);
 
-  // Handler for saving items list changes
-  const handleSaveItems = useCallback((updated: WheelItem[]) => {
-    setWheelItems(updated);
-    // Call the parent component's onItemsChange if provided
-    if (onItemsChange) {
-      onItemsChange(updated);
-    }
-  }, [onItemsChange]);
-
   // Handlers for settings dialog
   const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);
   const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
@@ -94,6 +95,14 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       showToast('Link copied!', 'success');
     });
   }, [id, wheelId, showToast]);
+
+  // Handler for saving settings
+  const handleSettingsSave = useCallback((updatedItems: WheelItem[], updatedWheelName: string) => {
+    setWheelItems(updatedItems);
+    setWheelName(updatedWheelName);
+    onWheelNameChange(updatedWheelName); // Save to DB via parent
+    // Save to DB logic here (include updatedWheelName)
+  }, [onWheelNameChange]);
 
   // Show minimal loader if wheelItems not yet initialized (very first render)
   if (!wheelItems || wheelItems.length === 0) {
@@ -158,7 +167,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
         open={settingsDialogOpen}
         onClose={handleCloseSettings}
         items={wheelItems}
-        onSave={handleSaveItems}
+        wheelName={wheelName}
+        onSave={handleSettingsSave}
       />
 
       <WheelArea

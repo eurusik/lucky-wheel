@@ -7,8 +7,6 @@ import HomePage from './pages/HomePage';
 import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 
 import { WheelItem, SpinStats } from './types';
-import { defaultTeamMembers } from './constants/wheelConfig';
-import './App.css'
 import { createTheme as createMuiTheme } from '@mui/material/styles'
 import { ThemeProvider } from '@mui/material'
 import { ToastProvider } from './components/ui/ToastProvider';
@@ -51,14 +49,7 @@ const theme = createMuiTheme({
   },
 })
 
-const DEFAULT_VALUES = {
-  SPIN_STATS: { count: 0, lastSpinTime: null },
-  ITEMS: defaultTeamMembers
-} as const
-
 function App() {
-  const [spinStats, setSpinStats] = useState<SpinStats>({ count: 0, lastSpinTime: null });
-  const [items, setItems] = useState<WheelItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load wheel from provider on mount
@@ -69,14 +60,10 @@ function App() {
       const localWheel = await getWheelById('local');
       if (localWheel) {
         if (isMounted) {
-          setItems(localWheel.items || []);
-          setSpinStats(localWheel.spinStats || { count: 0, lastSpinTime: null });
           setLoading(false);
         }
       } else {
         // fallback to defaults
-        setItems(DEFAULT_VALUES.ITEMS);
-        setSpinStats(DEFAULT_VALUES.SPIN_STATS);
         setLoading(false);
       }
     }
@@ -96,45 +83,35 @@ function App() {
 
     // Завантажуємо дані з бази лише при монтуванні/зміні id
     React.useEffect(() => {
+      if (!id) return;
+      setLoading(true);
       let isMounted = true;
-      if (id) {
-        setLoading(true);
-        setNotFound(false);
-        getWheelById(id).then((data) => {
-          if (isMounted) {
-            if (data) {
-              setLocalItems(data.items || []);
-              setLocalSpinStats(data.spinStats || { count: 0, lastSpinTime: null });
-              setLocalName(data.name || '');
-              setLoading(false);
-            } else {
-              setNotFound(true);
-              setLoading(false);
-            }
-          }
-        });
-      } else {
-        setLocalItems(items);
-        setLocalSpinStats(spinStats);
-        setLocalName('');
+      getWheelById(id).then((data) => {
+        if (!isMounted) return;
+        if (data) {
+          setLocalItems(data.items || []);
+          setLocalSpinStats(data.spinStats || { count: 0, lastSpinTime: null });
+          setLocalName(data.name || '');
+          setNotFound(false);
+        } else {
+          setNotFound(true);
+        }
         setLoading(false);
-        setNotFound(false);
-      }
+      });
       return () => { isMounted = false; };
     }, [id]);
 
     // Зберігаємо дані у базу при кожній зміні локального стейту
-    const saveToDb = React.useCallback((itemsToSave: WheelItem[], statsToSave: SpinStats) => {
-      // Only allow name to be set on creation. For updates, always reuse the existing name in DB.
-      let nameToSave = localName;
+    const saveToDb = React.useCallback((itemsToSave: WheelItem[], statsToSave: SpinStats, nameToSave?: string) => {
+      let finalName = nameToSave ?? localName;
       if (id) {
-        // For updates, fetch the existing wheel and use its name
+        // For updates, fetch the existing wheel and use its name unless overridden
         const existing = window.localStorage.getItem('wheels');
         if (existing) {
           try {
             const all = JSON.parse(existing);
-            if (all && all[id] && all[id].name) {
-              nameToSave = all[id].name;
+            if (all && all[id] && all[id].name && !nameToSave) {
+              finalName = all[id].name;
             }
           } catch {
             // ignore
@@ -143,7 +120,7 @@ function App() {
       }
       const newWheel = {
         id: id || 'local',
-        name: nameToSave,
+        name: finalName,
         items: itemsToSave,
         spinStats: statsToSave,
       };
@@ -159,9 +136,11 @@ function App() {
       setLocalSpinStats(newStats);
       saveToDb(localItems, newStats);
     };
-    const handleItemsChange = (newItems: WheelItem[]) => {
-      setLocalItems(newItems);
-      saveToDb(newItems, localSpinStats);
+
+    // Хендлер для зміни імені колеса
+    const handleWheelNameChange = (newName: string) => {
+      setLocalName(newName);
+      saveToDb(localItems, localSpinStats, newName);
     };
 
     if (loading) return <Loader label="Loading wheel..." />;
@@ -172,10 +151,11 @@ function App() {
     return (
       <WheelPage
         id={id}
+        name={localName}
         items={localItems}
         spinStats={localSpinStats}
         onSpinComplete={handleSpin}
-        onItemsChange={handleItemsChange}
+        onWheelNameChange={handleWheelNameChange}
       />
     );
   }
@@ -185,17 +165,17 @@ function App() {
   }
 
   return (
-    <ToastProvider>
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <ToastProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<HomePage />} />
-        <Route path="/wheels-browser" element={<WheelsBrowserPage />} />
+            <Route path="/wheels-browser" element={<WheelsBrowserPage />} />
             <Route path=":id" element={<WheelPageWrapper />} />
           </Routes>
         </BrowserRouter>
-      </ThemeProvider>
-    </ToastProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }
 

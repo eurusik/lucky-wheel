@@ -2,12 +2,18 @@ import React from 'react';
 import Button from './Button';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import { SxProps, Theme } from '@mui/system';
 
-const BackToHomeButton: React.FC<{ sx?: any }> = ({ sx }) => {
+const BackToHomeButton: React.FC<{ sx?: SxProps<Theme>, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }> = ({ sx, onClick }) => {
   const navigate = useNavigate();
   return (
     <Button
-      onClick={() => navigate('/')}
+      onClick={(event) => {
+        if (onClick) {
+          onClick(event);
+        }
+        navigate('/');
+      }}
       sx={{
         display: 'flex',
         alignItems: 'center',

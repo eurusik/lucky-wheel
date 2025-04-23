@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, Box, Typography, IconButton, Snackbar, Alert } from '@mui/material';
-import { useToast } from '../ui/ToastProvider';
+import { Drawer, Box, Typography, TextField, IconButton, Snackbar, Alert, Divider } from '@mui/material';
+import { useToast } from '../ui/ToastTypes';
 import CloseIcon from '@mui/icons-material/Close';
 import ItemList from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';
@@ -12,18 +12,24 @@ interface SettingsDialogProps {
   open: boolean;
   onClose: () => void;
   items: WheelItem[];
-  onSave: (items: WheelItem[]) => void;
+  wheelName: string;
+  onSave: (items: WheelItem[], wheelName: string) => void;
 }
 
-const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, onSave }) => {
+const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, wheelName: initialWheelName, onSave }) => {
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items);
   const [showLimitError, setShowLimitError] = useState(false);
+  const [wheelName, setWheelName] = useState(initialWheelName);
   const { showToast } = useToast();
 
   // Update local state if items change externally
   useEffect(() => {
     setWheelItems(items);
   }, [items]);
+
+  useEffect(() => {
+    setWheelName(initialWheelName);
+  }, [initialWheelName]);
 
   const handleAddItem = () => {
     if (wheelItems.length >= MAX_ITEMS) {
@@ -52,12 +58,15 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
     setWheelItems(newItems);
   };
 
+  const handleWheelNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWheelName(e.target.value);
+  };
+
   const handleSave = () => {
-    onSave(wheelItems);
+    onSave(wheelItems, wheelName);
     showToast('Changes saved!', 'success');
     onClose();
   };
-
 
   const handleCloseError = () => {
     setShowLimitError(false);
@@ -108,14 +117,31 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             <CloseIcon />
           </IconButton>
         </Box>
-
         <Box
           sx={{
             flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
             overflowY: 'auto',
-            p: SETTINGS.SPACING.CONTENT_PADDING,
           }}
         >
+          {/* Wheel Name Section */}
+          <Box sx={{ mt: 2, mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, ml: 2 }}>
+              Wheel Name
+            </Typography>
+            <TextField
+              value={wheelName}
+              onChange={handleWheelNameChange}
+              fullWidth
+              size="small"
+              sx={{ ml: 2, maxWidth: 320 }}
+              inputProps={{ maxLength: 40 }}
+              placeholder="Enter wheel name"
+            />
+          </Box>
+          <Divider sx={{ my: 1 }} />
           {/* Wheel Sectors Section */}
           <Box sx={{ mt: 2, mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, ml: 2 }}>
@@ -130,15 +156,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
               onNameChange={handleNameChange}
             />
           </Box>
+          <Divider sx={{ my: 1 }} />
+          <ActionButtons
+            items={wheelItems}
+            onAddItem={handleAddItem}
+            onSave={handleSave}
+          />
         </Box>
-
-        <ActionButtons
-          items={wheelItems}
-          onAddItem={handleAddItem}
-          onSave={handleSave}
-        />
-      </Box>
-
+      </Box> {/* This closes the Box for the main content blocks */}
       <Snackbar 
         open={showLimitError} 
         autoHideDuration={3000} 

@@ -55,7 +55,7 @@ const WheelSector: React.FC<WheelSectorProps> = ({
       window.removeEventListener('immunityChanged', handleImmunityChange);
       window.removeEventListener('storage', handleImmunityChange);
     };
-  }, [sectorIndex]);
+  }, [sectorIndex, wheelId]);
   const startAngle = sectorIndex * sectorAngle;
   const endAngle = (sectorIndex + 1) * sectorAngle;
   

@@ -5,7 +5,7 @@ import RenameWheelModal from '../components/ui/RenameWheelModal';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { updateWheel, getWheelById } from '../utils/wheelDataProvider';
-import { useToast } from '../components/ui/ToastProvider';
+import { useToast } from '../components/ui/ToastTypes';
 import { useNavigate } from 'react-router-dom';
 import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';

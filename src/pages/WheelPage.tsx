@@ -8,10 +8,11 @@ import { useTheme } from '@mui/material/styles';
 
 interface WheelPageProps {
   id?: string;
+  name: string;
   items: WheelItem[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
-  onItemsChange?: (items: WheelItem[]) => void;
+  onWheelNameChange: (newName: string) => void;
 }
 
 const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
@@ -48,10 +49,11 @@ SpinStatistics.displayName = 'SpinStatistics';
 
 const WheelPage = ({ 
   id,
+  name,
   items, 
   spinStats, 
-  onSpinComplete, 
-  onItemsChange
+  onSpinComplete,
+  onWheelNameChange
 }: WheelPageProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -70,9 +72,10 @@ const WheelPage = ({
       {isDesktop && <BackToBrowserButton />}
       <FortuneWheel
         id={id}
+        name={name}
         items={items}
         onSpinComplete={onSpinComplete}
-        onItemsChange={onItemsChange}
+        onWheelNameChange={onWheelNameChange}
       />
       {spinStats.count > 0 && (
         <SpinStatistics stats={spinStats} />
