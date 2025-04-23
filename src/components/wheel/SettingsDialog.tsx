@@ -5,7 +5,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ItemList from '../settings/ItemList';
 import ActionButtons from '../settings/ActionButtons';
 import { WheelItem } from '../../types';
-import { generateRandomColor } from '../../constants/wheelConfig';
+import { generateRandomColor, MAX_ITEMS } from '../../constants/wheelConfig';
 import { SETTINGS } from '../../constants/styleConfig';
 
 interface SettingsDialogProps {
@@ -14,8 +14,6 @@ interface SettingsDialogProps {
   items: WheelItem[];
   onSave: (items: WheelItem[]) => void;
 }
-
-const MAX_ITEMS = 14;
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, onSave }) => {
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items);
@@ -123,6 +121,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, ml: 2 }}>
               Wheel Sectors
             </Typography>
+            <Alert severity="info" sx={{ ml: 2, mb: 1, py: 0.5, px: 2, fontSize: '0.82em', alignItems: 'center' }} icon={false}>
+              {`Maximum ${MAX_ITEMS} sectors allowed.`}
+            </Alert>
             <ItemList
               items={wheelItems}
               onRemove={handleRemoveItem}
@@ -156,7 +157,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             }
           }}
         >
-          Cannot add more than 14 participants
+          {`Cannot add more than ${MAX_ITEMS} participants`}
         </Alert>
       </Snackbar>
     </Drawer>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { WheelItem } from '../../../types';
 import { COLORS } from '../../../constants/styleConfig';
+import { MAX_ITEMS } from '../../../constants/wheelConfig';
 
 /**
  * Props for rendering a single sector in the inner wheel
@@ -46,7 +47,7 @@ const ItemSector: React.FC<ItemSectorProps> = ({
           let displayName = item.name;
           let fontSize = 14;
           // Try to fit text, reduce font size if needed
-          if (item.name.length > 16) displayName = item.name.slice(0, 14) + '…';
+          if (item.name.length > 16) displayName = item.name.slice(0, MAX_ITEMS) + '…';
           if (displayName.length > 12) fontSize = 13;
           if (displayName.length > 15) fontSize = 12;
           if (displayName.length > 18) fontSize = 11;

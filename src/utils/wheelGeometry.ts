@@ -127,15 +127,17 @@ export function getItemSectorPath({
   };
 }
 
+import { MAX_ITEMS } from '../constants/wheelConfig';
+
 /**
  * Calculate optimal number of sectors based on number of items
- * Maximum number of sectors is limited to 14
+ * Maximum number of sectors is limited to MAX_ITEMS
  */
 export function calculateOptimalSectors(itemCount: number): number {
   if (itemCount <= 0) return 0;
   
-  // Maximum limit of 14 sectors
-  if (itemCount > 14) return 14;
+  // Maximum limit of MAX_ITEMS sectors
+  if (itemCount > MAX_ITEMS) return MAX_ITEMS;
   
   // For small numbers, use the same number of sectors as items
   if (itemCount <= 6) return itemCount;

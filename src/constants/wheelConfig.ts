@@ -7,6 +7,9 @@ export const DEFAULT_WHEEL_CONFIG: WheelConfig = {
   spinDuration: 5000,
 };
 
+// Maximum number of sectors/items allowed in a wheel
+export const MAX_ITEMS = 14;
+
 export const OUTER_SECTORS_COUNT = 10;
 export const STAR_IMMUNITY_MESSAGE = 'Sectors with immunity cannot be selected';
 
