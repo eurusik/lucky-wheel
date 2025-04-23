@@ -106,7 +106,10 @@ const HomePage: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh'
+        minHeight: '100dvh',
+        boxSizing: 'border-box',
+        width: '100%',
+        overflowY: 'auto',
       }}>
         <div style={{
           width: '100%',

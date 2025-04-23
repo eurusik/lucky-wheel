@@ -67,7 +67,10 @@ const WheelPage = ({
       width: '100%',
       maxWidth: '1200px',
       margin: '0 auto',
-      padding: '20px'
+      padding: '20px',
+      minHeight: '100dvh',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
     }}>
       {isDesktop && <BackToBrowserButton />}
       <FortuneWheel
