@@ -10,6 +10,7 @@ import Loader from './ui/Loader';
 import SettingsDialog from './wheel/SettingsDialog';
 import WheelArea from './wheel/WheelArea';
 import LegendArea from './wheel/LegendArea';
+import { useToast } from './ui/ToastProvider';
 
 /**
  * Props for the FortuneWheel component
@@ -34,6 +35,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [wheelItems, setWheelItems] = useState<WheelItem[]>(items || []);
+  const { showToast } = useToast();
 
   // Update wheelItems when items prop changes
   useEffect(() => {
@@ -84,6 +86,14 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       await takeScreenshot();
     }
   }, []);
+
+  // Handler for sharing wheel link
+  const handleShare = useCallback(() => {
+    const url = `${window.location.origin}/${id || wheelId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('Link copied!', 'success');
+    });
+  }, [id, wheelId, showToast]);
 
   // Show minimal loader if wheelItems not yet initialized (very first render)
   if (!wheelItems || wheelItems.length === 0) {
@@ -141,6 +151,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       <WheelToolbar 
         onSettingsClick={handleOpenSettings}
         onScreenshotClick={handleScreenshot}
+        onShareClick={handleShare}
       />
 
       <SettingsDialog 

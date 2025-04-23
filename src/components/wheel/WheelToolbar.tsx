@@ -3,16 +3,18 @@ import { Box, IconButton } from '@mui/material';
 import { iconButtonSx } from '../../styles/common';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import ShareIcon from '@mui/icons-material/Share';
 
 interface WheelToolbarProps {
   onSettingsClick: () => void;
   onScreenshotClick: () => void;
+  onShareClick: () => void;
 }
 
 /**
- * Toolbar for the wheel page, containing settings and screenshot buttons.
+ * Toolbar for the wheel page, containing settings, screenshot, and share buttons.
  */
-const WheelToolbar: React.FC<WheelToolbarProps> = ({ onSettingsClick, onScreenshotClick }) => (
+const WheelToolbar: React.FC<WheelToolbarProps> = ({ onSettingsClick, onScreenshotClick, onShareClick }) => (
   <Box
     sx={{
       position: { xs: 'static', sm: 'static', md: 'absolute' },
@@ -49,6 +51,14 @@ const WheelToolbar: React.FC<WheelToolbarProps> = ({ onSettingsClick, onScreensh
       sx={iconButtonSx}
     >
       <CameraAltIcon fontSize="medium" />
+    </IconButton>
+    <IconButton
+      aria-label="Share"
+      title="Share"
+      onClick={onShareClick}
+      sx={iconButtonSx}
+    >
+      <ShareIcon fontSize="medium" />
     </IconButton>
   </Box>
 );
