@@ -156,7 +156,6 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, w
               onNameChange={handleNameChange}
             />
           </Box>
-          <Divider sx={{ my: 1 }} />
           <ActionButtons
             items={wheelItems}
             onAddItem={handleAddItem}
