@@ -118,11 +118,17 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose, items, o
             p: SETTINGS.SPACING.CONTENT_PADDING,
           }}
         >
-          <ItemList
-            items={wheelItems}
-            onRemove={handleRemoveItem}
-            onNameChange={handleNameChange}
-          />
+          {/* Wheel Sectors Section */}
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, ml: 2 }}>
+              Wheel Sectors
+            </Typography>
+            <ItemList
+              items={wheelItems}
+              onRemove={handleRemoveItem}
+              onNameChange={handleNameChange}
+            />
+          </Box>
         </Box>
 
         <ActionButtons
