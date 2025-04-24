@@ -8,6 +8,7 @@ import HomeLogo from '../components/ui/HomeLogo';
 import WheelBrowserButton from '../components/ui/WheelBrowserButton';
 import CreateWheelButton from '../components/ui/CreateWheelButton';
 import GitHubButton from '../components/ui/GitHubButton';
+import SearchBar from '../components/ui/SearchBar';
 import { Box } from '@mui/material';
 import { useToast } from '../components/ui/ToastTypes';
 
@@ -108,6 +109,17 @@ const HomePage: React.FC = () => {
       }}>
         {/* GitHub Button - Left side */}
         <GitHubButton repoOwner="eurusik" repoName="lucky-wheel" />
+        
+        {/* Search Bar - Center */}
+        <Box sx={{ 
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'auto',
+          maxWidth: '300px',
+        }}>
+          <SearchBar />
+        </Box>
         
         {/* Browse Wheels Button - Right side */}
         <WheelBrowserButton />

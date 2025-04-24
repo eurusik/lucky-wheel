@@ -11,6 +11,7 @@ import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
 import Button from '../components/ui/Button';
 import BackToHomeButton from '../components/ui/BackToHomeButton';
+import SearchBar from '../components/ui/SearchBar';
 
 import { FirestoreWheelData } from '../utils/wheelFirestore';
 
@@ -118,6 +119,16 @@ const WheelsBrowserPage: React.FC = () => {
       >
         Browse All Wheels
       </Typography>
+      
+      {/* Search Bar */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center',
+        mb: 3,
+        mt: 1
+      }}>
+        <SearchBar />
+      </Box>
       {wheels.length === 0 ? (
         <Typography sx={{ color: 'text.secondary', fontSize: 18, mt: 2 }}>
           No wheels found in the database.
