@@ -20,7 +20,7 @@ interface FortuneWheelProps {
   name: string;
   items: WheelItem[];
   onSpinComplete: () => void;
-  onWheelNameChange: (newName: string) => void;
+  onWheelSettingsChange: (items: WheelItem[], name: string) => void;
 }
 
 /**
@@ -31,7 +31,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   name,
   items, 
   onSpinComplete,
-  onWheelNameChange
+  onWheelSettingsChange = () => {}
 }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
@@ -100,9 +100,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   const handleSettingsSave = useCallback((updatedItems: WheelItem[], updatedWheelName: string) => {
     setWheelItems(updatedItems);
     setWheelName(updatedWheelName);
-    onWheelNameChange(updatedWheelName); // Save to DB via parent
-    // Save to DB logic here (include updatedWheelName)
-  }, [onWheelNameChange]);
+    onWheelSettingsChange(updatedItems, updatedWheelName); // Persist all changes
+  }, [onWheelSettingsChange]);
 
   // Show minimal loader if wheelItems not yet initialized (very first render)
   if (!wheelItems || wheelItems.length === 0) {

@@ -12,7 +12,7 @@ interface WheelPageProps {
   items: WheelItem[];
   spinStats: SpinStats;
   onSpinComplete: () => void;
-  onWheelNameChange: (newName: string) => void;
+  onWheelSettingsChange?: (items: WheelItem[], name: string) => void;
 }
 
 const SpinStatistics = memo(({ stats }: { stats: SpinStats }) => (
@@ -53,7 +53,7 @@ const WheelPage = ({
   items, 
   spinStats, 
   onSpinComplete,
-  onWheelNameChange
+  onWheelSettingsChange
 }: WheelPageProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -78,7 +78,7 @@ const WheelPage = ({
         name={name}
         items={items}
         onSpinComplete={onSpinComplete}
-        onWheelNameChange={onWheelNameChange}
+        onWheelSettingsChange={onWheelSettingsChange || (() => {})}
       />
       {spinStats.count > 0 && (
         <SpinStatistics stats={spinStats} />

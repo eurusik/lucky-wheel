@@ -137,11 +137,12 @@ function App() {
       saveToDb(localItems, newStats);
     };
 
-    // Хендлер для зміни імені колеса
-    const handleWheelNameChange = (newName: string) => {
-      setLocalName(newName);
-      saveToDb(localItems, localSpinStats, newName);
+    const handleWheelSettingsChange = (items: WheelItem[], name: string) => {
+      setLocalItems(items);
+      setLocalName(name);
+      saveToDb(items, localSpinStats, name);
     };
+
 
     if (loading) return <Loader label="Loading wheel..." />;
     if (notFound) {
@@ -155,7 +156,7 @@ function App() {
         items={localItems}
         spinStats={localSpinStats}
         onSpinComplete={handleSpin}
-        onWheelNameChange={handleWheelNameChange}
+        onWheelSettingsChange={handleWheelSettingsChange}
       />
     );
   }
