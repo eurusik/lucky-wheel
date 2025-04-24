@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import IconButton from '../components/ui/IconButton';
 import RenameWheelModal from '../components/ui/RenameWheelModal';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { updateWheel, getWheelById } from '../utils/wheelDataProvider';
+import { updateWheel, getWheelById, getWheelsPage, removeWheel } from '../utils/wheelDataProvider';
 import { useToast } from '../components/ui/ToastTypes';
 import { useNavigate } from 'react-router-dom';
-import { getAllWheels } from '../utils/wheelDataProvider';
 import Loader from '../components/ui/Loader';
 import Button from '../components/ui/Button';
 import BackToHomeButton from '../components/ui/BackToHomeButton';
 import SearchBar from '../components/ui/SearchBar';
-
-import { FirestoreWheelData } from '../utils/wheelFirestore';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
 interface WheelSummary {
   id: string;
@@ -23,12 +21,18 @@ interface WheelSummary {
 
 const WheelsBrowserPage: React.FC = () => {
   const { showToast } = useToast();
-  const [wheels, setWheels] = useState<WheelSummary[] | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const [wheels, setWheels] = useState<WheelSummary[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const [renameModalOpen, setRenameModalOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const navigate = useNavigate();
 
   const openRenameModal = (id: string, name: string) => {
     setRenameTarget({ id, name });
@@ -39,55 +43,114 @@ const WheelsBrowserPage: React.FC = () => {
     setRenameTarget(null);
   };
 
-
-
   const handleDeleteWheel = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this wheel?')) return;
     try {
-      const { removeWheel } = await import('../utils/wheelDataProvider');
       await removeWheel(id);
-      setWheels(wheels => wheels?.filter(w => w.id !== id) || null);
+      setWheels(wheels => wheels.filter(w => w.id !== id));
       showToast('Wheel deleted!', 'error');
     } catch {
       alert('Failed to delete wheel.');
     }
   };
 
-  const handleRenameSave = async (newName: string) => {
+  const handleRenameWheel = async (newName: string) => {
     if (!renameTarget) return;
-    // Get the full wheel object, update name, save
     const wheelData = await getWheelById(renameTarget.id);
     if (wheelData) {
       await updateWheel({ ...wheelData, name: newName });
       setWheels(wheels =>
-        wheels?.map(w =>
+        wheels.map(w =>
           w.id === renameTarget.id ? { ...w, name: newName } : w
-        ) || null
+        )
       );
     }
     showToast('Wheel name successfully changed!', 'success');
     closeRenameModal();
   };
 
-
-  const navigate = useNavigate();
-
+  // Function to load the first page of wheels
+  const loadInitialWheels = useCallback(async () => {
+    try {
+      setInitialLoading(true);
+      const { wheels: fetchedWheels, lastDoc: lastVisible, hasMore: moreAvailable } = await getWheelsPage(5);
+      
+      const wheelSummaries = fetchedWheels.map(wheel => ({
+        id: wheel.id,
+        name: wheel.name,
+        itemsCount: wheel.items?.length || 0
+      }));
+      
+      setWheels(wheelSummaries);
+      setLastDoc(lastVisible);
+      setHasMore(moreAvailable);
+    } catch (error) {
+      console.error('Error fetching initial wheels:', error);
+      showToast('Failed to load wheels', 'error');
+      setWheels([]);
+      setHasMore(false);
+    } finally {
+      setInitialLoading(false);
+    }
+  }, [showToast]);
+  
+  // Function to load more wheels when scrolling
+  const loadMoreWheels = useCallback(async () => {
+    if (!hasMore || loadingMore || !lastDoc) return;
+    
+    try {
+      setLoadingMore(true);
+      const { wheels: fetchedWheels, lastDoc: lastVisible, hasMore: moreAvailable } = 
+        await getWheelsPage(5, lastDoc);
+      
+      const wheelSummaries = fetchedWheels.map(wheel => ({
+        id: wheel.id,
+        name: wheel.name,
+        itemsCount: wheel.items?.length || 0
+      }));
+      
+      setWheels(prev => [...prev, ...wheelSummaries]);
+      setLastDoc(lastVisible);
+      setHasMore(moreAvailable);
+    } catch (error) {
+      console.error('Error fetching more wheels:', error);
+      setHasMore(false);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, lastDoc, loadingMore]);
+  
+  // Setup intersection observer for infinite scroll
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const all = await getAllWheels(); // [{id, name, items: [...]}, ...]
-      setWheels(
-        all.map((w: FirestoreWheelData) => ({
-          id: w.id,
-          name: w.name || 'Untitled Wheel',
-          itemsCount: Array.isArray(w.items) ? w.items.length : 0,
-        }))
-      );
-      setLoading(false);
-    })();
-  }, []);
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMoreWheels();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observerRef.current = observer;
+    
+    const currentLoadingRef = loadingRef.current;
+    if (currentLoadingRef) {
+      observer.observe(currentLoadingRef);
+    }
+    
+    return () => {
+      if (currentLoadingRef && observerRef.current) {
+        observerRef.current.unobserve(currentLoadingRef);
+      }
+    };
+  }, [hasMore, loadingMore, loadMoreWheels]);
+  
+  // Load initial wheels on component mount
+  useEffect(() => {
+    loadInitialWheels();
+  }, [loadInitialWheels]);
 
-  if (loading || !wheels) {
+  if (initialLoading) {
     return <Loader label="Loading wheels..." container={false} />;
   }
 
@@ -134,23 +197,24 @@ const WheelsBrowserPage: React.FC = () => {
           No wheels found in the database.
         </Typography>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.2, sm: 2 } }}>
-          {wheels.map(wheel => (
-            <Box
-              key={wheel.id}
-              sx={{
-                background: '#fff',
-                borderRadius: { xs: 2, sm: 6 },
-                px: { xs: 1.5, sm: 3 },
-                py: { xs: 1.2, sm: 2.5 },
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.04)', sm: '0 2px 12px rgba(0,0,0,0.06)' },
-                border: '1.5px solid #e0e6f7',
-                mb: { xs: 1, sm: 2 },
-                minHeight: { xs: 54, sm: 70 },
-              }}
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.2, sm: 2 } }}>
+            {wheels.map(wheel => (
+              <Box
+                key={wheel.id}
+                sx={{
+                  background: '#fff',
+                  borderRadius: { xs: 2, sm: 6 },
+                  px: { xs: 1.5, sm: 3 },
+                  py: { xs: 1.2, sm: 2.5 },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.04)', sm: '0 2px 12px rgba(0,0,0,0.06)' },
+                  border: '1.5px solid #e0e6f7',
+                  mb: { xs: 1, sm: 2 },
+                  minHeight: { xs: 54, sm: 70 },
+                }}
             >
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
@@ -186,16 +250,32 @@ const WheelsBrowserPage: React.FC = () => {
                   </IconButton>
                 </Box>
               </Box>
+              </Box>
+            ))}
+          </Box>
+          
+          {/* Loading indicator at the bottom */}
+          {hasMore && (
+            <Box 
+              ref={loadingRef}
+              sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                my: 3,
+                opacity: 0.7
+              }}
+            >
+              <CircularProgress size={24} thickness={4} />
             </Box>
-          ))}
-        </Box>
+          )}
+        </>
       )}
     {/* Modal for renaming wheel */}
     <RenameWheelModal
       open={renameModalOpen}
-      initialName={renameTarget?.name || ''}
-      onSave={handleRenameSave}
       onClose={closeRenameModal}
+      initialName={renameTarget?.name || ''}
+      onSave={handleRenameWheel}
     />
   </Box>
   );

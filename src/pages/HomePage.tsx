@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
-import { defaultTeamMembers } from '../constants/wheelConfig';
-import { v4 as uuidv4 } from 'uuid';
-import { saveWheel, wheelNameExists } from '../utils/wheelDataProvider';
+import React from 'react';
 import WheelCreatedModal from '../components/ui/WheelCreatedModal';
-import { useNavigate } from 'react-router-dom';
 import HomeLogo from '../components/ui/HomeLogo';
 import WheelBrowserButton from '../components/ui/WheelBrowserButton';
 import CreateWheelButton from '../components/ui/CreateWheelButton';
 import GitHubButton from '../components/ui/GitHubButton';
 import SearchBar from '../components/ui/SearchBar';
 import { Box } from '@mui/material';
-import { useToast } from '../components/ui/ToastTypes';
+import { useWheelCreation } from '../hooks/useWheelCreation';
 
 // Inline styles matching Lucky Wheel app's design
 const titleStyle: React.CSSProperties = {
@@ -41,57 +37,15 @@ const inputStyle: React.CSSProperties = {
 };
 
 const HomePage: React.FC = () => {
-  const [wheelName, setWheelName] = useState('');
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    
-    const trimmedName = wheelName.trim();
-    
-    try {
-      // Check if wheel name already exists
-      const nameExists = await wheelNameExists(trimmedName);
-      
-      if (nameExists) {
-        showToast('A wheel with this name already exists. Please choose a different name.', 'error');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // If name doesn't exist, create the wheel
-      const newId = uuidv4();
-      await saveWheel({
-        id: newId,
-        name: trimmedName,
-        items: defaultTeamMembers,
-        spinStats: { count: 0, lastSpinTime: null }
-      });
-      
-      setPendingId(newId);
-      setShowModal(true);
-    } catch (error) {
-      showToast('Failed to create wheel. Please try again.', 'error');
-      console.error('Error creating wheel:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleModalClose = () => {
-    if (pendingId) {
-      setShowModal(false);
-      navigate(`/${pendingId}`);
-      setPendingId(null);
-    }
-  };
+  const {
+    wheelName,
+    setWheelName,
+    isSubmitting,
+    showModal,
+    pendingId,
+    handleCreate,
+    handleModalClose
+  } = useWheelCreation();
 
   return (
     <>
@@ -155,8 +109,9 @@ const HomePage: React.FC = () => {
               style={inputStyle}
               aria-label="Wheel name"
               required
+              disabled={isSubmitting}
             />
-            <CreateWheelButton type="submit" />
+            <CreateWheelButton type="submit" disabled={isSubmitting} />
           </form>
           <WheelCreatedModal
             open={showModal}

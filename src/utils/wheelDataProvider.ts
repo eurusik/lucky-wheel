@@ -4,9 +4,11 @@ import {
   saveWheelToFirestore,
   getWheelFromFirestore,
   getAllWheelsFromFirestore,
+  getWheelsWithPagination,
   deleteWheelFromFirestore,
   FirestoreWheelData,
 } from './wheelFirestore';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
 // Unified interface for wheel data operations
 export async function saveWheel(wheel: FirestoreWheelData) {
@@ -37,6 +39,32 @@ export async function getAllWheels(): Promise<FirestoreWheelData[]> {
 export async function wheelNameExists(name: string): Promise<boolean> {
   const wheels = await getAllWheels();
   return wheels.some(wheel => wheel.name.toLowerCase() === name.toLowerCase());
+}
+
+// Get wheels with pagination
+export async function getWheelsPage(pageSize: number = 5, lastDoc?: QueryDocumentSnapshot<DocumentData>) {
+  if (DATA_SOURCE === 'firebase') {
+    return getWheelsWithPagination(pageSize, lastDoc);
+  } else {
+    // For localStorage, we'll simulate pagination
+    const allWheels = Object.values(wheelStorage.getAllWheels());
+    const startIndex = lastDoc ? parseInt(lastDoc.id) : 0;
+    const endIndex = startIndex + pageSize;
+    const wheels = allWheels.slice(startIndex, endIndex);
+    
+    // Create a mock lastDoc for localStorage
+    const mockLastDoc = wheels.length > 0 ? {
+      id: endIndex.toString(),
+      exists: () => true,
+      data: () => ({})
+    } as unknown as QueryDocumentSnapshot<DocumentData> : null;
+    
+    return {
+      wheels,
+      lastDoc: mockLastDoc,
+      hasMore: endIndex < allWheels.length
+    };
+  }
 }
 
 // Update an existing wheel (same as save for both sources)
