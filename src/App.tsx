@@ -74,14 +74,14 @@ function App() {
 
   function WheelPageWrapper() {
     const { id } = useParams<{ id: string }>();
-    // Локальний стейт для items та spinStats
+    // Local state for items and spinStats
     const [localItems, setLocalItems] = React.useState<WheelItem[]>([]);
     const [localSpinStats, setLocalSpinStats] = React.useState<SpinStats>({ count: 0, lastSpinTime: null });
     const [localName, setLocalName] = React.useState<string>('');
     const [loading, setLoading] = React.useState<boolean>(!!id);
     const [notFound, setNotFound] = React.useState<boolean>(false);
 
-    // Завантажуємо дані з бази лише при монтуванні/зміні id
+    // Load data from the database only when mounting/changing id
     React.useEffect(() => {
       if (!id) return;
       setLoading(true);
@@ -101,7 +101,7 @@ function App() {
       return () => { isMounted = false; };
     }, [id]);
 
-    // Зберігаємо дані у базу при кожній зміні локального стейту
+    // Save data to the database with each change of the local state
     const saveToDb = React.useCallback((itemsToSave: WheelItem[], statsToSave: SpinStats, nameToSave?: string) => {
       let finalName = nameToSave ?? localName;
       if (id) {
@@ -127,7 +127,7 @@ function App() {
       saveWheel(newWheel);
     }, [id, localName]);
 
-    // Хендлери для змін
+    // Handlers for changes
     const handleSpin = () => {
       const newStats = {
         count: localSpinStats.count + 1,
