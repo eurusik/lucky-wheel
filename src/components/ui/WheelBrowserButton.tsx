@@ -23,7 +23,7 @@ const WheelBrowserButton: React.FC = () => {
             width: isMobile ? 'auto' : '100%',
             minWidth: isMobile ? '48px' : '120px',
             maxWidth: isMobile ? '48px' : 'none',
-            borderRadius: isMobile ? '50%' : '8px',
+            borderRadius: isMobile ? '50%' : '30px',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',

@@ -108,15 +108,15 @@ export const CHIP = {
 
 export const BUTTONS = {
   border: 'none',
-  borderRadius: 8 as const,
+  borderRadius: 30 as const, // Much more rounded corners
   fontWeight: 600,
   textTransform: 'none' as const,
   minWidth: 120,
-  padding: '8px 24px',
+  padding: '10px 28px', // Slightly more padding for better visual balance
   color: '#222',
   backgroundColor: COLORS.STAR_BACKGROUND,
   boxShadow: '0 2px 8px rgba(60, 80, 180, 0.10)',
-  transition: 'background 0.2s, box-shadow 0.2s, color 0.2s',
+  transition: 'all 0.2s ease',
   '&:hover': {
     backgroundColor: COLORS.STAR_BACKGROUND_HOVER,
     color: '#ad8e00',
