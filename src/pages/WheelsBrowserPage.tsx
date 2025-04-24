@@ -17,7 +17,20 @@ interface WheelSummary {
   id: string;
   name: string;
   itemsCount: number;
+  createdAt?: number; // Timestamp of wheel creation
 }
+
+// Helper function to format date as DD.MM.YY
+const formatDate = (timestamp?: number): string => {
+  if (!timestamp) return '';
+  
+  const date = new Date(timestamp);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString().slice(2); // Get last 2 digits of year
+  
+  return `${day}.${month}.${year}`;
+};
 
 const WheelsBrowserPage: React.FC = () => {
   const { showToast } = useToast();
@@ -78,7 +91,8 @@ const WheelsBrowserPage: React.FC = () => {
       const wheelSummaries = fetchedWheels.map(wheel => ({
         id: wheel.id,
         name: wheel.name,
-        itemsCount: wheel.items?.length || 0
+        itemsCount: wheel.items?.length || 0,
+        createdAt: wheel.createdAt
       }));
       
       setWheels(wheelSummaries);
@@ -106,7 +120,8 @@ const WheelsBrowserPage: React.FC = () => {
       const wheelSummaries = fetchedWheels.map(wheel => ({
         id: wheel.id,
         name: wheel.name,
-        itemsCount: wheel.items?.length || 0
+        itemsCount: wheel.items?.length || 0,
+        createdAt: wheel.createdAt
       }));
       
       setWheels(prev => [...prev, ...wheelSummaries]);
@@ -223,9 +238,16 @@ const WheelsBrowserPage: React.FC = () => {
                     {wheel.name || 'Untitled Wheel'}
                   </Typography>
                 </Box>
-                <Typography sx={{ fontSize: { xs: 12, sm: 15 }, color: 'text.secondary', fontFamily: 'inherit', textAlign: 'left', ml: 0, pl: 0 }}>
-                  {wheel.itemsCount} items
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography sx={{ fontSize: { xs: 12, sm: 15 }, color: 'text.secondary', fontFamily: 'inherit', textAlign: 'left', ml: 0, pl: 0 }}>
+                    {wheel.itemsCount} items
+                  </Typography>
+                  {wheel.createdAt && (
+                    <Typography sx={{ fontSize: { xs: 11, sm: 14 }, color: 'text.secondary', fontFamily: 'inherit', opacity: 0.8 }}>
+                      Created: {formatDate(wheel.createdAt)}
+                    </Typography>
+                  )}
+                </Box>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Button onClick={() => navigate(`/${wheel.id}`)} sx={{ fontSize: { xs: 14, sm: 16 }, px: { xs: 1.8, sm: 2.5 }, py: { xs: 0.8, sm: 1.1 }, borderRadius: 99, minWidth: 64 }}>
