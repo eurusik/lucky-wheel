@@ -18,6 +18,7 @@ export interface FirestoreWheelData {
   items: WheelItem[];
   spinStats: SpinStats;
   lastRotation?: number;
+  createdAt?: number; // Timestamp of wheel creation
 }
 
 export interface StoredWheelData {
@@ -26,6 +27,7 @@ export interface StoredWheelData {
   items: WheelItem[];
   spinStats: SpinStats;
   lastRotation?: number;
+  createdAt?: number; // Timestamp of wheel creation
 }
 
 /**

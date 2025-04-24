@@ -6,6 +6,7 @@ export interface StoredWheelData {
   name: string;
   items: WheelItem[];
   spinStats: SpinStats;
+  createdAt?: number; // Timestamp of wheel creation
 }
 
 const STORAGE_KEY = 'wheels';
@@ -21,6 +22,11 @@ export function getAllWheels(): Record<string, StoredWheelData> {
 }
 
 export function saveWheel(wheel: StoredWheelData) {
+  // Add createdAt timestamp if it's a new wheel (doesn't have createdAt yet)
+  if (!wheel.createdAt) {
+    wheel.createdAt = Date.now();
+  }
+  
   const all = getAllWheels();
   all[wheel.id] = wheel;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));

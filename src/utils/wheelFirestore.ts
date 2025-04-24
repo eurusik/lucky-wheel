@@ -24,12 +24,18 @@ export interface FirestoreWheelData {
   name: string;
   items: WheelItem[];
   spinStats: SpinStats;
+  createdAt?: number; // Timestamp of wheel creation
 }
 
 const WHEELS_COLLECTION = 'wheels';
 
 // Create or update a wheel
 export async function saveWheelToFirestore(wheel: FirestoreWheelData) {
+  // Add createdAt timestamp if it's a new wheel (doesn't have createdAt yet)
+  if (!wheel.createdAt) {
+    wheel.createdAt = Date.now();
+  }
+  
   await setDoc(doc(db, WHEELS_COLLECTION, wheel.id), wheel);
 }
 
