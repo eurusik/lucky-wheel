@@ -67,24 +67,22 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      {/* GitHub Icon Link */}
-      <GitHubButton />
-
-      {/* Browse Wheels Button - responsive positioning */}
-      <Box
-        className="browse-wheels-btn"
-        sx={{
-          position: 'absolute',
-          top: 18,
-          right: 18,
-          width: 'auto',
-          padding: 0,
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      {/* Navigation buttons container - aligns buttons at the top of the page */}
+      <Box sx={{ 
+        position: 'absolute',
+        top: 32,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 32px',
+        zIndex: 100,
+      }}>
+        {/* GitHub Button - Left side */}
+        <GitHubButton repoOwner="eurusik" repoName="lucky-wheel" />
+        
+        {/* Browse Wheels Button - Right side */}
         <WheelBrowserButton />
       </Box>
 
