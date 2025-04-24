@@ -23,17 +23,26 @@ const subtitleStyle: React.CSSProperties = {
   marginBottom: 24,
   textAlign: 'center',
 };
-const inputStyle: React.CSSProperties = {
+const getInputStyle = (hasError: boolean): React.CSSProperties => ({
   minWidth: 260,
   fontSize: 20,
   padding: '12px 20px',
   borderRadius: 12,
-  border: '1.5px solid #bbb',
+  border: `1.5px solid ${hasError ? '#f44336' : '#bbb'}`,
   outline: 'none',
   marginBottom: 0,
-  background: '#fff',
+  background: hasError ? 'rgba(244, 67, 54, 0.03)' : '#fff',
   color: '#222',
   boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+});
+
+const errorMessageStyle: React.CSSProperties = {
+  color: '#f44336',
+  fontSize: '0.85rem',
+  marginTop: '6px',
+  textAlign: 'center',
+  maxWidth: '320px',
+  fontWeight: 500,
 };
 
 const HomePage: React.FC = () => {
@@ -43,8 +52,10 @@ const HomePage: React.FC = () => {
     isSubmitting,
     showModal,
     pendingId,
+    errors,
     handleCreate,
-    handleModalClose
+    handleModalClose,
+    validateField
   } = useWheelCreation();
 
   return (
@@ -100,18 +111,30 @@ const HomePage: React.FC = () => {
           <HomeLogo />
           <h1 style={titleStyle}>Create Your Wheel</h1>
           <p style={subtitleStyle}>Enter a name for your wheel and start playing!</p>
-          <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', marginTop: 32 }}>
-            <input
-              type="text"
-              value={wheelName}
-              onChange={e => setWheelName(e.target.value)}
-              placeholder="Wheel name"
-              style={inputStyle}
-              aria-label="Wheel name"
-              required
-              disabled={isSubmitting}
+          <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: errors.wheelName ? 8 : 24, alignItems: 'center', marginTop: 32 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={wheelName}
+                onChange={e => setWheelName(e.target.value)}
+                onBlur={() => validateField('wheelName')}
+                placeholder="Wheel name"
+                style={getInputStyle(!!errors.wheelName)}
+                aria-label="Wheel name"
+                aria-invalid={!!errors.wheelName}
+                required
+                disabled={isSubmitting}
+              />
+              {errors.wheelName && (
+                <div style={errorMessageStyle} role="alert">
+                  {errors.wheelName}
+                </div>
+              )}
+            </div>
+            <CreateWheelButton 
+              type="submit" 
+              disabled={isSubmitting || !!errors.wheelName} 
             />
-            <CreateWheelButton type="submit" disabled={isSubmitting} />
           </form>
           <WheelCreatedModal
             open={showModal}
