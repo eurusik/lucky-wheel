@@ -62,15 +62,16 @@ const HomePage: React.FC = () => {
     <>
       {/* Navigation buttons container - aligns buttons at the top of the page */}
       <Box sx={{ 
-        position: 'absolute',
-        top: 32,
+        position: 'fixed',
+        top: 16,
         left: 0,
         right: 0,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0 32px',
+        padding: '0 16px',
         zIndex: 100,
+        height: '60px',
       }}>
         {/* GitHub Button - Left side */}
         <GitHubButton repoOwner="eurusik" repoName="lucky-wheel" />
@@ -98,6 +99,7 @@ const HomePage: React.FC = () => {
         boxSizing: 'border-box',
         width: '100%',
         overflowY: 'auto',
+        paddingTop: '60px', // Додаємо відступ зверху, щоб уникнути накладання
       }}>
         <div style={{
           width: '100%',
@@ -106,7 +108,9 @@ const HomePage: React.FC = () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 24
+          gap: 16,
+          padding: '0 16px',
+          marginTop: '20px'
         }}>
           <HomeLogo />
           <h1 style={titleStyle}>Create Your Wheel</h1>
