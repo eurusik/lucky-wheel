@@ -33,6 +33,12 @@ export async function getAllWheels(): Promise<FirestoreWheelData[]> {
   }
 }
 
+// Check if a wheel with the given name already exists
+export async function wheelNameExists(name: string): Promise<boolean> {
+  const wheels = await getAllWheels();
+  return wheels.some(wheel => wheel.name.toLowerCase() === name.toLowerCase());
+}
+
 // Update an existing wheel (same as save for both sources)
 export async function updateWheel(wheel: FirestoreWheelData) {
   return saveWheel(wheel);
