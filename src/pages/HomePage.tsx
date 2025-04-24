@@ -7,6 +7,7 @@ import WheelCreatedModal from '../components/ui/WheelCreatedModal';
 import { useNavigate } from 'react-router-dom';
 import HomeLogo from '../components/ui/HomeLogo';
 import WheelBrowserButton from '../components/ui/WheelBrowserButton';
+import { Box } from '@mui/material';
 
 // Inline styles matching Lucky Wheel app's design
 const titleStyle: React.CSSProperties = {
@@ -86,21 +87,23 @@ const HomePage: React.FC = () => {
         </svg>
       </a>
 
-      {/* Browse Wheels Button - always top right */}
-      <div
+      {/* Browse Wheels Button - responsive positioning */}
+      <Box
         className="browse-wheels-btn"
-        style={{
+        sx={{
           position: 'absolute',
           top: 18,
           right: 18,
+          width: 'auto',
+          padding: 0,
           zIndex: 100,
           display: 'flex',
           alignItems: 'center',
-          textDecoration: 'none',
+          justifyContent: 'center',
         }}
       >
         <WheelBrowserButton />
-      </div>
+      </Box>
 
       <div style={{
         display: 'flex',
