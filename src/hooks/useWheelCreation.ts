@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { saveWheel, wheelNameExists } from '../utils/wheelDataProvider';
-import { defaultTeamMembers } from '../constants/wheelConfig';
 import { useToast } from '../components/ui/ToastTypes';
 import { useNavigate } from 'react-router-dom';
 
@@ -97,12 +96,13 @@ export function useWheelCreation(): UseWheelCreationResult {
       }
       
       // If name doesn't exist, create the wheel
-      const newId = uuidv4();
+      const newId = uuidv4(); 
       await saveWheel({
         id: newId,
         name: trimmedName,
-        items: defaultTeamMembers,
-        spinStats: { count: 0, lastSpinTime: null }
+        items: [],
+        spinStats: { count: 0, lastSpinTime: null },
+        createdAt: Date.now()
       });
       
       setPendingId(newId);
