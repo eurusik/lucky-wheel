@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { takeScreenshot } from '../utils/screenshot';
 import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
+import { useWheelData } from '../hooks/useWheelData';
 import EmptyWheel from './wheel/EmptyWheel';
 import WheelToolbar from './wheel/WheelToolbar';
 import Loader from './ui/Loader';
@@ -35,25 +36,24 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
 }) => {
   const wheelRef = useRef<SVGSVGElement>(null);
   const { innerRadius, outerRadius } = DEFAULT_WHEEL_CONFIG;
-  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
-  const [wheelItems, setWheelItems] = useState<WheelItem[]>(items || []);
-  const [wheelName, setWheelName] = useState(name || '');
   const { showToast } = useToast();
+  
+  // Using useWheelData hook to manage wheel data
+  const {
+    wheelItems,
+    wheelName,
+    wheelId,
+    handleSettingsSave
+  } = useWheelData({
+    id,
+    initialItems: items,
+    initialName: name,
+    onWheelSettingsChange
+  });
+  
+  // State for settings dialog
+  const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
 
-  // Update wheelItems when items prop changes
-  useEffect(() => {
-    setWheelItems(items || []);
-  }, [items]);
-
-  // Update wheelName when name prop changes or when dialog opens
-  useEffect(() => {
-    if (settingsDialogOpen) {
-      setWheelName(name || '');
-    }
-  }, [name, settingsDialogOpen]);
-
-  // Using useWheelSpin hook to manage wheel state
-  const wheelId = id || wheelItems[0]?.id || '';
   const {
     isInitializing,
     isSpinning, 
@@ -96,13 +96,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     });
   }, [id, wheelId, showToast]);
 
-  // Handler for saving settings
-  const handleSettingsSave = useCallback((updatedItems: WheelItem[], updatedWheelName: string) => {
-    setWheelItems(updatedItems);
-    setWheelName(updatedWheelName);
-    onWheelSettingsChange(updatedItems, updatedWheelName); // Persist all changes
-  }, [onWheelSettingsChange]);
-
   // Show minimal loader if wheelItems not yet initialized (very first render)
   if (!wheelItems || wheelItems.length === 0) {
     return <Loader label="Loading wheel..." container={false} />;
@@ -112,8 +105,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   if (isInitializing) {
     return null;
   }
-
-  // If the list is empty, show empty wheel
+  
+  // If the list is empty after loading, show empty wheel
   if (!wheelItems || wheelItems.length === 0) {
     return <EmptyWheel />;
   }
