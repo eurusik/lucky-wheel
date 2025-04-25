@@ -135,7 +135,18 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   }
   
   if (!wheelItems || wheelItems.length === 0) {
-    return <EmptyWheel />;
+    return (
+      <>
+        <EmptyWheel onOpenSettings={handleOpenSettings} />
+        <SettingsDialog 
+          open={settingsDialogOpen}
+          onClose={handleCloseSettings}
+          items={wheelItems || []}
+          wheelName={wheelName}
+          onSave={handleSettingsSave}
+        />
+      </>
+    );
   }
 
   return (

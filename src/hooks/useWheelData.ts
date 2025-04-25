@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WheelItem } from '../types';
 
-// Допоміжні функції для валідації
 const validateWheelItems = (items: unknown): WheelItem[] => {
   if (!Array.isArray(items)) {
     throw new Error('Invalid items: expected an array');
