@@ -3,8 +3,6 @@ import { Box, Typography, Fade } from '@mui/material';
 import { SpinStats, WheelItem } from '../types';
 import FortuneWheel from '../components/FortuneWheel';
 import BackToBrowserButton from '../components/ui/BackToBrowserButton';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 
 interface WheelPageProps {
   id?: string;
@@ -55,8 +53,6 @@ const WheelPage = ({
   onSpinComplete,
   onWheelSettingsChange
 }: WheelPageProps) => {
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
   return (
     <div style={{
@@ -72,7 +68,13 @@ const WheelPage = ({
       boxSizing: 'border-box',
       overflowY: 'auto',
     }}>
-      {isDesktop && <BackToBrowserButton />}
+      <BackToBrowserButton sx={{ 
+        display: 'flex',
+        width: { xs: 'auto', sm: 'auto' },
+        mb: { xs: 1, sm: 2, md: 3 },
+        mx: { xs: 'auto', sm: 'auto', md: 0 },
+        alignSelf: { xs: 'center', sm: 'center', md: 'flex-start' }
+      }} />
       <FortuneWheel
         id={id}
         name={name}
