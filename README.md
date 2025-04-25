@@ -6,14 +6,24 @@ An interactive random selection wheel application. Perfect for making decisions,
 
 ## ✨ Features
 
-- 🎯 Animated fortune wheel with smooth rotation
-- 🛡️ Flexible immunity system: add immunity to any sector, immunity is visually shown with a star, and immune sectors are skipped automatically
-- 🔄 Unified wheel data provider: supports both Firestore and localStorage, switchable via config
-- 📱 Mobile responsive UI
-- 🎨 Automatic color generation for options
-- 📸 Screenshot capture functionality
-- 💾 Automatic settings persistence
-- 📊 Spin statistics tracking
+### 🚀 Core Features
+- 🎯 **Interactive Fortune Wheel**: Smooth animations and engaging spinning experience
+- 💾 **Multiple Wheels Management**: Create and manage multiple wheels for different purposes
+- 🔍 **Wheel Browser**: Browse all your wheels
+- 📱 **Fully Responsive**: Works perfectly on desktop, tablet, and mobile devices
+
+### 💡 Smart Selection
+- 🛡️ **Immunity System**: Add immunity to sectors to exclude them from selection
+- 📊 **Spin Statistics**: Track how many times the wheel has been spun and when
+- 🌟 **Fair Selection**: Ensures random and unbiased results every time
+
+### 👌 User Experience
+- 🎨 **Automatic Color Generation**: Beautiful and distinct colors for each item
+- 📸 **Screenshot Functionality**: Capture and share your wheel results easily
+- 🔄 **Empty State Handling**: Intuitive onboarding for new wheels
+
+### 💻 Technical
+- 🔄 **Flexible Data Storage**: Supports both Firestore and localStorage
 
 ## 🚀 How to Use
 
