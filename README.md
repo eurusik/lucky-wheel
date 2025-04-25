@@ -6,7 +6,7 @@ An interactive random selection wheel application. Perfect for making decisions,
 
 ## 🔗 Demo
 
-**Try it now:** [Lucky Wheel Demo](https://lucky-wheel-demo.netlify.app)
+**Try it now:** [Lucky Wheel Demo](https://luckywheels.vercel.app/)
 
 ## ✨ Features
 
