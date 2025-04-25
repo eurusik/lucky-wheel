@@ -29,7 +29,7 @@ const EmptyWheel: React.FC<EmptyWheelProps> = ({ onOpenSettings }) => {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
         <Typography variant="h6" color="text.secondary">
-          No team members added yet
+          No items added yet
         </Typography>
         
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
@@ -54,7 +54,7 @@ const EmptyWheel: React.FC<EmptyWheelProps> = ({ onOpenSettings }) => {
           </IconButton>
           
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Add team members
+            Add items
           </Typography>
         </Box>
       </Box>
