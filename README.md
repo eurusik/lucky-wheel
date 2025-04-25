@@ -4,6 +4,10 @@ An interactive random selection wheel application. Perfect for making decisions,
 
 > _This app was created in a "vibe coding" style — with a focus on creativity, fun, and rapid development. Enjoy the process and the result!_
 
+## 🔗 Demo
+
+**Try it now:** [Lucky Wheel Demo](https://lucky-wheel-demo.netlify.app)
+
 ## ✨ Features
 
 ### 🚀 Core Features
