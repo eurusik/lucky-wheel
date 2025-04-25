@@ -43,6 +43,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     wheelItems,
     wheelName,
     wheelId,
+    isLoading,
+    error,
     handleSettingsSave
   } = useWheelData({
     id,
@@ -77,36 +79,61 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   }, [isSpinning, setVisibleSectorBySVGPointer]);
 
   // Handlers for settings dialog
-  const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), []);
-  const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), []);
+  const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), [setSettingsDialogOpen]);
+  const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), [setSettingsDialogOpen]);
 
   // Screenshot handler (copies screenshot of the wheel to clipboard)
   const handleScreenshot = useCallback(async () => {
-    if (wheelRef.current) {
-      // Optionally, you could screenshot just the SVG or the whole area
-      await takeScreenshot();
+    try {
+      if (wheelRef.current) {
+        // Optionally, you could screenshot just the SVG or the whole area
+        await takeScreenshot();
+        showToast('Screenshot taken!', 'success');
+      }
+    } catch (error) {
+      console.error('Screenshot error:', error);
+      showToast('Failed to take screenshot', 'error');
     }
-  }, []);
+  }, [wheelRef, showToast]);
 
   // Handler for sharing wheel link
   const handleShare = useCallback(() => {
-    const url = `${window.location.origin}/${id || wheelId}`;
-    navigator.clipboard.writeText(url).then(() => {
-      showToast('Link copied!', 'success');
-    });
+    try {
+      const url = `${window.location.origin}/${id || wheelId}`;
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          showToast('Link copied!', 'success');
+        })
+        .catch((error) => {
+          console.error('Copy to clipboard error:', error);
+          showToast('Failed to copy link', 'error');
+        });
+    } catch (error) {
+      console.error('Share error:', error);
+      showToast('Failed to share link', 'error');
+    }
   }, [id, wheelId, showToast]);
 
-  // Show minimal loader if wheelItems not yet initialized (very first render)
-  if (!wheelItems || wheelItems.length === 0) {
+  // Use useEffect to show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      showToast(`Error: ${error.message}`, 'error');
+    }
+  }, [error, showToast]);
+  
+  // We could also return an error component instead of continuing if error exists
+  // if (error) {
+  //   return <ErrorComponent message={error.message} />;
+  // }
+
+  if (isLoading) {
     return <Loader label="Loading wheel..." container={false} />;
   }
 
-  // If isInitializing but wheelItems exist, render nothing (or could render skeleton)
   if (isInitializing) {
-    return null;
+    return <Loader label="Initializing wheel..." container={false} />;
   }
   
-  // If the list is empty after loading, show empty wheel
   if (!wheelItems || wheelItems.length === 0) {
     return <EmptyWheel />;
   }
