@@ -48,6 +48,9 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
       minHeight: 'min-content',
       display: 'flex',
       flexDirection: 'column',
+      maxWidth: '100%',
+      px: { xs: 2, sm: 0 }, // Add horizontal padding on mobile
+      boxSizing: 'border-box',
       ...(isMediumScreen && {
         transform: 'scale(0.92)',
         transformOrigin: 'top center',
@@ -64,7 +67,7 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
           justifyContent: 'center',
           gap: 1,
           fontSize: { 
-            xs: '1rem', 
+            xs: '0.95rem', 
             sm: '0.9rem', 
             md: isMediumScreen ? '0.92rem' : '1rem' 
           },
@@ -73,12 +76,13 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
           mb: 3,
           backgroundColor: COLORS.STAR_BACKGROUND,
           padding: { 
-            xs: '12px 18px', 
+            xs: '10px 14px', 
             sm: '10px 16px', 
             md: isMediumScreen ? '9px 13px' : '12px 18px' 
           },
           borderRadius: '18px',
-          width: 'fit-content',
+          width: { xs: 'auto', sm: 'fit-content' },
+          maxWidth: '100%',
           margin: '0 auto 16px auto',
           boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
           border: '1px solid rgba(191, 161, 0, 0.2)',
@@ -122,7 +126,14 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
               gap: STACK_GAP
             }}
           >
-            <Box sx={{ flexGrow: 1, display: 'flex', flexWrap: 'wrap', gap: STACK_GAP }}>
+            <Box sx={{ 
+              flexGrow: 1, 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: STACK_GAP, 
+              width: '100%',
+              justifyContent: { xs: 'center', sm: 'flex-start' }
+            }}>
               {immunities.map((immunity) => (
                 <Chip
                   key={immunity.sectorIndex}
@@ -135,8 +146,16 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
                   sx={{
                     backgroundColor: COLORS.STAR_BACKGROUND,
                     fontWeight: 600,
-                    mr: STACK_GAP,
+                    mr: { xs: 1, sm: STACK_GAP },
                     mb: { xs: 2, sm: 0 },
+                    maxWidth: { xs: 'auto', sm: 'auto' },
+                    '& .MuiChip-label': {
+                      maxWidth: { xs: '180px', sm: '200px', md: '250px' },
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      fontSize: { xs: '0.85rem', sm: '0.9rem' }
+                    },
                     '& .MuiChip-deleteIcon': {
                       fontSize: isMediumScreen ? '1.02rem' : '1.1rem',
                       color: '#bfa100',
@@ -156,7 +175,13 @@ const WheelLegend: React.FC<WheelLegendProps> = ({ wheelId }) => {
           </Stack>
         </Box>
       ) : (
-        <ImmunityPlaceholder />
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: '100%',
+          boxSizing: 'border-box'
+        }}>
+          <ImmunityPlaceholder />
+        </Box>
       )}
     </Box>
   );
