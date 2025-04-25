@@ -1,6 +1,59 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WheelItem } from '../types';
 
+// Допоміжні функції для валідації
+const validateWheelItems = (items: unknown): WheelItem[] => {
+  if (!Array.isArray(items)) {
+    throw new Error('Invalid items: expected an array');
+  }
+  
+  const invalidItems = items.filter(item => 
+    !item || 
+    typeof item !== 'object' || 
+    typeof item.name !== 'string' || 
+    item.name.trim() === ''
+  );
+  
+  if (invalidItems.length > 0) {
+    throw new Error(`Invalid items: ${invalidItems.length} items have invalid structure`);
+  }
+  
+  return items;
+};
+
+const validateNoDuplicateNames = (items: WheelItem[]): void => {
+  const names = items.map(item => item.name.trim());
+  const uniqueNames = new Set(names);
+  if (names.length !== uniqueNames.size) {
+    throw new Error('Invalid items: duplicate names found');
+  }
+};
+
+const validateWheelName = (name: unknown): string => {
+  if (typeof name !== 'string') {
+    throw new Error('Invalid name: expected a string');
+  }
+  
+  const trimmedName = name.trim();
+  if (trimmedName === '') {
+    throw new Error('Invalid name: cannot be empty');
+  }
+  
+  if (trimmedName.length > 100) {
+    throw new Error('Invalid name: too long (max 100 characters)');
+  }
+  
+  return trimmedName;
+};
+
+const addTimestampToItems = (items: WheelItem[]): WheelItem[] => {
+  const now = new Date().toISOString();
+  return items.map(item => ({
+    ...item,
+    createdAt: item.createdAt || now
+  }));
+};
+
 interface UseWheelDataProps {
   id?: string;
   initialItems: WheelItem[];
@@ -38,18 +91,22 @@ export const useWheelData = ({
     setIsLoading(true);
     setError(null);
     
+    let timer: NodeJS.Timeout | null = null;
+    
     try {
       setWheelItems(initialItems || []);
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setIsLoading(false);
       }, 300);
-      
-      return () => clearTimeout(timer);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       setIsLoading(false);
       console.error('Error updating wheel items:', err);
     }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [initialItems]);
 
   // Update wheelName when initialName prop changes
@@ -62,20 +119,43 @@ export const useWheelData = ({
 
   // Handlers for updating wheel data
   const updateWheelItems = useCallback((items: WheelItem[]) => {
-    setWheelItems(items);
-  }, [setWheelItems]);
+    try {
+      const validItems = validateWheelItems(items);
+      validateNoDuplicateNames(validItems);
+      setWheelItems(validItems);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+      console.error('Error updating wheel items:', err);
+    }
+  }, [setWheelItems, setError]);
 
   const updateWheelName = useCallback((name: string) => {
-    setWheelName(name);
-  }, [setWheelName]);
+    try {
+      const validName = validateWheelName(name);
+      setWheelName(validName);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+      console.error('Error updating wheel name:', err);
+    }
+  }, [setWheelName, setError]);
 
   // Handler for saving settings
   const handleSettingsSave = useCallback((updatedItems: WheelItem[], updatedWheelName: string) => {
     try {
       setError(null);
-      setWheelItems(updatedItems);
-      setWheelName(updatedWheelName);
-      onWheelSettingsChange(updatedItems, updatedWheelName); // Persist all changes
+      
+      const validName = validateWheelName(updatedWheelName);
+      const validItems = validateWheelItems(updatedItems);
+      
+      if (validItems.length === 0) {
+        throw new Error('Invalid items: wheel must have at least one item');
+      }
+      
+      const itemsWithTimestamp = addTimestampToItems(validItems);
+      
+      setWheelItems(itemsWithTimestamp);
+      setWheelName(validName);
+      onWheelSettingsChange(itemsWithTimestamp, validName); // Persist all changes
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to save settings'));
       console.error('Error saving wheel settings:', err);

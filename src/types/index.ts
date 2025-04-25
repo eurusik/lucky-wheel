@@ -3,6 +3,7 @@ export interface WheelItem {
   name: string;
   isImmune?: boolean;
   color?: string;
+  createdAt?: string; // ISO string timestamp of item creation
 }
 
 export type TeamMember = WheelItem;
