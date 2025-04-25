@@ -95,7 +95,7 @@ If you want to use Firestore as a backend:
 
 ## 📝 Notes
 
-- Maximum number of participants: 12
+- Maximum number of participants: 14
 - All settings are saved automatically
 - Keyboard shortcuts supported
 - Works in all modern browsers
