@@ -24,6 +24,7 @@ const EmptyWheel: React.FC<EmptyWheelProps> = ({ onOpenSettings }) => {
         justifyContent: 'center',
         p: 4,
         textAlign: 'center',
+        marginTop: '25px'
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
