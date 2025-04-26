@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { Box } from '@mui/material';
 import { takeScreenshot } from '../utils/screenshot';
+import { shareWheelLink } from '../utils/wheelActions';
 import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
@@ -98,20 +99,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
 
   // Handler for sharing wheel link
   const handleShare = useCallback(() => {
-    try {
-      const url = `${window.location.origin}/${id || wheelId}`;
-      navigator.clipboard.writeText(url)
-        .then(() => {
-          showToast('Link copied!', 'success');
-        })
-        .catch((error) => {
-          console.error('Copy to clipboard error:', error);
-          showToast('Failed to copy link', 'error');
-        });
-    } catch (error) {
-      console.error('Share error:', error);
-      showToast('Failed to share link', 'error');
-    }
+    shareWheelLink(id || wheelId, showToast);
   }, [id, wheelId, showToast]);
 
   // Use useEffect to show error toast when error occurs
