@@ -5,6 +5,7 @@ import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
 import { useWheelData } from '../hooks/useWheelData';
+import { useDialogState } from '../hooks/useDialogState';
 import EmptyWheel from './wheel/EmptyWheel';
 import WheelToolbar from './wheel/WheelToolbar';
 import Loader from './ui/Loader';
@@ -53,8 +54,12 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     onWheelSettingsChange
   });
   
-  // State for settings dialog
-  const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
+  // Use the useDialogState hook for settings dialog state and handlers
+  const {
+    isOpen: settingsDialogOpen,
+    openDialog: handleOpenSettings,
+    closeDialog: handleCloseSettings
+  } = useDialogState();
 
   const {
     isInitializing,
@@ -77,10 +82,6 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
       setVisibleSectorBySVGPointer(wheelRef.current);
     }
   }, [isSpinning, setVisibleSectorBySVGPointer]);
-
-  // Handlers for settings dialog
-  const handleOpenSettings = useCallback(() => setSettingsDialogOpen(true), [setSettingsDialogOpen]);
-  const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), [setSettingsDialogOpen]);
 
   // Screenshot handler (copies screenshot of the wheel to clipboard)
   const handleScreenshot = useCallback(() => {

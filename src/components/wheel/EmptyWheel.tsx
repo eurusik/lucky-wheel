@@ -12,6 +12,7 @@ interface EmptyWheelProps {
  * Placeholder component shown when there are no team members to display
  */
 const EmptyWheel: React.FC<EmptyWheelProps> = ({ onOpenSettings }) => {
+
   return (
     <Box
       sx={{
