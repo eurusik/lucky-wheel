@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { Box } from '@mui/material';
-import { takeScreenshot } from '../utils/screenshot';
-import { shareWheelLink } from '../utils/wheelActions';
+import { shareWheelLink, takeWheelScreenshot } from '../utils/wheelActions';
 import { WheelItem } from '../types';
 import { DEFAULT_WHEEL_CONFIG } from '../constants/wheelConfig';
 import { useWheelSpin } from '../hooks/useWheelSpin';
@@ -84,18 +83,9 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   const handleCloseSettings = useCallback(() => setSettingsDialogOpen(false), [setSettingsDialogOpen]);
 
   // Screenshot handler (copies screenshot of the wheel to clipboard)
-  const handleScreenshot = useCallback(async () => {
-    try {
-      if (wheelRef.current) {
-        // Optionally, you could screenshot just the SVG or the whole area
-        await takeScreenshot();
-        showToast('Screenshot taken!', 'success');
-      }
-    } catch (error) {
-      console.error('Screenshot error:', error);
-      showToast('Failed to take screenshot', 'error');
-    }
-  }, [wheelRef, showToast]);
+  const handleScreenshot = useCallback(() => {
+    takeWheelScreenshot(showToast);
+  }, [showToast]);
 
   // Handler for sharing wheel link
   const handleShare = useCallback(() => {
